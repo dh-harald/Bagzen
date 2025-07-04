@@ -1,0 +1,23 @@
+name: Create AddOn
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  packager:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: BigWigsMods/packager@v2
+        with:
+          args: -g 1.12.1 -n '{package-name}-{project-version}-vanilla'
