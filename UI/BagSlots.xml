@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/FrameXML\UI.xsd">
+
+  <Script file="BagSlots.lua"/>
+
+  <Frame name="BagzenBagBagSlotsTemplate" virtual="true">
+    <Size x="200" y="45"/>
+    <Layers>
+      <Layer level="BACKGROUND">
+        <Texture name="$parentBackground" setAllPoints="true">
+          <Color r="0.05" g="0.05" b="0.05" a="0.9"/>
+        </Texture>
+      </Layer>
+    </Layers>
+    <BackdropInsets>
+      <AbsInset left="1" right="1" top="1" bottom="1"/>
+    </BackdropInsets>
+    <Frames>
+      <Button name="$parent0" inherits="BagzenBagTemplate" id="0">
+        <Anchors>
+          <Anchor point="BOTTOMLEFT">
+            <Offset x="4" y="4"/>
+          </Anchor>
+        </Anchors>
+      </Button>
+      <Button name="$parent1" inherits="BagzenBagTemplate" id="1">
+        <Anchors>
+          <Anchor point="LEFT" relativeTo="$parent0" relativePoint="RIGHT">
+            <Offset x="2" y="0"/>
+          </Anchor>
+        </Anchors>
+      </Button>
+      <Button name="$parent2" inherits="BagzenBagTemplate" id="2">
+        <Anchors>
+          <Anchor point="LEFT" relativeTo="$parent1" relativePoint="RIGHT">
+            <Offset x="2" y="0"/>
+          </Anchor>
+        </Anchors>
+      </Button>
+      <Button name="$parent3" inherits="BagzenBagTemplate" id="3">
+        <Anchors>
+          <Anchor point="LEFT" relativeTo="$parent2" relativePoint="RIGHT">
+            <Offset x="2" y="0"/>
+          </Anchor>
+        </Anchors>
+      </Button>
+      <Button name="$parent4" inherits="BagzenBagTemplate" id="4">
+        <Anchors>
+          <Anchor point="LEFT" relativeTo="$parent3" relativePoint="RIGHT">
+            <Offset x="2" y="0"/>
+          </Anchor>
+        </Anchors>
+      </Button>
+    </Frames>
+  </Frame>
+</Ui>

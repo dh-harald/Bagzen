@@ -1,0 +1,148 @@
+<?xml version="1.0"?>
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/FrameXML\UI.xsd">
+
+  <Script file="BagFrame.lua"/>
+
+  <Frame name="BagzenBagFrame" toplevel="true" movable="true" parent="UIParent" enableMouse="true" hidden="true" inherits="BagzenContainerTemplate">
+    <Size>
+      <AbsDimension x="300" y="300"/>
+    </Size>
+    <Anchors>
+      <Anchor point="RIGHT">
+        <Offset x="-72" y="-100"/>
+      </Anchor>
+    </Anchors>
+    <Frames>
+      <Frame name="$parentBagSlotsFrame" inherits="BagzenBagBagSlotsTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativePoint="TOPLEFT">
+            <Offset>
+              <AbsDimension x="0" y="45"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+      </Frame>
+      <Button name="$parentBankButton" inherits="BagzenBankButton">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativePoint="TOPLEFT">
+            <Offset>
+              <AbsDimension x="2" y="-2"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+      </Button>
+      <Button name="$parentCharactersButton" inherits="BagzenCharactersButton">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativePoint="TOPLEFT">
+            <Offset>
+              <AbsDimension x="20" y="-2"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+      </Button>
+      <Button name="$parentBagButton" inherits="BagzenBagButton">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativePoint="TOPLEFT">
+            <Offset>
+              <AbsDimension x="38" y="-2"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+      </Button>
+      <Button name="$parentSortButton" inherits="BagzenSortButton">
+        <Anchors>
+          <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT">
+            <Offset>
+              <AbsDimension x="-38" y="-2"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+      </Button>
+      <Button name="$parentSettingsButton" inherits="BagzenSettingsButton">
+        <Anchors>
+          <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT">
+            <Offset>
+              <AbsDimension x="-20" y="-2"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+      </Button>
+      <Button name="$parentCloseButton" inherits="BagzenCloseButton">
+        <Anchors>
+          <Anchor point="TOPRIGHT" relativePoint="TOPRIGHT">
+            <Offset>
+              <AbsDimension x="-2" y="-2"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+      </Button>
+      <Button name="$parentKeyringButton" inherits="BagzenKeyringButton" hidden="true">
+        <Anchors>
+          <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMLEFT">
+            <Offset>
+              <AbsDimension x="6" y="4"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+      </Button>
+      <Button name="$parentTitle">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="$parentBagButton" relativePoint="TOPRIGHT">
+            <Offset>
+              <AbsDimension x="2" y="0"/>
+            </Offset>
+          </Anchor>
+          <Anchor point="BOTTOMRIGHT" relativeTo="$parentSortButton" relativePoint="BOTTOMLEFT">
+            <Offset>
+              <AbsDimension x="-2" y="0"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <ButtonText setAllPoints="true" text="Dummy"/>
+        <NormalFont font="GameFontNormal" justifyH="CENTER"/>
+        <HighlightFont font="GameFontHighlight" justifyH="CENTER"/>
+        <Scripts>
+          <OnMouseDown>
+            Bagzen:FrameStartMoving(this:GetParent());
+          </OnMouseDown>
+          <OnMouseUp>
+            Bagzen:FrameStopMoving(this:GetParent());
+          </OnMouseUp>
+        </Scripts>
+      </Button>
+      <EditBox name="$parentSearchBox" inherits="BagzenSearchBoxTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativePoint="TOPLEFT">
+            <Offset>
+              <AbsDimension x="4" y="-20"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+      </EditBox>
+      <Frame name="$parentMoneyFrame" inherits="SmallMoneyFrameTemplate">
+        <Anchors>
+          <Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT">
+            <Offset>
+              <AbsDimension x="0" y="6"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+      </Frame>
+    </Frames>
+    <Scripts>
+      <OnLoad>
+        this:RegisterForDrag("LeftButton");
+        this:SetUserPlaced(true);
+        tinsert(UISpecialFrames, this:GetName())
+        Bagzen:BagFrameOnLoad(this);
+      </OnLoad>
+      <OnShow>
+        PlaySound("igBackPackOpen")
+      </OnShow>
+      <OnHide>
+        PlaySound("igBackPackClose")
+        Bagzen:ClearSearchBox(this)
+      </OnHide>
+    </Scripts>
+  </Frame>
+</Ui>
