@@ -17,10 +17,10 @@ function Bagzen:SellScrap()
     end
 end
 
-function Bagzen:ToggleScrap(itemLink, itemID)
+function Bagzen:ToggleScrap(itemID)
     local scrap = Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].scrap[itemID]
     local useful = Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].useful[itemID]
-    local _, _, rarity, _, itemtype = GetItemInfo(tonumber(itemID))
+    local itemName, _, rarity, _, itemtype = GetItemInfo(tonumber(itemID))
 
     if itemtype == "Quest" then
         Bagzen:Print("Can't add quest item as scrap")
@@ -29,26 +29,27 @@ function Bagzen:ToggleScrap(itemLink, itemID)
 
     if (scrap == nil and useful == nil) then
         if rarity > 0 then
-            Bagzen:Print("Setting " .. itemLink .. " as scrap")
+            Bagzen:Print("Setting " .. itemName .. " as scrap")
             Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].scrap[itemID] = true
         else
-            Bagzen:Print(itemLink .. " is already scrap")
+            Bagzen:Print(itemName .. " is already scrap")
         end        
     elseif (scrap == nil and useful ~= nil) then
         -- item was set as useful (only poor item could be useful)
-        Bagzen:Print("Removing " .. itemLink .. " as useful")
+        Bagzen:Print("Removing " .. itemName .. " as useful")
         Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].useful[itemID] = nil
     else
-        Bagzen:Print("Removing " .. itemLink .. " as scrap")
+        Bagzen:Print("Removing " .. itemName .. " as scrap")
         Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].scrap[itemID] = nil
     end
 end
 
 function Bagzen:ScrapToggle()
     if GameTooltip:IsVisible() then
-        local item = GameTooltip.itemLink
-        local itemID = Bagzen:LinkToItemID(item)
-        Bagzen:ToggleScrap(item, itemID)
-        Bagzen:UpdateSlots(BagzenBagFrame)
+        local itemID = BagzenTooltip.itemID
+        if itemID then
+            Bagzen:ToggleScrap(itemID)
+            Bagzen:UpdateSlots(BagzenBagFrame)
+        end
     end
 end
