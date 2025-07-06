@@ -33,6 +33,10 @@ function Bagzen:MAIL_SHOW()
     end
 end
 
+function Bagzen:MAIL_INBOX_UPDATE()
+    Bagzen:ScanMails()
+end
+
 function Bagzen:MERCHANT_CLOSED()
     if Bagzen.settings.global.bagframe.close_vendor then
         BagzenBagFrame:Hide()
@@ -55,12 +59,14 @@ end
 function Bagzen:PLAYER_ENTERING_WORLD()
     -- Bagzen:Print("PLAYER_ENTERING_WORLD")
     Bagzen:UpdateSlots(BagzenBagFrame)  -- Container.lua
+    Bagzen:ItemCacheInit()
 end
 
 function Bagzen:OnEnable()
     Bagzen:RegisterEvent("BAG_UPDATE")
     Bagzen:RegisterEvent("BAG_UPDATE_COOLDOWN")
     Bagzen:RegisterEvent("MAIL_SHOW")
+    Bagzen:RegisterEvent("MAIL_INBOX_UPDATE")
     Bagzen:RegisterEvent("MAIL_CLOSED")
     Bagzen:RegisterEvent("MERCHANT_CLOSED")
     Bagzen:RegisterEvent("MERCHANT_SHOW")

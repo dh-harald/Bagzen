@@ -1,3 +1,5 @@
+Bagzen.ItemCache = {}
+
 function Bagzen:isScrap(itemID)
     local _, _, rarity = GetItemInfo(tonumber(itemID))
     return (Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].useful[itemID] ~= nil) or (rarity == 0) or (Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].scrap[itemID] ~= nil)
@@ -106,4 +108,28 @@ function Bagzen:CreateGoldString(money)
     out = out .. "|cffffffff " .. copper .. "|cffeda55fc"
 
     return out
+end
+
+function Bagzen:GetItemIDByName(name)
+    for itemID, data in pairs(Bagzen.ItemCache) do
+        if data.name == name then
+            return tonumber(itemID)
+        end
+    end
+end
+
+function Bagzen:ItemCacheInit()
+    Bagzen.ItemCache = {}
+    local count = 0
+    for itemID=1, 101000 do
+        local itemName, hyperLink, itemQuality = GetItemInfo(itemID)
+        if itemName ~= nil and hyperLink ~= nil then
+            Bagzen.ItemCache[itemID] = {
+                name = itemName,
+                link = hyperLink,
+                quality = itemQuality
+            }
+            count = count + 1
+        end
+    end
 end
