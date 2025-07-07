@@ -1,0 +1,24 @@
+name: Auto semantic release
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'CHANGELOG.md'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: "semantic release"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          token: ${{ secrets.SR_PAT }}
+      - uses: cycjimmy/semantic-release-action@v4
+        with:
+          semantic_version: 24.2.6
+        env:
+          GITHUB_TOKEN: ${{ secrets.SR_PAT }}

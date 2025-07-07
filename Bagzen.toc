@@ -1,0 +1,7 @@
+## Interface: 11200
+## Title: Bag|cff4378ccZen|r
+## Author: Criminal
+## Version: @project-version@
+## SavedVariables: BagzenSettings, BagzenData
+
+Bagzen.lua

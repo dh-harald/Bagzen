@@ -1,0 +1,7 @@
+package-as: Bagzen
+
+manual-changelog: CHANGELOG.md
+
+ignore:
+  - release.config.js
+  - media

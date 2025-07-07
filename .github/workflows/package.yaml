@@ -1,0 +1,28 @@
+name: Create AddOn
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  packager:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create addon zip with BigWigs packager
+        uses: BigWigsMods/packager@v2
+        with:
+          args: -g 1.12.1 -n '{package-name}-{project-version}-vanilla'
+
+      - name: Upload artifact into release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file_glob: true
+          file: .release/*.zip
