@@ -111,7 +111,7 @@ function Bagzen:ContainerItemOnClick(frame, button, nomod)
 end
 
 function Bagzen:ContainerResize(frame)
-    frame:SetWidth(Bagzen.PADDING + Bagzen.settings.global[frame.SettingSection].width * Bagzen.SIZE_X)
+    frame:SetWidth(Bagzen.settings.global[frame.SettingSection].width * Bagzen.SIZE_X)
     local count = 0
     for _, bag in pairs(frame.Bags) do
         if bag ~= KEYRING_CONTAINER then
