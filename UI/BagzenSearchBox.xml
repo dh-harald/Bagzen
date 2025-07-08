@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/FrameXML\UI.xsd">
+    <Script file="BagzenSearchBox.lua"/>
+
+    <EditBox name="BagzenSearchBoxTemplate" autoFocus="false" virtual="true">
+        <Size x="100" y="24" />
+        <TextInsets>
+            <AbsInset left="20" right="4" top="2" bottom="2" />
+        </TextInsets>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture name="$parentBackground" setAllPoints="true">
+                    <Color r="0.1" g="0.1" b="0.1" a="0.9"/>
+                </Texture>
+            </Layer>
+            <Layer level="ARTWORK">
+                <Texture name="$parentSearchIcon" file="Interface\AddOns\Bagzen\icons\search.tga">
+                    <Size x="16" y="16"/>
+                    <Anchors>
+                        <Anchor point="LEFT">
+                            <Offset x="0" y="0"/>
+                        </Anchor>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <FontString inherits="ChatFontNormal" />
+        <Scripts>
+            <OnTextChanged>
+                Bagzen:SearchBoxOnTextChanged(this)
+            </OnTextChanged>
+            <OnEscapePressed>
+                this:ClearFocus()
+            </OnEscapePressed>
+        </Scripts>
+    </EditBox>
+</Ui>

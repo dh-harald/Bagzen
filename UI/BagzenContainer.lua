@@ -127,6 +127,11 @@ function Bagzen:ContainerResize(frame)
         y = y + Bagzen.SIZE_Y
     end
     frame:SetHeight(y + 20)
+
+    -- searchbox
+    local searchbox = getglobal(frame:GetName() .. "SearchBox")
+    searchbox:SetWidth(Bagzen.settings.global[frame.SettingSection].width * Bagzen.SIZE_X - 4 * Bagzen.PADDING)
+
 end
 
 function Bagzen:UpdateCooldown(container, button)

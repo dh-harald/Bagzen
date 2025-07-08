@@ -114,6 +114,15 @@
           </Anchor>
         </Anchors>
       </Frame>
+      <EditBox name="$parentSearchBox" inherits="BagzenSearchBoxTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativePoint="TOPLEFT">
+            <Offset>
+              <AbsDimension x="4" y="-20"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+      </EditBox>
       <Frame name="$parentTitle">
         <Layers>
           <Layer level="OVERLAY">
