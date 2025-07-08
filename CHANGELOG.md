@@ -1,3 +1,18 @@
+# [0.2.0](https://github.com/dh-harald/Bagzen/compare/v0.1.0...v0.2.0) (2025-07-08)
+
+
+### Bug Fixes
+
+* added bag openings on mailbox ([66981c8](https://github.com/dh-harald/Bagzen/commit/66981c8367637ee66db411dfc2ec73a3c3648f53))
+* clear text in SearchBox on Frame close ([fcdb996](https://github.com/dh-harald/Bagzen/commit/fcdb996b227bb255aef68203cb218220ce1212ad))
+
+
+### Features
+
+* added items tracking in tooltip, initial commit ([4372145](https://github.com/dh-harald/Bagzen/commit/43721453a1e702117433f02749a8ac6b3e2d0284))
+* added MoneyFrame to BagFrame ([0b3c6f6](https://github.com/dh-harald/Bagzen/commit/0b3c6f6bdfd4e586cea17d47300fdc7d2c8af1df))
+* added scrap implementation ([8107ad5](https://github.com/dh-harald/Bagzen/commit/8107ad565f7f59628526231fc74df593ffee4965))
+
 # [0.1.0](https://github.com/dh-harald/Bagzen/compare/v0.0.0...v0.1.0) (2025-07-08)
 
 
