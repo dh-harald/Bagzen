@@ -23,5 +23,10 @@
         </Anchors>
       </Button>
     </Frames>
+    <Scripts>
+      <OnHide>
+        Bagzen:SearchBoxClearText(this)
+      </OnHide>
+    </Scripts>
   </Frame>
 </Ui>

@@ -28,3 +28,8 @@ function Bagzen:SearchBoxOnTextChanged(frame)
         end
     end
 end
+
+function Bagzen:SearchBoxClearText(frame)
+    local searchbox = getglobal(frame:GetName().. "SearchBox")
+    searchbox:SetText("")
+end
