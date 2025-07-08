@@ -51,7 +51,6 @@ end
 
 local BagzenReturnInboxItem = ReturnInboxItem
 function ReturnInboxItem(index)
-    Bagzen:Print("ReturnInboxItem")
     local _, _, recipient = GetInboxHeaderInfo(index)
 
     local recipient_found = false
@@ -67,7 +66,6 @@ function ReturnInboxItem(index)
         end
 
         local name, texture, count = GetInboxItem(index, 1) -- only 1 item
-        Bagzen:Print(name, texture, count)
         local data = {
             itemid = Bagzen:GetItemIDByName(name),
             name = name,
