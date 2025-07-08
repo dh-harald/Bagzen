@@ -1,3 +1,7 @@
+-- Bindings
+BINDING_HEADER_SCRAP = "Bagzen"
+BINDING_NAME_SCRAP_TOGGLE = "Toggle Item Under Mouse"
+
 Bagzen = LibStub("AceAddon-3.0"):NewAddon("Bagzen", "AceEvent-3.0", "AceConsole-3.0")
 
 Bagzen.realmname = GetRealmName()

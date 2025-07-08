@@ -39,6 +39,19 @@ function Bagzen:MAIL_SHOW()
     end
 end
 
+function Bagzen:MERCHANT_SHOW()
+    if Bagzen.settings.global.general.auto_repair then
+        Bagzen:RepairItems()
+    end
+    if Bagzen.settings.global.general.auto_sell then
+        Bagzen:SellScrap()
+        Bagzen:ContainerUpdate(BagzenBagFrame, Bagzen.realmname, Bagzen.unitname)
+    end
+    if Bagzen.settings.global.bagframe.open_vendor then
+        BagzenBagFrame:Show()
+    end
+end
+
 function Bagzen:PLAYER_LOGIN()
     Bagzen:ContainerInit(BagzenBagFrame, {0, 1, 2, 3, 4, KEYRING_CONTAINER})
     Bagzen:ContainerUpdate(BagzenBagFrame, Bagzen.realmname, Bagzen.unitname)
@@ -52,5 +65,6 @@ function Bagzen:OnEnable()
     Bagzen:RegisterEvent("MAIL_CLOSED")
     Bagzen:RegisterEvent("MAIL_INBOX_UPDATE")
     Bagzen:RegisterEvent("MAIL_SHOW")
+    Bagzen:RegisterEvent("MERCHANT_SHOW")
     Bagzen:RegisterEvent("PLAYER_LOGIN")
 end

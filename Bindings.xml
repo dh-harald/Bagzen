@@ -1,0 +1,5 @@
+<Bindings>
+    <Binding name="SCRAP_TOGGLE" header="SCRAP">
+        Bagzen:BindingsToggleScrap(this)
+    </Binding>
+</Bindings>

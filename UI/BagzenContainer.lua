@@ -191,14 +191,22 @@ function Bagzen:ContainerItemUpdate(frame, bag)
                 local itemLink = GetContainerItemLink(slotframe.Bag, slotframe:GetID())
                 local itemID = Bagzen:LinkToItemID(itemLink)
                 local itemName = GetItemInfo(itemID)
+                slotframe.ItemID = itemID
                 slotframe.ItemName = itemName
                 slotframe.ItemLink = itemLink
                 if frame.Virtual == false then
-                    if Bagzen:isQuestItem(itemID) then
+                    if Bagzen:isScrap(itemID) then
+                        texture:SetTexture('Interface/Buttons/UI-GroupLoot-Coin-Up')
+                        texture:SetPoint('TOPLEFT', 3, -3)
+                        texture:SetWidth(15)
+                        texture:SetHeight(15)
+                    elseif Bagzen:isQuestItem(itemID) then
                         texture:SetTexture('Interface\\AddOns\\Bagzen\\textures\\BagQuestIcon.tga')
                         texture:SetPoint('TOPLEFT', 2, -2)
                         texture:SetWidth(32)
                         texture:SetHeight(32)
+                    else
+                        texture:SetTexture(nil)
                     end
                     -- save item
                     Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].bags[slotframe.Bag].slots[slot] = {
@@ -210,8 +218,10 @@ function Bagzen:ContainerItemUpdate(frame, bag)
             else
                 SetItemButtonTexture(slotframe, nil)
                 SetItemButtonCount(slotframe, 0)
+                slotframe.ItemID = nil
                 slotframe.ItemLink = nil
                 slotframe.ItemName = nil
+                texture:SetTexture(nil)
             end
             local POS_X = Bagzen.PADDING + (Bagzen.SIZE_X * math.mod(count, Bagzen.settings.global[section].width))
             local POS_Y = Bagzen.MOD_Y - (Bagzen.SIZE_Y * math.floor(count / Bagzen.settings.global[section].width))

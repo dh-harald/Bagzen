@@ -34,4 +34,5 @@ UI\BagzenSearchBox.xml
 UI\BagzenContainer.xml
 UI\BagzenBagFrame.xml
 
+Scrap.lua
 Events.lua
