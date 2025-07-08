@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/FrameXML\UI.xsd">
+
+  <Script file="BagzenBagSlots.lua"/>
+
+  <Frame name="BagzenBagSlotItemTemplate" virtual="true" inherits="BagzenItemButtonTemplate">
+    <Scripts>
+      <OnEnter>
+        Bagzen:BagSlotItemOnEnter(this)
+      </OnEnter>
+      <OnLeave>
+        Bagzen:BagSlotItemOnLeave(this)
+      </OnLeave>
+      <OnClick>
+        Bagzen:BagSlotItemOnClick(this)
+      </OnClick>
+      <OnDragStart>
+        Bagzen:BagSlotItemOnDragStart(this)
+      </OnDragStart>
+      <OnReceiveDrag>
+        Bagzen:BagSlotItemOnClick(this)
+      </OnReceiveDrag>
+    </Scripts>
+  </Frame>
+
+  <Frame name="BagzenBagSlotsTemplate" virtual="true">
+    <Size x="44" y="44"/>
+    <Layers>
+      <Layer level="BACKGROUND">
+        <Texture name="$parentBackground" setAllPoints="true">
+          <Color r="0.05" g="0.05" b="0.05" a="0.9"/>
+        </Texture>
+      </Layer>
+    </Layers>
+    <BackdropInsets>
+      <AbsInset left="1" right="1" top="1" bottom="1"/>
+    </BackdropInsets>
+  </Frame>
+</Ui>

@@ -3,6 +3,11 @@ Bagzen = LibStub("AceAddon-3.0"):NewAddon("Bagzen", "AceEvent-3.0", "AceConsole-
 Bagzen.realmname = GetRealmName()
 Bagzen.unitname = GetUnitName("player")
 
+Bagzen.SIZE_X = 40 -- slot size X
+Bagzen.SIZE_Y = 40 -- slot size Y
+Bagzen.PADDING = 2
+Bagzen.MOD_Y = -48 -- where the containerslots starts in Y
+
 Bagzen.icon = LibStub("LibDBIcon-1.0", true)
 Bagzen.LDB = LibStub("LibDataBroker-1.1"):NewDataObject("Bagzen", {
     type = "launcher",
@@ -135,8 +140,18 @@ local ConfigTable = {
                     max = 2,
                     step = 0.1,
                     set = function(info, val)
+                        local scale = Bagzen.settings.char.bagframe.scale
+                        local _, _, _, xOfs, yOfs = BagzenBagFrame:GetPoint()
+                        xOfs = xOfs * scale / val
+                        yOfs = yOfs * scale / val
+
+                        Bagzen.settings.char.bagframe.xOfs = xOfs
+                        Bagzen.settings.char.bagframe.yOfs = yOfs
+
                         Bagzen.settings.char.bagframe.scale = val
-                    end,
+
+                        Bagzen:ContainerReposition(BagzenBagFrame)
+                     end,
                     get = function(info)
                         return Bagzen.settings.char.bagframe.scale
                     end,
@@ -287,4 +302,25 @@ function Bagzen:OnInitialize()
     Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].race = string.upper(race)
     Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].class = string.upper(class)
     Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].sex = sexname[UnitSex("player")]
+
+    -- override default backpack functions
+    ToggleBackpack = function()
+        if BagzenBagFrame:IsShown() then
+            BagzenBagFrame:Hide()
+        else
+            BagzenBagFrame:Show()
+        end
+    end
+
+    ToggleBag = function(id)
+        ToggleBackpack()
+    end
+
+    OpenAllBags = function()
+        BagzenBagFrame:Show()
+    end
+
+    CloseAllBags = function()
+        BagzenBagFrame:Hide()
+    end
 end

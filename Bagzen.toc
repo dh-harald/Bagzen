@@ -23,3 +23,12 @@ lib\LibDataBroker-1.1\LibDataBroker-1.1.lua
 lib\LibDBIcon-1.0\LibDBIcon-1.0.lua
 
 Bagzen.lua
+Utils.lua
+
+UI\BagzenButton.xml
+UI\BagzenItemButton.xml
+UI\BagzenBagSlots.xml
+UI\BagzenContainer.xml
+UI\BagzenBagFrame.xml
+
+Events.lua

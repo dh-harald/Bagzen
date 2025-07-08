@@ -1,0 +1,124 @@
+<?xml version="1.0"?>
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/FrameXML\UI.xsd">
+
+  <Script file="BagzenButton.lua"/>
+
+  <Button name="BagzenBankButton" virtual="true">
+    <Size>
+      <AbsDimension x="16" y="16"/>
+    </Size> 
+    <NormalTexture file="Interface\AddOns\Bagzen\icons\bank.tga"/>
+    <PushedTexture file="Interface\AddOns\Bagzen\icons\bank.tga"/>
+    <HighlightTexture file="Interface\AddOns\Bagzen\icons\bankh.tga"/>
+    <Scripts>
+      <OnClick>
+        Bagzen:ToggleBankFrame()
+      </OnClick>
+      <OnEnter>
+        Bagzen:ButtonTooltip("Bank")
+      </OnEnter>
+      <OnLeave>
+        GameTooltip:Hide()
+      </OnLeave>
+    </Scripts>
+  </Button>
+
+  <Button name="BagzenCharactersButton" virtual="true">
+    <Size>
+      <AbsDimension x="16" y="16"/>
+    </Size> 
+    <NormalTexture file="Interface\AddOns\Bagzen\icons\characters.tga"/>
+    <PushedTexture file="Interface\AddOns\Bagzen\icons\characters.tga"/>
+    <HighlightTexture file="Interface\AddOns\Bagzen\icons\charactersh.tga"/>
+    <Scripts>
+      <OnClick>
+      </OnClick>
+      <OnEnter>
+        Bagzen:ButtonTooltip("Characters")
+      </OnEnter>
+      <OnLeave>
+        GameTooltip:Hide()
+      </OnLeave>
+    </Scripts>
+  </Button>
+
+  <Button name="BagzenBagButton" virtual="true">
+    <Size>
+      <AbsDimension x="16" y="16"/>
+    </Size> 
+    <NormalTexture file="Interface\AddOns\Bagzen\icons\bags.tga"/>
+    <PushedTexture file="Interface\AddOns\Bagzen\icons\bags.tga"/>
+    <HighlightTexture file="Interface\AddOns\Bagzen\icons\bagsh.tga"/>
+    <Scripts>
+      <OnClick>
+        Bagzen:BagSlotsToggle(this:GetParent())
+      </OnClick>
+      <OnEnter>
+        Bagzen:ButtonTooltip("Bag slots")
+      </OnEnter>
+      <OnLeave>
+        GameTooltip:Hide()
+      </OnLeave>
+    </Scripts>
+  </Button>
+
+  <Button name="BagzenSortButton" virtual="true">
+    <Size>
+      <AbsDimension x="16" y="16"/>
+    </Size> 
+    <NormalTexture file="Interface\AddOns\Bagzen\icons\sort.tga"/>
+    <PushedTexture file="Interface\AddOns\Bagzen\icons\sort.tga"/>
+    <HighlightTexture file="Interface\AddOns\Bagzen\icons\sorth.tga"/>
+    <Scripts>
+      <OnClick>
+        Bagzen:SortButtonOnClick(this)
+      </OnClick>
+      <OnEnter>
+        Bagzen:ButtonTooltip("Sort")
+      </OnEnter>
+      <OnLeave>
+        GameTooltip:Hide()
+      </OnLeave>
+    </Scripts>
+  </Button>
+
+  <Button name="BagzenSettingsButton" virtual="true">
+    <Size>
+      <AbsDimension x="16" y="16"/>
+    </Size> 
+    <NormalTexture file="Interface\AddOns\Bagzen\icons\settings.tga"/>
+    <PushedTexture file="Interface\AddOns\Bagzen\icons\settings.tga"/>
+    <HighlightTexture file="Interface\AddOns\Bagzen\icons\settingsh.tga"/>
+    <Scripts>
+      <OnClick>
+        InterfaceOptionsFrame_OpenToCategory("Bagzen")
+      </OnClick>
+      <OnEnter>
+        Bagzen:ButtonTooltip("Settings")
+      </OnEnter>
+      <OnLeave>
+        GameTooltip:Hide()
+      </OnLeave>
+    </Scripts>
+  </Button>
+
+  <Button name="BagzenCloseButton" virtual="true">
+    <Size>
+      <AbsDimension x="16" y="16"/>
+    </Size> 
+    <NormalTexture file="Interface\AddOns\Bagzen\icons\close.tga"/>
+    <PushedTexture file="Interface\AddOns\Bagzen\icons\close.tga"/>
+    <HighlightTexture file="Interface\AddOns\Bagzen\icons\closeh.tga"/>
+    <Scripts>
+      <OnClick>
+        this:GetParent():Hide();
+      </OnClick>
+      <OnEnter>
+        Bagzen:ButtonTooltip("Close")
+      </OnEnter>
+      <OnLeave>
+        GameTooltip:Hide()
+      </OnLeave>
+    </Scripts>
+  </Button>
+</Ui>

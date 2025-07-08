@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/FrameXML\UI.xsd">
+
+  <Script file="BagzenItemButton.lua"/>
+
+  <Button name="BagzenItemButtonTemplate" virtual="true">
+    <Size>
+      <AbsDimension x="37" y="37"/>
+    </Size>
+    <Layers>
+      <Layer level="BORDER">
+        <Texture name="$parentIconTexture">
+          <TexCoords left="0.03" right="0.97" top="0.03" bottom="0.97"/>
+        </Texture>
+        <FontString name="$parentCount" inherits="NumberFontNormal" justifyH="RIGHT" hidden="true">
+          <Anchors>
+            <Anchor point="BOTTOMRIGHT">
+              <Offset>
+                <AbsDimension x="-5" y="2"/>
+              </Offset>
+            </Anchor>
+          </Anchors>
+        </FontString>
+        <FontString name="$parentStock" inherits="NumberFontNormalYellow" justifyH="LEFT" hidden="true">
+          <Anchors>
+            <Anchor point="TOPLEFT">
+              <Offset>
+                <AbsDimension x="0" y="-2"/>
+              </Offset>
+            </Anchor>
+          </Anchors>
+        </FontString>
+      </Layer>
+    </Layers>
+     <NormalTexture name="$parentNormalTexture" file="Interface\AddOns\Bagzen\textures\UI-Quickslot2.tga">
+      <Size>
+        <AbsDimension x="64" y="64"/>
+      </Size>
+      <Anchors>
+        <Anchor point="CENTER">
+          <Offset x="0" y="-1"/>
+        </Anchor>
+      </Anchors>
+    </NormalTexture>
+    <PushedTexture file="Interface\AddOns\Bagzen\textures\UI-Quickslot-Depress.tga"/>
+    <HighlightTexture file="Interface\AddOns\Bagzen\textures\ButtonHilight-Square.tga" alphaMode="ADD"/>
+  </Button>
+</Ui>
