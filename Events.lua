@@ -57,7 +57,13 @@ function Bagzen:PLAYER_LOGIN()
     Bagzen:ContainerUpdate(BagzenBagFrame, Bagzen.realmname, Bagzen.unitname)
     Bagzen:ContainerReposition(BagzenBagFrame)
     Bagzen:ItemCacheInit()
+    Bagzen:MoneyFrameUpdate(BagzenBagFrameMoneyFrame, GetMoney())
 end
+
+function Bagzen:PLAYER_MONEY()
+    Bagzen:MoneyFrameUpdate(BagzenBagFrameMoneyFrame, GetMoney())
+end
+
 
 function Bagzen:OnEnable()
     Bagzen:RegisterEvent("BAG_UPDATE")
@@ -67,4 +73,5 @@ function Bagzen:OnEnable()
     Bagzen:RegisterEvent("MAIL_SHOW")
     Bagzen:RegisterEvent("MERCHANT_SHOW")
     Bagzen:RegisterEvent("PLAYER_LOGIN")
+    Bagzen:RegisterEvent("PLAYER_MONEY")
 end

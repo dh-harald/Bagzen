@@ -142,7 +142,16 @@
           </Anchor>
         </Anchors>
       </Frame>
-     </Frames>
+      <Frame name="$parentMoneyFrame" inherits="BagzenMoneyFrameTemplate">
+        <Anchors>
+          <Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT">
+            <Offset>
+              <AbsDimension x="0" y="6"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+      </Frame>
+    </Frames>
     <Scripts>
       <OnLoad>
         Bagzen:ContainerOnLoad(this)
