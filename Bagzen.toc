@@ -24,6 +24,8 @@ lib\LibDBIcon-1.0\LibDBIcon-1.0.lua
 
 Bagzen.lua
 Utils.lua
+Mail.lua
+Tooltip.lua
 
 UI\BagzenButton.xml
 UI\BagzenItemButton.xml
