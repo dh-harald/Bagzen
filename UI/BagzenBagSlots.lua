@@ -143,6 +143,7 @@ function Bagzen:BagSlotItemUpdate(frame)
         else
             icontexture:SetTexture(nil)
             frame.ItemLink = nil
+            frame.Slots = 0
         end
     end
     if virtual == false and (frame.ItemLink or bag < 1) then

@@ -1,3 +1,15 @@
+function Bagzen:BAG_CLOSED()
+    if arg1 > 0 and arg1< 5 then
+        --- bag
+        Bagzen:BagSlotUpdate(BagzenBagFrame, arg1)
+        Bagzen:ContainerItemUpdate(BagzenBagFrame, arg1)
+    elseif arg1 >= 5 then
+        --- bank
+        Bagzen:BagSlotUpdate(BagzenBankFrame, arg1)
+        Bagzen:ContainerItemUpdate(BagzenBankFrame, arg1)
+    end
+end
+
 function Bagzen:BAG_UPDATE()
     if arg1 == -1 or arg1 > 4
     then
@@ -94,6 +106,7 @@ function Bagzen:PLAYERBANKSLOTS_CHANGED()
 end
 
 function Bagzen:OnEnable()
+    Bagzen:RegisterEvent("BAG_CLOSED")
     Bagzen:RegisterEvent("BAG_UPDATE")
     Bagzen:RegisterEvent("BAG_UPDATE_COOLDOWN")
     Bagzen:RegisterEvent("BANKFRAME_CLOSED")
