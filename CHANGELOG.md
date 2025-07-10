@@ -1,3 +1,10 @@
+## [0.3.1](https://github.com/dh-harald/Bagzen/compare/v0.3.0...v0.3.1) (2025-07-10)
+
+
+### Bug Fixes
+
+* remove LibSharedMedia-3.0, as it's not needed ([17ef411](https://github.com/dh-harald/Bagzen/commit/17ef4119a51841603ffc337a42863e0ac40fa167))
+
 # [0.3.0](https://github.com/dh-harald/Bagzen/compare/v0.2.0...v0.3.0) (2025-07-10)
 
 
