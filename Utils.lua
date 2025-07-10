@@ -1,10 +1,3 @@
-function Bagzen:LinkToItemID(hyperLink)
-    if hyperLink then
-        local _, _, itemID = string.find(hyperLink, "item:(%d+)")
-        return tonumber(itemID)
-    end
-end
-
 function Bagzen:UnsignedToSigned(num)
     if num > 32768 then
         num = num - 65536

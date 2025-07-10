@@ -8,6 +8,11 @@
       <AbsDimension x="37" y="37"/>
     </Size>
     <Layers>
+      <Layer level="BACKGROUND">
+        <Texture name="$parentBackground">
+          <Color r="0.5" g="0" b="0" a="0"/>
+        </Texture>
+      </Layer>
       <Layer level="BORDER">
         <Texture name="$parentIconTexture">
           <TexCoords left="0.03" right="0.97" top="0.03" bottom="0.97"/>

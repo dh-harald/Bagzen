@@ -131,6 +131,7 @@ local ConfigTable = {
                     step = 1,
                     set = function(info, val)
                         Bagzen.settings.global.bagframe.width = val
+                        Bagzen:ContainerUpdate(BagzenBagFrame, BagzenBagFrame.OwnerRealm, BagzenBagFrame.OwnerName)
                     end,
                     get = function(info)
                         return Bagzen.settings.global.bagframe.width
@@ -227,7 +228,7 @@ local ConfigTable = {
             order = 30,
             args = {
                 bank_width = {
-                    order = 300,
+                    order = 100,
                     name = "Bank view width",
                     type = "range",
                     min = 8,
@@ -235,6 +236,7 @@ local ConfigTable = {
                     step = 1,
                     set = function(info, val)
                         Bagzen.settings.global.bankframe.width = val
+                        Bagzen:ContainerUpdate(BagzenBankFrame, BagzenBankFrame.OwnerRealm, BagzenBankFrame.OwnerName)
                     end,
                     get = function(info)
                         return Bagzen.settings.global.bankframe.width
@@ -248,7 +250,17 @@ local ConfigTable = {
                     max = 2,
                     step = 0.1,
                     set = function(info, val)
+                        local scale = Bagzen.settings.char.bankframe.scale
+                        local _, _, _, xOfs, yOfs = BagzenBankFrame:GetPoint()
+                        xOfs = xOfs * scale / val
+                        yOfs = yOfs * scale / val
+
+                        Bagzen.settings.char.bankframe.xOfs = xOfs
+                        Bagzen.settings.char.bankframe.yOfs = yOfs
+
                         Bagzen.settings.char.bankframe.scale = val
+
+                        Bagzen:ContainerReposition(BagzenBankFrame)
                     end,
                     get = function(info)
                         return Bagzen.settings.char.bankframe.scale
@@ -326,5 +338,14 @@ function Bagzen:OnInitialize()
 
     CloseAllBags = function()
         BagzenBagFrame:Hide()
+    end
+
+    -- remove hooks from original BankFrame
+    local bankframe = getglobal("BankFrame")
+    if bankframe then
+        bankframe:UnregisterEvent("BANKFRAME_OPENED")
+        bankframe:UnregisterEvent("PLAYERBANKSLOTS_CHANGED")
+        bankframe:UnregisterEvent("ITEM_LOCK_CHANGED")
+        bankframe:UnregisterEvent("CURSOR_UPDATE")
     end
 end

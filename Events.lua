@@ -1,4 +1,9 @@
 function Bagzen:BAG_UPDATE()
+    if arg1 == -1 or arg1 > 4
+    then
+        -- sometimes it's called for bankframe (5)
+        return -- sanity check
+    end
     local full = false
     for _, bag in pairs(BagzenBagFrame.Bags) do
         if bag ~= KEYRING_CONTAINER then
@@ -21,6 +26,17 @@ end
 
 function Bagzen:BAG_UPDATE_COOLDOWN()
     Bagzen:ContainerUpdate(BagzenBagFrame, Bagzen.realmname, Bagzen.unitname)
+end
+
+function Bagzen:BANKFRAME_CLOSED()
+    BagzenBankFrame.Virtual = true
+    BagzenBankFrame:Hide()
+end
+
+function Bagzen:BANKFRAME_OPENED()
+    BagzenBankFrame.Virtual = false
+    Bagzen:ContainerUpdate(BagzenBankFrame, Bagzen.realmname, Bagzen.unitname)
+    BagzenBankFrame:Show()
 end
 
 function Bagzen:MAIL_CLOSED()
@@ -54,24 +70,39 @@ end
 
 function Bagzen:PLAYER_LOGIN()
     Bagzen:ContainerInit(BagzenBagFrame, {0, 1, 2, 3, 4, KEYRING_CONTAINER})
+    Bagzen:ContainerInit(BagzenBankFrame, {-1, 5, 6, 7, 8, 9, 10})
     Bagzen:ContainerUpdate(BagzenBagFrame, Bagzen.realmname, Bagzen.unitname)
+    Bagzen:ContainerUpdate(BagzenBankFrame, Bagzen.realmname, Bagzen.unitname)
     Bagzen:ContainerReposition(BagzenBagFrame)
+    Bagzen:ContainerReposition(BagzenBankFrame)
     Bagzen:ItemCacheInit()
     Bagzen:MoneyFrameUpdate(BagzenBagFrameMoneyFrame, GetMoney())
+    Bagzen:MoneyFrameUpdate(BagzenBankFrameMoneyFrame, GetMoney())
 end
 
 function Bagzen:PLAYER_MONEY()
     Bagzen:MoneyFrameUpdate(BagzenBagFrameMoneyFrame, GetMoney())
+    Bagzen:MoneyFrameUpdate(BagzenBankFrameMoneyFrame, GetMoney())
+    if BagzenBankFrame:IsShown() and BagzenBankFrame.Virtual == false then
+        -- bag puchased
+        Bagzen:ContainerUpdate(BagzenBankFrame, Bagzen.realmname, Bagzen.unitname)
+    end
 end
 
+function Bagzen:PLAYERBANKSLOTS_CHANGED()
+    Bagzen:ContainerUpdate(BagzenBankFrame, Bagzen.realmname, Bagzen.unitname)
+end
 
 function Bagzen:OnEnable()
     Bagzen:RegisterEvent("BAG_UPDATE")
     Bagzen:RegisterEvent("BAG_UPDATE_COOLDOWN")
+    Bagzen:RegisterEvent("BANKFRAME_CLOSED")
+    Bagzen:RegisterEvent("BANKFRAME_OPENED")
     Bagzen:RegisterEvent("MAIL_CLOSED")
     Bagzen:RegisterEvent("MAIL_INBOX_UPDATE")
     Bagzen:RegisterEvent("MAIL_SHOW")
     Bagzen:RegisterEvent("MERCHANT_SHOW")
     Bagzen:RegisterEvent("PLAYER_LOGIN")
     Bagzen:RegisterEvent("PLAYER_MONEY")
+    Bagzen:RegisterEvent("PLAYERBANKSLOTS_CHANGED")
 end

@@ -3,16 +3,50 @@
 
   <Script file="BagzenButton.lua"/>
 
+  <Button name="BagzenOnlineButton" virtual="true">
+    <Size>
+      <AbsDimension x="16" y="16"/>
+    </Size>
+    <NormalTexture file="Interface\AddOns\Bagzen\icons\online.tga"/>
+    <PushedTexture file="Interface\AddOns\Bagzen\icons\online.tga"/>
+    <HighlightTexture file="Interface\AddOns\Bagzen\icons\online.tga"/>
+    <Scripts>
+      <OnEnter>
+        Bagzen:ButtonTooltip("Online")
+      </OnEnter>
+      <OnLeave>
+        GameTooltip:Hide()
+      </OnLeave>
+    </Scripts>
+  </Button>
+
+  <Button name="BagzenOfflineButton" virtual="true">
+    <Size>
+      <AbsDimension x="16" y="16"/>
+    </Size>
+    <NormalTexture file="Interface\AddOns\Bagzen\icons\offline.tga"/>
+    <PushedTexture file="Interface\AddOns\Bagzen\icons\offline.tga"/>
+    <HighlightTexture file="Interface\AddOns\Bagzen\icons\offline.tga"/>
+    <Scripts>
+      <OnEnter>
+        Bagzen:ButtonTooltip("Offline")
+      </OnEnter>
+      <OnLeave>
+        GameTooltip:Hide()
+      </OnLeave>
+    </Scripts>
+  </Button>
+
   <Button name="BagzenBankButton" virtual="true">
     <Size>
       <AbsDimension x="16" y="16"/>
-    </Size> 
+    </Size>
     <NormalTexture file="Interface\AddOns\Bagzen\icons\bank.tga"/>
     <PushedTexture file="Interface\AddOns\Bagzen\icons\bank.tga"/>
     <HighlightTexture file="Interface\AddOns\Bagzen\icons\bankh.tga"/>
     <Scripts>
       <OnClick>
-        Bagzen:ToggleBankFrame()
+        Bagzen:BankFrameToggle()
       </OnClick>
       <OnEnter>
         Bagzen:ButtonTooltip("Bank")
@@ -26,7 +60,7 @@
   <Button name="BagzenCharactersButton" virtual="true">
     <Size>
       <AbsDimension x="16" y="16"/>
-    </Size> 
+    </Size>
     <NormalTexture file="Interface\AddOns\Bagzen\icons\characters.tga"/>
     <PushedTexture file="Interface\AddOns\Bagzen\icons\characters.tga"/>
     <HighlightTexture file="Interface\AddOns\Bagzen\icons\charactersh.tga"/>
@@ -45,7 +79,7 @@
   <Button name="BagzenBagButton" virtual="true">
     <Size>
       <AbsDimension x="16" y="16"/>
-    </Size> 
+    </Size>
     <NormalTexture file="Interface\AddOns\Bagzen\icons\bags.tga"/>
     <PushedTexture file="Interface\AddOns\Bagzen\icons\bags.tga"/>
     <HighlightTexture file="Interface\AddOns\Bagzen\icons\bagsh.tga"/>
@@ -65,7 +99,7 @@
   <Button name="BagzenSortButton" virtual="true">
     <Size>
       <AbsDimension x="16" y="16"/>
-    </Size> 
+    </Size>
     <NormalTexture file="Interface\AddOns\Bagzen\icons\sort.tga"/>
     <PushedTexture file="Interface\AddOns\Bagzen\icons\sort.tga"/>
     <HighlightTexture file="Interface\AddOns\Bagzen\icons\sorth.tga"/>
@@ -85,7 +119,7 @@
   <Button name="BagzenSettingsButton" virtual="true">
     <Size>
       <AbsDimension x="16" y="16"/>
-    </Size> 
+    </Size>
     <NormalTexture file="Interface\AddOns\Bagzen\icons\settings.tga"/>
     <PushedTexture file="Interface\AddOns\Bagzen\icons\settings.tga"/>
     <HighlightTexture file="Interface\AddOns\Bagzen\icons\settingsh.tga"/>
@@ -105,7 +139,7 @@
   <Button name="BagzenCloseButton" virtual="true">
     <Size>
       <AbsDimension x="16" y="16"/>
-    </Size> 
+    </Size>
     <NormalTexture file="Interface\AddOns\Bagzen\icons\close.tga"/>
     <PushedTexture file="Interface\AddOns\Bagzen\icons\close.tga"/>
     <HighlightTexture file="Interface\AddOns\Bagzen\icons\closeh.tga"/>

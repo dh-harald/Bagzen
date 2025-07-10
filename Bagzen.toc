@@ -1,6 +1,7 @@
 ## Interface: 11200
 ## Title: Bag|cff4378ccZen|r
 ## Author: Criminal
+## Notes: OneBag Addon inspired by Baganator
 ## Version: @project-version@
 ## SavedVariables: BagzenSettings, BagzenData
 
@@ -34,6 +35,7 @@ UI\BagzenSearchBox.xml
 UI\BagzenMoneyFrame.xml
 UI\BagzenContainer.xml
 UI\BagzenBagFrame.xml
+UI\BagzenBankFrame.xml
 
 Scrap.lua
 Events.lua

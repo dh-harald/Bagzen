@@ -37,6 +37,20 @@ function GameTooltip.SetBagItem(self, container, slot)
     return BagzenSetBagItem(self, container, slot)
 end
 
+local BagzenSetInventoryItem = GameTooltip.SetInventoryItem
+function GameTooltip.SetInventoryItem(self, unit, slot)
+    if not unit or not slot then
+        return BagzenSetInventoryItem(self, unit, slot)
+    end
+
+    local itemLink = GetInventoryItemLink(unit, slot)
+    if itemLink then
+        Bagzen.Tooltip.itemID = Bagzen:LinkToItemID(itemLink)
+    end
+    return BagzenSetInventoryItem(self, unit, slot)
+end
+
+
 local BagzenSetInboxItem = GameTooltip.SetInboxItem
 function GameTooltip.SetInboxItem(self, index, attachment)
     if not index then
@@ -90,21 +104,23 @@ function Bagzen:TooltipOnShow(frame)
     for character, data in pairs(Bagzen.data.global[Bagzen.realmname]) do
         local class = data["class"]
         local bagcount = 0
+        local bankcount = 0
         local mailcount = 0
 
         local bagdata = data.bags
-        local maildata = data.mails
+        local maildata = data.mails or {}
 
         for bag, data2 in pairs(bagdata) do
-            if type(bag) == "number" and bag >= 0 then
+            if type(bag) == "number" and bag >= -1 then
                 if data2["slots"] then
                     for _, item in pairs(data2["slots"]) do
                         if Bagzen:LinkToItemID(item["link"]) == frame.itemID then
                             if bag >=0 and bag < 5 then
                                 -- bag
                                 bagcount = bagcount + item["count"]
-                            else
+                            elseif bag == -1 or bag > 4 then
                                 -- bank
+                                bankcount = bankcount + item["count"]
                             end
                         end
                     end
@@ -125,6 +141,14 @@ function Bagzen:TooltipOnShow(frame)
             count = count + bagcount
             countstr = "|cff4378ccBag:|r " .. bagcount
             ---countstr = "Bags: " .. bagcount
+        end
+        if bankcount > 0 then
+            count = count + bankcount
+            if countstr == "" then
+                countstr = "|cff4378ccBank:|r " .. bankcount
+            else
+                countstr = countstr .. ", |cff4378ccBank:|r " .. bankcount
+            end
         end
         if mailcount > 0 then
             count = count + mailcount

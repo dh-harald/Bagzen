@@ -63,7 +63,7 @@ function Bagzen:ToggleScrap(itemID)
             Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].scrap[itemID] = true
         else
             Bagzen:Print(itemName .. " is already scrap")
-        end        
+        end
     elseif (scrap == nil and useful ~= nil) then
         -- item was set as useful (only poor item could be useful)
         Bagzen:Print("Removing " .. itemName .. " as useful")

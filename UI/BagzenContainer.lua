@@ -26,6 +26,9 @@ end
 
 function Bagzen:ContainerInit(frame, bags)
     frame.Bags = bags
+    if frame:GetName() == "BagzenBankFrame" then
+        BagzenBankFrame.Virtual = true
+    end
     Bagzen:BagSlotsInit(frame)
     frame.OwnerName = Bagzen.unitname
     frame.OwnerRealm = Bagzen.realmname
@@ -52,9 +55,17 @@ end
 
 function Bagzen:ContainerItemOnEnter(frame)
     if frame ~= nil and frame.ItemLink then
-        GameTooltip:SetOwner(this, "ANCHOR_CURSOR")
+        GameTooltip:SetOwner(frame, "ANCHOR_CURSOR")
         GameTooltip:ClearLines()
-        GameTooltip:SetBagItem(frame.Bag, frame:GetID())
+        if frame:GetParent().Virtual then
+            GameTooltip:SetHyperlink("item:" .. Bagzen:LinkToItemID(frame.ItemLink) .. ":0:0:0")
+        else
+            if frame.Bag == -1 then
+                GameTooltip:SetInventoryItem("player", frame:GetID()+39)
+            else
+                GameTooltip:SetBagItem(frame.Bag, frame:GetID())
+            end
+        end
         GameTooltip:Show()
     end
 end
@@ -66,7 +77,6 @@ end
 function Bagzen:ContainerItemOnClick(frame, button, nomod)
     if button == "LeftButton" then
         if IsControlKeyDown() and not nomod then
-            Bagzen:Print(frame.ItemLink)
             DressUpItemLink(frame.ItemLink)
         elseif IsShiftKeyDown() and not nomod then
             if ChatFrameEditBox:IsShown() then
@@ -148,7 +158,6 @@ function Bagzen:ContainerItemUpdate(frame, bag)
     local section = frame.SettingSection
     local parent = getglobal(frame:GetName() .. "BagSlotsFrame" .. bag)
     local numslots = parent.Slots
-
     if Bagzen.ContainerFrames[section][bag] == nil then
         Bagzen.ContainerFrames[section][bag] = {}
     end
@@ -183,12 +192,28 @@ function Bagzen:ContainerItemUpdate(frame, bag)
     for slot, slotframe in pairs(Bagzen.ContainerFrames[section][bag]) do
         if slot <= numslots then
             local texture = getglobal(slotframe:GetName() .. "texture") or slotframe:CreateTexture(slotframe:GetName() .. "texture", 'OVERLAY')
-            local itemtexture, itemcount = GetContainerItemInfo(slotframe.Bag, slotframe:GetID())
+            local itemtexture = nil
+            local itemcount = nil
+            if frame.Virtual == false then
+                itemtexture, itemcount = GetContainerItemInfo(slotframe.Bag, slotframe:GetID())
+            else
+                if (Bagzen.data.global[frame.OwnerRealm][frame.OwnerName].bags and
+                        Bagzen.data.global[frame.OwnerRealm][frame.OwnerName].bags[slotframe.Bag] and
+                        Bagzen.data.global[frame.OwnerRealm][frame.OwnerName].bags[slotframe.Bag].slots[slotframe:GetID()]) then
+                    itemtexture = Bagzen.data.global[frame.OwnerRealm][frame.OwnerName].bags[slotframe.Bag].slots[slotframe:GetID()].texture
+                    itemcount = Bagzen.data.global[frame.OwnerRealm][frame.OwnerName].bags[slotframe.Bag].slots[slotframe:GetID()].count
+                end
+            end
             if itemtexture then
                 SetItemButtonTexture(slotframe, itemtexture)
                 SetItemButtonCount(slotframe, itemcount)
                 Bagzen:UpdateCooldown(slotframe.Bag, slotframe)
-                local itemLink = GetContainerItemLink(slotframe.Bag, slotframe:GetID())
+                local itemLink = nil
+                if frame.Virtual == false then
+                    itemLink = GetContainerItemLink(slotframe.Bag, slotframe:GetID())
+                else
+                    itemLink = Bagzen.data.global[frame.OwnerRealm][frame.OwnerName].bags[slotframe.Bag].slots[slotframe:GetID()].link
+                end
                 local itemID = Bagzen:LinkToItemID(itemLink)
                 local itemName = GetItemInfo(itemID)
                 slotframe.ItemID = itemID
@@ -242,13 +267,16 @@ function Bagzen:ContainerUpdate(frame, realm, name)
     frame.OwnerName = name
     frame.OwnerRealm = realm
     if frame:GetName() == "BagzenBagFrame" then
+        -- bagframe
         if frame.OwnerName == Bagzen.unitname and frame.OwnerRealm == Bagzen.realmname then
             frame.Virtual = false
         else
             frame.Virtual = true
         end
     else
-        -- TODO: Bank frame
+        -- bankframe
+        local numBankSlots = GetNumBankSlots()
+        frame.nextSlotCost = GetBankSlotCost(numBankSlots)
     end
 
     local titleframe = getglobal(frame:GetName() .. "TitleText")

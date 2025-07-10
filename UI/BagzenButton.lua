@@ -6,9 +6,15 @@ function Bagzen:ButtonTooltip(text)
 end
 
 function Bagzen:SortButtonOnClick(frame)
-    -- TODO:
-    -- Bags/Bank -- SortBags
-    -- Own sort
-    SetSortBagsRightToLeft(true)
-    SortBags()
+    local parent = frame:GetParent()
+    if parent.Virtual == false
+    then
+        SetSortBagsRightToLeft(true)
+        if parent:GetName() == "BagzenBagFrame"
+        then
+            SortBags()
+        else
+            SortBankBags()
+        end
+    end
 end

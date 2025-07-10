@@ -1,3 +1,18 @@
+StaticPopupDialogs["BAGZEN_CONFIRM_BUY_BANK_SLOT"] = {
+        text = TEXT(CONFIRM_BUY_BANK_SLOT),
+        button1 = TEXT(YES),
+        button2 = TEXT(NO),
+        OnAccept = function()
+                PurchaseSlot();
+        end,
+        OnShow = function()
+                MoneyFrame_Update(this:GetName().."MoneyFrame", BagzenBankFrame.nextSlotCost);
+        end,
+        hasMoneyFrame = 1,
+        timeout = 0,
+        hideOnEscape = 1,
+};
+
 function Bagzen:BagSlotsInit(parent)
     local frame = getglobal(parent:GetName() .. "BagSlotsFrame")
     if Bagzen.settings.global[parent.SettingSection].bagsframe then
@@ -43,13 +58,15 @@ function Bagzen:BagSlotItemOnEnter(frame)
     local bag = frame:GetID()
     if bag == KEYRING_CONTAINER then return end -- sanity check
 
-    local show = bag < 1 or frame.ItemLink
+    local show = bag < 1 or frame.ItemLink or (frame:GetParent():GetParent():GetName() == "BagzenBankFrame" and frame.Purchasable and frame.Virtual == false)
 
     if show then
         GameTooltip:SetOwner(this, "ANCHOR_CURSOR")
         GameTooltip:ClearLines()
 
-        if bag < 1 then
+        if frame:GetParent():GetParent():GetName() == "BagzenBankFrame" and frame.Purchasable then
+            GameTooltip:SetText("Purchasable Bank Slot")
+        elseif bag < 1 then
             if bag == -1 then
                 GameTooltip:SetText("Bank")
             else
@@ -81,7 +98,9 @@ function Bagzen:BagSlotItemOnClick(frame)
         hadItem = PutItemInBag(frame.Slot)
     end
     if not hadItem then
-        if IsShiftKeyDown() then
+        if frame:GetParent():GetParent():GetName() == "BagzenBankFrame" and frame.Purchasable then
+            StaticPopup_Show("BAGZEN_CONFIRM_BUY_BANK_SLOT")
+        elseif IsShiftKeyDown() then
             if (ChatFrameEditBox:IsShown()) then
                 -- ChatFrameEditBox:Insert(frame.ItemLink) TODO: create proper link for linkng
             end
@@ -99,6 +118,8 @@ function Bagzen:BagSlotItemUpdate(frame)
     local bag = frame:GetID()
     local name = frame:GetName()
     local icontexture = getglobal(name .. "IconTexture")
+    local parent = frame:GetParent():GetParent()
+    local virtual = parent.Virtual
     if bag == KEYRING_CONTAINER then
         return -- sanity check
     elseif bag <= 0 then
@@ -106,7 +127,14 @@ function Bagzen:BagSlotItemUpdate(frame)
         frame.itemlink = nil
         icontexture:SetTexture("Interface\\Buttons\\Button-Backpack-Up")
     else
-        local baglink = GetInventoryItemLink("player", frame.Slot)
+        local baglink = nil
+        if virtual == false then
+            baglink = GetInventoryItemLink("player", frame.Slot)
+        else
+            if Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags and Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag] then
+                baglink = Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag].link
+            end
+        end
         if baglink ~= nil then
             local itemID = Bagzen:LinkToItemID(baglink)
             local _, itemLink, _, _, _, _, _, _, texture = GetItemInfo(itemID)
@@ -117,7 +145,7 @@ function Bagzen:BagSlotItemUpdate(frame)
             frame.ItemLink = nil
         end
     end
-    if frame:GetParent():GetParent().Virtual == false and (frame.ItemLink or bag < 1) then
+    if virtual == false and (frame.ItemLink or bag < 1) then
         -- save slots
         Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].bags[bag] = {
             texture = icontexture:GetTexture(),
@@ -126,7 +154,7 @@ function Bagzen:BagSlotItemUpdate(frame)
             slots = {}
         }
     end
-    if frame:GetParent():GetParent().Virtual == false then
+    if virtual == false then
         frame:RegisterForClicks("LeftButtonUp")
         if bag > 0 then
             frame:RegisterForDrag("LeftButton")
@@ -147,7 +175,15 @@ function Bagzen:BagSlotUpdate(parent, bag)
         Bagzen:HackID(dummyframe)
         dummyframe:SetID(bag)
     end
-    local numslots = GetContainerNumSlots(bag) or 0
+
+    local numslots = 0
+    if parent.Virtual == false then
+        numslots = GetContainerNumSlots(bag) or 0
+    else
+        if Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags and Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag] then
+            numslots = Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag].size
+        end
+    end
 
     local frame = getglobal(parent:GetName() .. "BagSlotsFrame" .. bag)
     if frame == nil then
@@ -160,6 +196,20 @@ function Bagzen:BagSlotUpdate(parent, bag)
             index = index + 1
         end
         frame:SetPoint("TOPLEFT", bagslotsframe:GetName(), "TOPLEFT", 2 * Bagzen.PADDING + index * Bagzen.SIZE_X, -2 * Bagzen.PADDING)
+    end
+    if parent:GetName() == "BagzenBankFrame" then
+        if bag > 0 then
+            local bagslottexture = getglobal(frame:GetName() .. "Background")
+
+            local numbagslots = GetNumBankSlots()
+            if (bag - 4) > numbagslots then
+                frame.Purchasable = true
+                bagslottexture:SetTexture(0.5, 0, 0, 0.2)
+            else
+                frame.Purchasable = nil
+                bagslottexture:SetTexture(0, 0, 0, 0)
+            end
+        end
     end
     frame:SetID(bag)
     frame.Slot = ContainerIDToInventoryID(bag)
