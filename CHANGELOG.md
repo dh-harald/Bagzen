@@ -1,3 +1,16 @@
+# [0.3.0](https://github.com/dh-harald/Bagzen/compare/v0.2.0...v0.3.0) (2025-07-10)
+
+
+### Bug Fixes
+
+* remove debug messages from Mail.lua ([ee562a9](https://github.com/dh-harald/Bagzen/commit/ee562a988f55d502a80cb489a9be140a1d5ac33a))
+* try to fix when GetContainerNumSlots refreshes late ([3b958cd](https://github.com/dh-harald/Bagzen/commit/3b958cd8f29922aadfbb4dbcd505c4cd6b29498d))
+
+
+### Features
+
+* added bankframe (unhooks original bankframe) ([df28905](https://github.com/dh-harald/Bagzen/commit/df28905829f00675f1ee3d662051da82b76cc256))
+
 # [0.2.0](https://github.com/dh-harald/Bagzen/compare/v0.1.0...v0.2.0) (2025-07-08)
 
 
