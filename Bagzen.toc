@@ -17,9 +17,6 @@ lib\Ace3\AceDB-3.0\AceDB-3.0.xml
 lib\Ace3\AceConfig-3.0\AceConfig-3.0.xml
 lib\Ace3\AceHook-3.0\AceHook-3.0.xml
 
-lib\LibSharedMedia-3.0\lib.xml
-lib\Ace3\AceGUI-3.0-SharedMediaWidgets\widget.xml
-
 lib\LibDataBroker-1.1\LibDataBroker-1.1.lua
 lib\LibDBIcon-1.0\LibDBIcon-1.0.lua
 
