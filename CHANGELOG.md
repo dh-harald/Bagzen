@@ -1,3 +1,10 @@
+# [0.4.0](https://github.com/dh-harald/Bagzen/compare/v0.3.1...v0.4.0) (2025-07-13)
+
+
+### Features
+
+* added browsing other characters' bags and banks ([d4a232e](https://github.com/dh-harald/Bagzen/commit/d4a232ed94d8dcf4f70336d1e32642a2279e27e2))
+
 ## [0.3.1](https://github.com/dh-harald/Bagzen/compare/v0.3.0...v0.3.1) (2025-07-10)
 
 
