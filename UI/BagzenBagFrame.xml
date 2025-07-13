@@ -22,10 +22,16 @@
           </Anchor>
         </Anchors>
       </Button>
+      <Frame name="$parentCharactersFrame" inherits="BagzenCharactersFrameTemplate" hidden="true">
+        <Anchors>
+          <Anchor point="TOPRIGHT" relativePoint="TOPLEFT"/>
+        </Anchors>
+      </Frame>
     </Frames>
     <Scripts>
       <OnHide>
         Bagzen:SearchBoxClearText(this)
+        Bagzen:ContainerResetOwner(this)
       </OnHide>
     </Scripts>
   </Frame>

@@ -167,7 +167,6 @@ function Bagzen:BagSlotItemUpdate(frame)
 end
 
 function Bagzen:BagSlotUpdate(parent, bag)
-    -- TODO: Different owner
     local bagslotsframe = getglobal(parent:GetName() .. "BagSlotsFrame")
     if bag == KEYRING_CONTAINER then return end -- no bag for keyring
     local dummyframe = getglobal(parent:GetName() .. "DummyBagSlotFrame" .. bag)
@@ -202,7 +201,12 @@ function Bagzen:BagSlotUpdate(parent, bag)
         if bag > 0 then
             local bagslottexture = getglobal(frame:GetName() .. "Background")
 
-            local numbagslots = GetNumBankSlots()
+            local numbagslots = 0
+            if parent.Virtual == false then
+                numbagslots = GetNumBankSlots()
+            else
+                numbagslots = Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bagslots or 0
+            end
             if (bag - 4) > numbagslots then
                 frame.Purchasable = true
                 bagslottexture:SetTexture(0.5, 0, 0, 0.2)

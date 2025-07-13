@@ -18,10 +18,20 @@ function Bagzen:ContainerOnLoad(frame)
     elseif name == "BagzenBankFrame" then
         frame.SettingSection = "bankframe"
         frame.FrameName = "Bank"
+        -- getglobal(name .. "CharactersFrame"):SetPoint("TOPLEFT", "BagzenBankFrame", "TOPRIGHT")
     end
     frame.SplitStack = function(button, split)
         SplitContainerItem(button.Bag, button:GetID(), split)
     end
+end
+
+function Bagzen:ContainerResetOwner(frame)
+    if frame.Virtual == true and (frame.OwnerRealm ~= Bagzen.realmname or frame.OwnerName ~= Bagzen.unitname) then
+        Bagzen:ContainerUpdate(frame, Bagzen.realmname, Bagzen.unitname)
+        Bagzen:CharactersFrameUpdate(frame)
+        Bagzen:ContainerReposition(frame)
+    end
+    getglobal(frame:GetName() .. "CharactersFrame"):Hide()
 end
 
 function Bagzen:ContainerInit(frame, bags)
@@ -67,11 +77,17 @@ function Bagzen:ContainerItemOnEnter(frame)
             end
         end
         GameTooltip:Show()
+        if MerchantFrame:IsShown() and MerchantFrame.selectedTab == 1 then
+            ShowContainerSellCursor(frame:GetParent():GetID(), frame:GetID())
+        else
+            ResetCursor()
+        end
     end
 end
 
 function Bagzen:ContainerItemOnLeave(frame)
     GameTooltip:Hide()
+    ResetCursor()
 end
 
 function Bagzen:ContainerItemOnClick(frame, button, nomod)
@@ -142,6 +158,7 @@ function Bagzen:ContainerResize(frame)
     local searchbox = getglobal(frame:GetName() .. "SearchBox")
     searchbox:SetWidth(Bagzen.settings.global[frame.SettingSection].width * Bagzen.SIZE_X - 4 * Bagzen.PADDING)
 
+    Bagzen:CharactersFrameResize(frame)
 end
 
 function Bagzen:UpdateCooldown(container, button)
@@ -275,8 +292,21 @@ function Bagzen:ContainerUpdate(frame, realm, name)
         end
     else
         -- bankframe
-        local numBankSlots = GetNumBankSlots()
-        frame.nextSlotCost = GetBankSlotCost(numBankSlots)
+        frame.Virtual = true
+        if frame.Real == true and frame.OwnerName == Bagzen.unitname and frame.OwnerRealm == Bagzen.realmname then
+            frame.Virtual = false
+        end
+
+        if frame.Virtual == true then
+            getglobal(frame:GetName() .. "OnlineButton"):Hide()
+            getglobal(frame:GetName() .. "OfflineButton"):Show()
+        else
+            local numBankSlots = GetNumBankSlots()
+            Bagzen.data.global[frame.OwnerRealm][frame.OwnerName].bagslots = numBankSlots
+            frame.nextSlotCost = GetBankSlotCost(numBankSlots)
+            getglobal(frame:GetName() .. "OnlineButton"):Show()
+            getglobal(frame:GetName() .. "OfflineButton"):Hide()
+        end
     end
 
     local titleframe = getglobal(frame:GetName() .. "TitleText")
@@ -296,5 +326,16 @@ function Bagzen:ContainerReposition(frame)
     end
     if Bagzen.settings.char[frame.SettingSection].point then
         frame:SetPoint(Bagzen.settings.char[frame.SettingSection].point, nil, Bagzen.settings.char[frame.SettingSection].relativePoint, Bagzen.settings.char[frame.SettingSection].xOfs, Bagzen.settings.char[frame.SettingSection].yOfs)
+    else
+        local ratio = UIParent:GetEffectiveScale() / frame:GetEffectiveScale()
+        if frame:GetName() == "BagzenBagFrame" then
+            local gapX = 300
+            local gapY = 300
+            BagzenBagFrame:SetPoint("TOPLEFT", "UIParent", "TOPLEFT", (UIParent:GetWidth() - gapX * ratio), -1 * (UIParent:GetHeight() - gapY) * ratio)
+        else
+            local gapX = 100
+            local gapY = 100
+            BagzenBankFrame:SetPoint("TOPLEFT", "UIParent", "TOPLEFT", gapX, -1 * gapY)
+        end
     end
 end

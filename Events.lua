@@ -41,12 +41,12 @@ function Bagzen:BAG_UPDATE_COOLDOWN()
 end
 
 function Bagzen:BANKFRAME_CLOSED()
-    BagzenBankFrame.Virtual = true
+    BagzenBankFrame.Real = false
     BagzenBankFrame:Hide()
 end
 
 function Bagzen:BANKFRAME_OPENED()
-    BagzenBankFrame.Virtual = false
+    BagzenBankFrame.Real = true
     Bagzen:ContainerUpdate(BagzenBankFrame, Bagzen.realmname, Bagzen.unitname)
     BagzenBankFrame:Show()
 end
@@ -81,20 +81,27 @@ function Bagzen:MERCHANT_SHOW()
 end
 
 function Bagzen:PLAYER_LOGIN()
+    Bagzen:ItemCacheInit()
+    Bagzen:CharactersFrameInit()
     Bagzen:ContainerInit(BagzenBagFrame, {0, 1, 2, 3, 4, KEYRING_CONTAINER})
     Bagzen:ContainerInit(BagzenBankFrame, {-1, 5, 6, 7, 8, 9, 10})
     Bagzen:ContainerUpdate(BagzenBagFrame, Bagzen.realmname, Bagzen.unitname)
     Bagzen:ContainerUpdate(BagzenBankFrame, Bagzen.realmname, Bagzen.unitname)
+    Bagzen:CharactersFrameUpdate(BagzenBagFrame)
+    Bagzen:CharactersFrameUpdate(BagzenBankFrame)
     Bagzen:ContainerReposition(BagzenBagFrame)
     Bagzen:ContainerReposition(BagzenBankFrame)
-    Bagzen:ItemCacheInit()
-    Bagzen:MoneyFrameUpdate(BagzenBagFrameMoneyFrame, GetMoney())
-    Bagzen:MoneyFrameUpdate(BagzenBankFrameMoneyFrame, GetMoney())
+    local money = GetMoney()
+    Bagzen:MoneyFrameUpdate(BagzenBagFrameMoneyFrame, money)
+    Bagzen:MoneyFrameUpdate(BagzenBankFrameMoneyFrame, money)
+    Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].money = money
 end
 
 function Bagzen:PLAYER_MONEY()
-    Bagzen:MoneyFrameUpdate(BagzenBagFrameMoneyFrame, GetMoney())
-    Bagzen:MoneyFrameUpdate(BagzenBankFrameMoneyFrame, GetMoney())
+    local money = GetMoney()
+    Bagzen:MoneyFrameUpdate(BagzenBagFrameMoneyFrame, money)
+    Bagzen:MoneyFrameUpdate(BagzenBankFrameMoneyFrame, money)
+    Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].money = money
     if BagzenBankFrame:IsShown() and BagzenBankFrame.Virtual == false then
         -- bag puchased
         Bagzen:ContainerUpdate(BagzenBankFrame, Bagzen.realmname, Bagzen.unitname)

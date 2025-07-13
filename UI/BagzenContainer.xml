@@ -8,36 +8,23 @@
       <Model name="$parentCooldown" inherits="CooldownFrameTemplate"/>
     </Frames>
     <Scripts>
-    <OnEnter>
-      Bagzen:ContainerItemOnEnter(this)
-    </OnEnter>
-    <OnLeave>
-      Bagzen:ContainerItemOnLeave(this)
-    </OnLeave>
-    <OnClick>
-      Bagzen:ContainerItemOnClick(this, arg1)
-    </OnClick>
-    <OnDragStart>
-      Bagzen:ContainerItemOnClick(this, "LeftButton", 1)
-    </OnDragStart>
-    <OnReceiveDrag>
-      Bagzen:ContainerItemOnClick(this, "LeftButton", 1)
-    </OnReceiveDrag>
-  </Scripts>
-</Frame>
-
-  <Font name="BagzenFont" font="Interface\AddOns\Bagzen\fonts\PTSansNarrow.ttf" virtual="true">
-     <Shadow>
-      <Offset>
-        <AbsDimension x="1" y="-1"/>
-      </Offset>
-      <Color r="0" g="0" b="0"/>
-     </Shadow>
-     <FontHeight>
-      <AbsValue val="12"/>
-     </FontHeight>
-     <Color r="1.0" g="0.82" b="0"/>
-  </Font>
+      <OnEnter>
+        Bagzen:ContainerItemOnEnter(this)
+      </OnEnter>
+      <OnLeave>
+        Bagzen:ContainerItemOnLeave(this)
+      </OnLeave>
+      <OnClick>
+        Bagzen:ContainerItemOnClick(this, arg1)
+      </OnClick>
+      <OnDragStart>
+        Bagzen:ContainerItemOnClick(this, "LeftButton", 1)
+      </OnDragStart>
+      <OnReceiveDrag>
+        Bagzen:ContainerItemOnClick(this, "LeftButton", 1)
+      </OnReceiveDrag>
+    </Scripts>
+  </Frame>
 
   <Frame name="BagzenContainerTemplate" virtual="true">
     <Layers>
@@ -142,6 +129,14 @@
           </Anchor>
         </Anchors>
       </Frame>
+      <!--
+      <Frame name="$parentCharactersFrame" inherits="BagzenCharactersFrameTemplate" hidden="true">
+        <Anchors>
+          <Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPLEFT">
+          </Anchor>
+        </Anchors>
+      </Frame>
+      -->
     </Frames>
     <Scripts>
       <OnLoad>

@@ -31,10 +31,15 @@
           </Anchor>
         </Anchors>
       </Button>
+      <Frame name="$parentCharactersFrame" inherits="BagzenCharactersFrameTemplate" hidden="true">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPRIGHT"/>
+        </Anchors>
+      </Frame>
     </Frames>
     <Scripts>
       <OnShow>
-        Bagzen:BankFrameOnShow(this)
+        Bagzen:ContainerResetOwner(this)
       </OnShow>
       <OnHide>
         Bagzen:SearchBoxClearText(this)

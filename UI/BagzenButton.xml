@@ -3,6 +3,19 @@
 
   <Script file="BagzenButton.lua"/>
 
+  <Font name="BagzenFont" font="Interface\AddOns\Bagzen\fonts\PTSansNarrow.ttf" virtual="true">
+     <Shadow>
+      <Offset>
+        <AbsDimension x="1" y="-1"/>
+      </Offset>
+      <Color r="0" g="0" b="0"/>
+     </Shadow>
+     <FontHeight>
+      <AbsValue val="12"/>
+     </FontHeight>
+     <Color r="1.0" g="0.82" b="0"/>
+  </Font>
+
   <Button name="BagzenOnlineButton" virtual="true">
     <Size>
       <AbsDimension x="16" y="16"/>
@@ -66,6 +79,7 @@
     <HighlightTexture file="Interface\AddOns\Bagzen\icons\charactersh.tga"/>
     <Scripts>
       <OnClick>
+        Bagzen:CharactersFrameToggle(this)
       </OnClick>
       <OnEnter>
         Bagzen:ButtonTooltip("Characters")

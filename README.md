@@ -5,7 +5,7 @@ OneBag Addon inspired by Baganator for WoW Vanilla 1.12.1
 ## Features
 - Ace3v library
 - OneBag layout
-- ~~Browsing any character's bags/bank slots~~
+- Browsing any character's bags/bank slots
 - Sorting items in bags & bank (initially with SortBags)
 - Simple junk implementation (based on Scrap)
 - Autosell greys/junks

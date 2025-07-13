@@ -59,3 +59,26 @@ function Bagzen:ItemCacheInit()
         end
     end
 end
+
+function Bagzen:CreateGoldString(money)
+    if type(money) ~= "number" then
+        return "-"
+    end
+
+    local gold = floor(money/ 100 / 100)
+    local silver = floor(mod((money/100),100))
+    local copper = floor(mod(money,100))
+
+    local out = ""
+    if gold > 0 then
+        out = out .. "|cffffffff" .. gold .. "|cffffd700g"
+    end
+
+    if silver > 0 or gold > 0 then
+        out = out .. "|cffffffff " .. silver .. "|cffc7c7cfs"
+    end
+
+    out = out .. "|cffffffff " .. copper .. "|cffeda55fc"
+
+    return out
+end

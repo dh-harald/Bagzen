@@ -30,6 +30,7 @@ UI\BagzenItemButton.xml
 UI\BagzenBagSlots.xml
 UI\BagzenSearchBox.xml
 UI\BagzenMoneyFrame.xml
+UI\BagzenCharactersFrame.xml
 UI\BagzenContainer.xml
 UI\BagzenBagFrame.xml
 UI\BagzenBankFrame.xml
