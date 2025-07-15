@@ -18,3 +18,7 @@ function Bagzen:SortButtonOnClick(frame)
         end
     end
 end
+
+function Bagzen:CloseButtonOnClick(frame)
+    frame:GetParent():Hide()
+end

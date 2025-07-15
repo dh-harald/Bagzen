@@ -13,6 +13,7 @@ function Bagzen:SignetToUnsigned(num)
 end
 
 function Bagzen:HackID(frame)
+    if Bagzen.IsWOTLK then return end -- not needed for WOTLK // taints the frame anyway
     -- HACK: replace GetID/SetID functions as not handling negative IDs
     frame.OldGetID = frame.GetID
     frame.OldSetID = frame.SetID
@@ -24,8 +25,18 @@ function Bagzen:HackID(frame)
     end
 end
 
+function Bagzen:GetItemInfo(arg)
+    -- make it working on vanilla and wotlk
+    if Bagzen.IsWOTLK then
+        return GetItemInfo(arg)
+    else
+        local r1, r2, r3, r4, r5, r6, r7, r8, r9 = GetItemInfo(arg)
+        return r1, r2, r3, r4, nil, r5, r6, r7, r8, r9, nil -- no itemlevel in vanilla, TODO: itemprice
+    end
+end
+
 function Bagzen:isQuestItem(itemID)
-    local _, _, _, _, itemtype = GetItemInfo(itemID)
+    local _, _, _, _, _, itemtype = Bagzen:GetItemInfo(itemID)
     return itemtype == "Quest"
 end
 
@@ -48,7 +59,7 @@ function Bagzen:ItemCacheInit()
     Bagzen.ItemCache = {}
     local count = 0
     for itemID=1, 101000 do
-        local itemName, hyperLink, itemQuality = GetItemInfo(itemID)
+        local itemName, hyperLink, itemQuality = Bagzen:GetItemInfo(itemID)
         if itemName ~= nil and hyperLink ~= nil then
             Bagzen.ItemCache[itemID] = {
                 name = itemName,

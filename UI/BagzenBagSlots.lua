@@ -14,7 +14,8 @@ StaticPopupDialogs["BAGZEN_CONFIRM_BUY_BANK_SLOT"] = {
 };
 
 function Bagzen:BagSlotsInit(parent)
-    local frame = getglobal(parent:GetName() .. "BagSlotsFrame")
+    local _G = _G or getfenv()
+    local frame = _G[parent:GetName() .. "BagSlotsFrame"]
     if Bagzen.settings.global[parent.SettingSection].bagsframe then
         frame:Show()
     else
@@ -31,9 +32,14 @@ function Bagzen:BagSlotsInit(parent)
 end
 
 function Bagzen:HighlightSlots(frame, bag)
+    local _G = _G or getfenv()
     local name = frame:GetName()
-    local bagframe = getglobal(name .. "BagSlotsFrame" .. bag)
-    for i, slotframe in pairs(Bagzen.ContainerFrames[frame.SettingSection][bag]) do
+    local bagframe = _G[name .. "BagSlotsFrame" .. bag]
+    local live = "Live"
+    if frame.Virtual == true then
+        live = "Virtual"
+    end
+    for i, slotframe in pairs(Bagzen.ContainerFrames[live][frame.SettingSection][bag]) do
         if i <= bagframe.Slots then
             slotframe:LockHighlight()
         end
@@ -41,11 +47,16 @@ function Bagzen:HighlightSlots(frame, bag)
 end
 
 function Bagzen:UnHighlightSlots(frame)
+    local _G = _G or getfenv()
     local name = frame:GetName()
+    local live = "Live"
+    if frame.Virtual == true then
+        live = "Virtual"
+    end
     for _, bag in pairs(frame.Bags) do
-        if Bagzen.ContainerFrames[frame.SettingSection][bag] then
-            local bagframe = getglobal(name .. "BagSlotsFrame" .. bag)
-            for i, slotframe in pairs(Bagzen.ContainerFrames[frame.SettingSection][bag]) do
+        if Bagzen.ContainerFrames[live][frame.SettingSection][bag] then
+            local bagframe = _G[name .. "BagSlotsFrame" .. bag]
+            for i, slotframe in pairs(Bagzen.ContainerFrames[live][frame.SettingSection][bag]) do
                 if i <= bagframe.Slots then
                     slotframe:UnlockHighlight()
                 end
@@ -92,7 +103,7 @@ end
 
 function Bagzen:BagSlotItemOnClick(frame)
     local hadItem = nil
-    if frame.Slot == ContainerIDToInventoryID(0) then
+    if frame.Slot == 19 then
         hadItem = PutItemInBackpack()
     else
         hadItem = PutItemInBag(frame.Slot)
@@ -115,9 +126,10 @@ function Bagzen:BagSlotItemOnDragStart(frame)
 end
 
 function Bagzen:BagSlotItemUpdate(frame)
+    local _G = _G or getfenv()
     local bag = frame:GetID()
     local name = frame:GetName()
-    local icontexture = getglobal(name .. "IconTexture")
+    local icontexture = _G[name .. "IconTexture"]
     local parent = frame:GetParent():GetParent()
     local virtual = parent.Virtual
     if bag == KEYRING_CONTAINER then
@@ -137,7 +149,7 @@ function Bagzen:BagSlotItemUpdate(frame)
         end
         if baglink ~= nil then
             local itemID = Bagzen:LinkToItemID(baglink)
-            local _, itemLink, _, _, _, _, _, _, texture = GetItemInfo(itemID)
+            local _, itemLink, _, _, _, _, _, _, _, texture = Bagzen:GetItemInfo(itemID)
             icontexture:SetTexture(texture)
             frame.ItemLink = itemLink
         else
@@ -155,21 +167,13 @@ function Bagzen:BagSlotItemUpdate(frame)
             slots = {}
         }
     end
-    if virtual == false then
-        frame:RegisterForClicks("LeftButtonUp")
-        if bag > 0 then
-            frame:RegisterForDrag("LeftButton")
-        end
-    else
-        frame:RegisterForClicks(nil)
-        frame:RegisterForDrag(nil)
-    end
 end
 
 function Bagzen:BagSlotUpdate(parent, bag)
-    local bagslotsframe = getglobal(parent:GetName() .. "BagSlotsFrame")
+    local _G = _G or getfenv()
+    local bagslotsframe = _G[parent:GetName() .. "BagSlotsFrame"]
     if bag == KEYRING_CONTAINER then return end -- no bag for keyring
-    local dummyframe = getglobal(parent:GetName() .. "DummyBagSlotFrame" .. bag)
+    local dummyframe = _G[parent:GetName() .. "DummyBagSlotFrame" .. bag]
     if dummyframe == nil then
         dummyframe = CreateFrame("Frame", parent:GetName() .. "DummyBagSlotFrame" .. bag, parent)
         Bagzen:HackID(dummyframe)
@@ -185,9 +189,11 @@ function Bagzen:BagSlotUpdate(parent, bag)
         end
     end
 
-    local frame = getglobal(parent:GetName() .. "BagSlotsFrame" .. bag)
+    local frame = _G[parent:GetName() .. "BagSlotsFrame" .. bag]
     if frame == nil then
         frame = CreateFrame("Button", parent:GetName() .. "BagSlotsFrame" .. bag, bagslotsframe, "BagzenBagSlotItemTemplate")
+        Bagzen:HackID(frame)
+        frame:SetID(bag)
         local index = 0
         for _, tmp in pairs(parent.Bags) do
             if tmp == bag then
@@ -199,7 +205,7 @@ function Bagzen:BagSlotUpdate(parent, bag)
     end
     if parent:GetName() == "BagzenBankFrame" then
         if bag > 0 then
-            local bagslottexture = getglobal(frame:GetName() .. "Background")
+            local bagslottexture = _G[frame:GetName() .. "Background"]
 
             local numbagslots = 0
             if parent.Virtual == false then
@@ -217,14 +223,19 @@ function Bagzen:BagSlotUpdate(parent, bag)
         end
     end
     frame:SetID(bag)
-    frame.Slot = ContainerIDToInventoryID(bag)
+    if bag > 0 then
+        frame.Slot = ContainerIDToInventoryID(bag)
+    else
+        frame.Slot = 19 + bag
+    end
     frame.Slots = numslots
     Bagzen:BagSlotItemUpdate(frame)
     frame:Show()
 end
 
 function Bagzen:BagSlotsToggle(parent)
-    local frame = getglobal(parent:GetName() .. "BagSlotsFrame")
+    local _G = _G or getfenv()
+    local frame = _G[parent:GetName() .. "BagSlotsFrame"]
     if frame:IsShown() then
         frame:Hide()
         Bagzen.settings.global[parent.SettingSection].bagsframe = false

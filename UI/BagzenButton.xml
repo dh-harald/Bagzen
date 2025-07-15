@@ -159,7 +159,7 @@
     <HighlightTexture file="Interface\AddOns\Bagzen\icons\closeh.tga"/>
     <Scripts>
       <OnClick>
-        this:GetParent():Hide();
+        Bagzen:CloseButtonOnClick(this)
       </OnClick>
       <OnEnter>
         Bagzen:ButtonTooltip("Close")

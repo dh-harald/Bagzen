@@ -2,7 +2,7 @@
 BINDING_HEADER_SCRAP = "Bagzen"
 BINDING_NAME_SCRAP_TOGGLE = "Toggle Item Under Mouse"
 
-Bagzen = LibStub("AceAddon-3.0"):NewAddon("Bagzen", "AceEvent-3.0", "AceConsole-3.0")
+Bagzen = LibStub("AceAddon-3.0"):NewAddon("Bagzen", "AceEvent-3.0", "AceConsole-3.0", "AceHook-3.0")
 
 Bagzen.realmname = GetRealmName()
 Bagzen.unitname = GetUnitName("player")
@@ -11,6 +11,20 @@ Bagzen.SIZE_X = 40 -- slot size X
 Bagzen.SIZE_Y = 40 -- slot size Y
 Bagzen.PADDING = 2
 Bagzen.MOD_Y = -48 -- where the containerslots starts in Y
+
+local _, _, _, client = GetBuildInfo()
+client = client or 11200
+Bagzen.client = client
+
+Bagzen.IsVanilla = false
+-- Bagzen.isTBC = false -- not supported atm
+Bagzen.IsWOTLK = false
+
+if client >= 10000 and client <= 11300 then -- no classic support
+    Bagzen.IsVanilla = true
+elseif client >= 30000 and client <= 30300 then
+  Bagzen.IsWOTLK = true
+end
 
 Bagzen.icon = LibStub("LibDBIcon-1.0", true)
 Bagzen.LDB = LibStub("LibDataBroker-1.1"):NewDataObject("Bagzen", {
@@ -274,6 +288,8 @@ local ConfigTable = {
 function Bagzen:OnInitialize()
     Bagzen:Print("Initialized")
 
+    local _G = _G or getfenv()
+
     -- settings / data
     Bagzen.settings = LibStub("AceDB-3.0"):New("BagzenSettings", default_settings)
     Bagzen.data = LibStub("AceDB-3.0"):New("BagzenData", default_data)
@@ -319,8 +335,7 @@ function Bagzen:OnInitialize()
     Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].class = string.upper(class)
     Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].sex = sexname[UnitSex("player")]
 
-    -- override default backpack functions
-    ToggleBackpack = function()
+    local BagzenToggleBackpack = function()
         if BagzenBagFrame:IsShown() then
             BagzenBagFrame:Hide()
         else
@@ -328,24 +343,54 @@ function Bagzen:OnInitialize()
         end
     end
 
-    ToggleBag = function(id)
-        ToggleBackpack()
+    local BagzenCloseBackpack = function()
+        Bagzen.HelperBackpack = false
     end
 
-    OpenAllBags = function()
-        BagzenBagFrame:Show()
-    end
-
-    CloseAllBags = function()
+    local BagzenCloseAllBags = function()
         BagzenBagFrame:Hide()
     end
 
+    local BagzenOpenAllBags = function()
+        BagzenBagFrame:Show()
+    end
+
+    --[[ 
+    local BagzenToggleKeyring = function()
+        -- TODO
+    end
+
+    local BagzenToggleBag = function(id)
+        -- TODO
+    end
+
+    local BagzenCloseBag = function(id)
+        -- TODO
+    end
+    ]]--
+
+    Bagzen:SecureHook("ToggleBackpack", BagzenToggleBackpack)
+    Bagzen:SecureHook("CloseBackpack", BagzenCloseBackpack)
+    Bagzen:SecureHook("OpenAllBags", BagzenOpenAllBags)
+    Bagzen:SecureHook("CloseAllBags", BagzenCloseAllBags)
+    -- Bagzen:SecureHook("ToggleKeyring", BagzenToggleKeyring)
+    -- Bagzen:SecureHook("ToggleBag", BagzenToggleBag)
+    -- Bagzen:SecureHook("CloseBag", BagzenCloseBag)
+
+    -- remove bagframes
+    local hidden = CreateFrame("Frame")
+    hidden:Hide()
+    for i = 1, 6 do
+        local f = _G["ContainerFrame" .. i]
+        if f then
+            f:SetParent(hidden)
+            f:SetPoint("TOPLEFT", "UIParent", 0, 0)
+        end
+    end
+
     -- remove hooks from original BankFrame
-    local bankframe = getglobal("BankFrame")
+    local bankframe = _G["BankFrame"]
     if bankframe then
-        bankframe:UnregisterEvent("BANKFRAME_OPENED")
-        bankframe:UnregisterEvent("PLAYERBANKSLOTS_CHANGED")
-        bankframe:UnregisterEvent("ITEM_LOCK_CHANGED")
-        bankframe:UnregisterEvent("CURSOR_UPDATE")
+        bankframe:UnregisterAllEvents()
     end
 end

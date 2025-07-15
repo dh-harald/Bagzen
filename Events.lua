@@ -11,15 +11,30 @@ function Bagzen:BAG_CLOSED()
 end
 
 function Bagzen:BAG_UPDATE()
-    if arg1 == -1 or arg1 > 4
+    local _G = _G or getfenv()
+    -- TODO keyring
+    if (arg1 == KEYRING_CONTAINER) or (arg1 < -1) or (arg1 > 10)
     then
-        -- sometimes it's called for bankframe (5)
+        -- sometimes it's called for bankframe (5) when it's not open
+        -- on WOTLK, looks triggered for extra bagslots,
+        -- on WOTLK, triggering (-4) which I don't know, what it means
         return -- sanity check
     end
+
+    local parent = nil
+    if arg1 >= 0 and arg1 < 5 then
+        parent = _G["BagzenBagFrame"]
+    elseif arg1 == -1 or arg1 >= 5 then
+        parent = _G["BagzenBankFrame"]
+        if parent.Virtual == true then
+            return -- sanity check
+        end
+    end
+
     local full = false
-    for _, bag in pairs(BagzenBagFrame.Bags) do
+    for _, bag in pairs(parent.Bags) do
         if bag ~= KEYRING_CONTAINER then
-            local frame = getglobal("BagzenBagFrameBagSlotsFrame" .. bag)
+            local frame = _G[parent:GetName() .. "BagSlotsFrame" .. bag]
             local numslots = GetContainerNumSlots(bag) or 0
             if frame.Slots ~= numslots then
                 full = true
@@ -27,12 +42,13 @@ function Bagzen:BAG_UPDATE()
             end
         end
     end
+
     if full == true then
         -- layout changed
-        Bagzen:ContainerUpdate(BagzenBagFrame, Bagzen.realmname, Bagzen.unitname)
+        Bagzen:ContainerUpdate(parent, Bagzen.realmname, Bagzen.unitname)
     else
-        Bagzen:BagSlotUpdate(BagzenBagFrame, arg1)
-        Bagzen:ContainerItemUpdate(BagzenBagFrame, arg1)
+        Bagzen:BagSlotUpdate(parent, arg1)
+        Bagzen:ContainerItemUpdate(parent, arg1)
     end
 end
 
@@ -43,6 +59,7 @@ end
 function Bagzen:BANKFRAME_CLOSED()
     BagzenBankFrame.Real = false
     BagzenBankFrame:Hide()
+    Bagzen:ContainerUpdate(BagzenBankFrame, Bagzen.realmname, Bagzen.unitname)
 end
 
 function Bagzen:BANKFRAME_OPENED()
@@ -122,7 +139,8 @@ function Bagzen:OnEnable()
     Bagzen:RegisterEvent("MAIL_INBOX_UPDATE")
     Bagzen:RegisterEvent("MAIL_SHOW")
     Bagzen:RegisterEvent("MERCHANT_SHOW")
-    Bagzen:RegisterEvent("PLAYER_LOGIN")
     Bagzen:RegisterEvent("PLAYER_MONEY")
     Bagzen:RegisterEvent("PLAYERBANKSLOTS_CHANGED")
+    -- not triggered on WOTLK client
+    Bagzen:PLAYER_LOGIN()
 end

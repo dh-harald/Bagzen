@@ -1,3 +1,4 @@
+
 function Bagzen:ScanMails()
     local numItems = GetInboxNumItems()
     Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].mails = {}
@@ -23,8 +24,8 @@ function Bagzen:ScanMails()
     end
 end
 
-local BagzenSendMail = SendMail
-function SendMail(recipient, subject, body)
+local BagzenSendMail = function(recipient, subject, body)
+    local ATTACHMENTS_MAX_SEND = ATTACHMENTS_MAX_SEND or 1
     local recipient_found = false
     for character, _ in pairs(Bagzen.data.global[Bagzen.realmname]) do
         if character == recipient then
@@ -32,25 +33,27 @@ function SendMail(recipient, subject, body)
             break
         end
     end
+
     if recipient_found == true then
         if Bagzen.data.global[Bagzen.realmname][recipient].mails == nil then
             Bagzen.data.global[Bagzen.realmname][recipient].mails = {}
         end
 
-        local name, texture, count = GetSendMailItem(1) -- only 1 item
-        local data = {
-            itemid = Bagzen:GetItemIDByName(name),
-            name = name,
-            texture = texture,
-            count = count
-        }
-        table.insert(Bagzen.data.global[Bagzen.realmname][recipient].mails, data)
+        for i = 1, ATTACHMENTS_MAX_SEND do
+            local name, texture, count = GetSendMailItem(i)
+            local data = {
+                itemid = Bagzen:GetItemIDByName(name),
+                name = name,
+                texture = texture,
+                count = count
+            }
+            table.insert(Bagzen.data.global[Bagzen.realmname][recipient].mails, data)
+        end
     end
-    return BagzenSendMail(recipient, subject, body)
 end
 
-local BagzenReturnInboxItem = ReturnInboxItem
-function ReturnInboxItem(index)
+local BagzenReturnInboxItem = function(index)
+    local ATTACHMENTS_MAX = ATTACHMENTS_MAX or 1
     local _, _, recipient = GetInboxHeaderInfo(index)
 
     local recipient_found = false
@@ -65,14 +68,20 @@ function ReturnInboxItem(index)
             Bagzen.data.global[Bagzen.realmname][recipient].mails = {}
         end
 
-        local name, texture, count = GetInboxItem(index, 1) -- only 1 item
-        local data = {
-            itemid = Bagzen:GetItemIDByName(name),
-            name = name,
-            texture = texture,
-            count = count
-        }
-        table.insert(Bagzen.data.global[Bagzen.realmname][recipient].mails, data)
+        for i = 1, ATTACHMENTS_MAX do
+            local name, texture, count = GetInboxItem(index, i)
+            if name ~= nil and texture ~= nil and count ~= nil then
+                local data = {
+                    itemid = Bagzen:GetItemIDByName(name),
+                    name = name,
+                    texture = texture,
+                    count = count
+                }
+                table.insert(Bagzen.data.global[Bagzen.realmname][recipient].mails, data)
+            end
+        end
     end
-    return BagzenReturnInboxItem(index)
 end
+
+Bagzen:SecureHook("SendMail", BagzenSendMail)
+Bagzen:SecureHook("ReturnInboxItem", BagzenReturnInboxItem)

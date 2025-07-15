@@ -1,6 +1,6 @@
 # Bagzen
 
-OneBag Addon inspired by Baganator for WoW Vanilla 1.12.1
+OneBag Addon inspired by Baganator for WoW Vanilla 1.12.1 / 3.3.5
 
 ## Features
 - Ace3v library
@@ -23,3 +23,7 @@ Re-used ideas/code snippets from the following addons:
 
 ## Screenshots
 ![Bagzen](/media/bagzen.png)
+
+## Tested on
+- 1.12.1 Turtle Wow
+- 3.3.5 Warmane

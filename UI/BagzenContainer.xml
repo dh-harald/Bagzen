@@ -4,9 +4,6 @@
   <Script file="BagzenContainer.lua"/>
 
   <Frame name="BagzanContainerItemTemplate" virtual="true" inherits="BagzenItemButtonTemplate">
-    <Frames>
-      <Model name="$parentCooldown" inherits="CooldownFrameTemplate"/>
-    </Frames>
     <Scripts>
       <OnEnter>
         Bagzen:ContainerItemOnEnter(this)
@@ -14,15 +11,6 @@
       <OnLeave>
         Bagzen:ContainerItemOnLeave(this)
       </OnLeave>
-      <OnClick>
-        Bagzen:ContainerItemOnClick(this, arg1)
-      </OnClick>
-      <OnDragStart>
-        Bagzen:ContainerItemOnClick(this, "LeftButton", 1)
-      </OnDragStart>
-      <OnReceiveDrag>
-        Bagzen:ContainerItemOnClick(this, "LeftButton", 1)
-      </OnReceiveDrag>
     </Scripts>
   </Frame>
 

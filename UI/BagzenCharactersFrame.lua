@@ -1,6 +1,7 @@
 
 function Bagzen:CharactersFrameToggle(frame)
-    local charactersframe = getglobal(frame:GetParent():GetName() .. "CharactersFrame")
+    local _G = _G or getfenv()
+    local charactersframe = _G[frame:GetParent():GetName() .. "CharactersFrame"]
     if charactersframe:IsShown() then
         charactersframe:Hide()
     else
@@ -9,6 +10,7 @@ function Bagzen:CharactersFrameToggle(frame)
 end
 
 function Bagzen:CharactersFrameInit()
+    local _G = _G or getfenv()
     Bagzen.CharacterButtonCount = 0
     Bagzen.CharacterButtons = {
         ["bagframe"] = {},
@@ -17,8 +19,8 @@ function Bagzen:CharactersFrameInit()
 
     local count = 0
     -- TODO: calculate this framenames
-    local bag = getglobal("BagzenBagFrameCharactersFrameCharacterList")
-    local bank = getglobal("BagzenBankFrameCharactersFrameCharacterList")
+    local bag = _G["BagzenBagFrameCharactersFrameCharacterList"]
+    local bank = _G["BagzenBankFrameCharactersFrameCharacterList"]
     for _, _ in pairs(Bagzen.data.global[Bagzen.realmname]) do
         count = count + 1
         Bagzen.CharacterButtons["bagframe"][count] = Bagzen.CharacterButtons["bagframe"][count] or CreateFrame("button", "BagzenBagFrameCharacterButton" .. count, bag, "BagzenCharacterButtonTemplate")
@@ -30,13 +32,14 @@ function Bagzen:CharactersFrameInit()
 end
 
 function Bagzen:CharactersFrameUpdate(frame)
+    local _G = _G or getfenv()
     local count = 0
-    local searchText = getglobal(frame:GetName() .. "CharactersFrameSearchBox"):GetText()
-    local charactersframe = getglobal(frame:GetName() .. "CharactersFrame")
+    local searchText = _G[frame:GetName() .. "CharactersFrameSearchBox"]:GetText()
+    local charactersframe = _G[frame:GetName() .. "CharactersFrame"]
     local size = (math.floor(charactersframe:GetHeight() + 0.5) - 92) / 20
-    local offset = getglobal(frame:GetName() .. "CharactersFrameCharacterList").Offset
-    local upButton = getglobal(frame:GetName() .. "CharactersFrameCharacterListSliderScrollUpButton")
-    local downButton = getglobal(frame:GetName() .. "CharactersFrameCharacterListSliderScrollDownButton")
+    local offset = _G[frame:GetName() .. "CharactersFrameCharacterList"].Offset
+    local upButton = _G[frame:GetName() .. "CharactersFrameCharacterListSliderScrollUpButton"]
+    local downButton = _G[frame:GetName() .. "CharactersFrameCharacterListSliderScrollDownButton"]
 
     local MOD_Y = Bagzen.MOD_Y - 18
 
@@ -73,11 +76,11 @@ function Bagzen:CharactersFrameUpdate(frame)
         local data = Bagzen.data.global[Bagzen.realmname][character]
         count = count + 1
         local button = Bagzen.CharacterButtons[frame.SettingSection][count]
-        local lefttext = getglobal(button:GetName() .. "LeftText")
+        local lefttext = _G[button:GetName() .. "LeftText"]
         local color = RAID_CLASS_COLORS[data.class]
         lefttext:SetTextColor(color.r, color.g, color.b)
-        local righttext = getglobal(button:GetName() .. "RightText")
-        local dot = getglobal(button:GetName() .. "Dot")
+        local righttext = _G[button:GetName() .. "RightText"]
+        local dot = _G[button:GetName() .. "Dot"]
         lefttext:SetText(character)
         righttext:SetText(Bagzen.realmname)
         button.value = count
@@ -97,9 +100,9 @@ function Bagzen:CharactersFrameUpdate(frame)
             button:Hide()
             button.value = nil
             button.ParentFrame = nil
-            local lefttext = getglobal(button:GetName() .. "LeftText")
-            local righttext = getglobal(button:GetName() .. "RightText")
-            local dot = getglobal(button:GetName() .. "Dot")
+            local lefttext = _G[button:GetName() .. "LeftText"]
+            local righttext = _G[button:GetName() .. "RightText"]
+            local dot = _G[button:GetName() .. "Dot"]
             lefttext:SetText("")
             righttext:SetText("")
             dot:Hide()
@@ -108,11 +111,12 @@ function Bagzen:CharactersFrameUpdate(frame)
 end
 
 function Bagzen:CharactersFrameResize(parent)
+    local _G = _G or getfenv()
     local MIN_HEIGHT = 152 -- 2 lines of bagslots
     -- todo: calculate this if needed
     local width = 200
     local parentHeight = parent:GetHeight()
-    local frame = getglobal(parent:GetName() .. "CharactersFrame")
+    local frame = _G[parent:GetName() .. "CharactersFrame"]
 
     if parentHeight <= MIN_HEIGHT then
         frame:SetHeight(MIN_HEIGHT)
@@ -122,19 +126,20 @@ function Bagzen:CharactersFrameResize(parent)
 
     frame:SetWidth(width)
 
-    local searchFrame = getglobal(parent:GetName() .. "CharactersFrameSearchBox")
+    local searchFrame = _G[parent:GetName() .. "CharactersFrameSearchBox"]
     searchFrame:SetWidth(width - 4 * Bagzen.PADDING)
 end
 
 function Bagzen:CharacterButtonOnClick(frame)
+    local _G = _G or getfenv()
     local framename = frame:GetName()
-    local realmname = getglobal(framename .. "RightText"):GetText()
-    local unitname = getglobal(framename .. "LeftText"):GetText()
+    local realmname = _G[framename .. "RightText"]:GetText()
+    local unitname = _G[framename .. "LeftText"]:GetText()
 
-    Bagzen:ContainerUpdate(getglobal(frame.ParentFrame), realmname, unitname)
-    Bagzen:CharactersFrameUpdate(getglobal(frame.ParentFrame))
-    Bagzen:ContainerReposition(getglobal(frame.ParentFrame))
+    Bagzen:ContainerUpdate(_G[frame.ParentFrame], realmname, unitname)
+    Bagzen:CharactersFrameUpdate(_G[frame.ParentFrame])
+    Bagzen:ContainerReposition(_G[frame.ParentFrame])
     local money = Bagzen.data.global[realmname][unitname].money or 0
-    local moneyframe = getglobal(frame.ParentFrame .. "MoneyFrame")
+    local moneyframe = _G[frame.ParentFrame .. "MoneyFrame"]
     Bagzen:MoneyFrameUpdate(moneyframe, money)
 end

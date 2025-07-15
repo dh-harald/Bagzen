@@ -1,11 +1,23 @@
 Bagzen.ContainerFrames = {
-    ["bagframe"] = {
-        ["count"] = 0,
+    ["Live"] = {
+        ["bagframe"] = {
+            ["count"] = 0,
+        },
+        ["bankframe"] = {
+            ["count"] = 0,
+        },
     },
-    ["bankframe"] = {
-        ["count"] = 0,
+    ["Virtual"] = {
+        ["bagframe"] = {
+            ["count"] = 0,
+        },
+        ["bankframe"] = {
+            ["count"] = 0,
+        }
     }
 }
+
+local math_mod = math.mod or math.fmod
 
 function Bagzen:ContainerOnLoad(frame)
     local name = frame:GetName()
@@ -18,20 +30,20 @@ function Bagzen:ContainerOnLoad(frame)
     elseif name == "BagzenBankFrame" then
         frame.SettingSection = "bankframe"
         frame.FrameName = "Bank"
-        -- getglobal(name .. "CharactersFrame"):SetPoint("TOPLEFT", "BagzenBankFrame", "TOPRIGHT")
     end
     frame.SplitStack = function(button, split)
-        SplitContainerItem(button.Bag, button:GetID(), split)
+        SplitContainerItem(button:GetParent():GetID(), button:GetID(), split)
     end
 end
 
 function Bagzen:ContainerResetOwner(frame)
+    local _G = _G or getfenv()
     if frame.Virtual == true and (frame.OwnerRealm ~= Bagzen.realmname or frame.OwnerName ~= Bagzen.unitname) then
         Bagzen:ContainerUpdate(frame, Bagzen.realmname, Bagzen.unitname)
         Bagzen:CharactersFrameUpdate(frame)
         Bagzen:ContainerReposition(frame)
     end
-    getglobal(frame:GetName() .. "CharactersFrame"):Hide()
+    _G[frame:GetName() .. "CharactersFrame"]:Hide()
 end
 
 function Bagzen:ContainerInit(frame, bags)
@@ -42,6 +54,15 @@ function Bagzen:ContainerInit(frame, bags)
     Bagzen:BagSlotsInit(frame)
     frame.OwnerName = Bagzen.unitname
     frame.OwnerRealm = Bagzen.realmname
+
+    for _, bag in pairs(bags) do
+        if Bagzen.ContainerFrames["Live"][frame.SettingSection][bag] == nil then -- sanity check
+            Bagzen.ContainerFrames["Live"][frame.SettingSection][bag] = {}
+        end
+        if Bagzen.ContainerFrames["Virtual"][frame.SettingSection][bag] == nil then -- sanity check
+            Bagzen.ContainerFrames["Virtual"][frame.SettingSection][bag] = {}
+        end
+    end
 end
 
 function Bagzen:ContainerGetPosition(frame)
@@ -67,21 +88,8 @@ function Bagzen:ContainerItemOnEnter(frame)
     if frame ~= nil and frame.ItemLink then
         GameTooltip:SetOwner(frame, "ANCHOR_CURSOR")
         GameTooltip:ClearLines()
-        if frame:GetParent().Virtual then
-            GameTooltip:SetHyperlink("item:" .. Bagzen:LinkToItemID(frame.ItemLink) .. ":0:0:0")
-        else
-            if frame.Bag == -1 then
-                GameTooltip:SetInventoryItem("player", frame:GetID()+39)
-            else
-                GameTooltip:SetBagItem(frame.Bag, frame:GetID())
-            end
-        end
+        GameTooltip:SetHyperlink("item:" .. Bagzen:LinkToItemID(frame.ItemLink) .. ":0:0:0")
         GameTooltip:Show()
-        if MerchantFrame:IsShown() and MerchantFrame.selectedTab == 1 then
-            ShowContainerSellCursor(frame:GetParent():GetID(), frame:GetID())
-        else
-            ResetCursor()
-        end
     end
 end
 
@@ -90,58 +98,13 @@ function Bagzen:ContainerItemOnLeave(frame)
     ResetCursor()
 end
 
-function Bagzen:ContainerItemOnClick(frame, button, nomod)
-    if button == "LeftButton" then
-        if IsControlKeyDown() and not nomod then
-            DressUpItemLink(frame.ItemLink)
-        elseif IsShiftKeyDown() and not nomod then
-            if ChatFrameEditBox:IsShown() then
-                ChatFrameEditBox:Insert(frame.ItemLink)
-            else
-                local texture, itemCount, locked = GetContainerItemInfo(frame.Bag, frame:GetID())
-                if not locked then
-                    frame.SplitStack = function(button, split)
-                        SplitContainerItem(button.Bag, button:GetID(), split)
-                    end
-                    OpenStackSplitFrame(frame.count, this, "BOTTOMRIGHT", "TOPRIGHT")
-                end
-            end
-        else
-            PickupContainerItem(frame.Bag, frame:GetID())
-            StackSplitFrame:Hide()
-        end
-    else
-        -- right button
-        if IsControlKeyDown() and not nomod then
-            return
-        elseif IsShiftKeyDown() and MerchantFrame:IsShown() and not nomod then
-            this.SplitStack = function(button, split)
-                SplitContainerItem(button.Bag, button:GetID(), split)
-                MerchantItemButton_OnClick("LeftButton")
-            end
-            OpenStackSplitFrame(this.count, this, "BOTTOMRIGHT", "TOPRIGHT")
-        elseif MerchantFrame:IsShown() and MerchantFrame.selectedTab == 2 then
-            return
-        elseif AuctionFrame and AuctionFrame:IsShown() and AuctionFrame.selectedTab == 3 then
-            PickupContainerItem(frame.Bag, frame:GetID())
-            ClickAuctionSellItemButton()
-            PutItemInBag(20)
-            PutItemInBag(21)
-            PutItemInBag(22)
-            PutItemInBag(23)
-        else
-            UseContainerItem(frame.Bag, frame:GetID())
-            StackSplitFrame:Hide()
-        end
-    end
-end
-
 function Bagzen:ContainerResize(frame)
+    local _G = _G or getfenv()
     frame:SetWidth(Bagzen.settings.global[frame.SettingSection].width * Bagzen.SIZE_X)
     local count = 0
     for _, bag in pairs(frame.Bags) do
         if bag ~= KEYRING_CONTAINER then
-            local bagframe = getglobal(frame:GetName() .. "BagSlotsFrame" .. bag)
+            local bagframe = _G[frame:GetName() .. "BagSlotsFrame" .. bag]
             if bagframe then
                 count = count + (bagframe.Slots or 0)
             end
@@ -149,38 +112,45 @@ function Bagzen:ContainerResize(frame)
     end
 
     local y = 4 + math.abs(Bagzen.MOD_Y) + Bagzen.SIZE_Y * (math.floor(count / Bagzen.settings.global[frame.SettingSection].width))
-    if math.mod(count, Bagzen.settings.global[frame.SettingSection].width) > 0 then
+    if math_mod(count, Bagzen.settings.global[frame.SettingSection].width) > 0 then
         y = y + Bagzen.SIZE_Y
     end
     frame:SetHeight(y + 20)
 
     -- searchbox
-    local searchbox = getglobal(frame:GetName() .. "SearchBox")
+    local searchbox = _G[frame:GetName() .. "SearchBox"]
     searchbox:SetWidth(Bagzen.settings.global[frame.SettingSection].width * Bagzen.SIZE_X - 4 * Bagzen.PADDING)
 
     Bagzen:CharactersFrameResize(frame)
 end
 
-function Bagzen:UpdateCooldown(container, button)
-    local cooldown = getglobal(button:GetName().."Cooldown")
-    local start, duration, enable = GetContainerItemCooldown(container, button:GetID())
-    CooldownFrame_SetTimer(cooldown, start, duration, enable)
-    if duration > 0 and enable == 0 then
-        SetItemButtonTextureVertexColor(button, 0.4, 0.4, 0.4)
-    end
-end
-
 function Bagzen:ContainerItemUpdate(frame, bag)
+    local _G = _G or getfenv()
     if bag == KEYRING_CONTAINER then return end -- sanity check
     local section = frame.SettingSection
-    local parent = getglobal(frame:GetName() .. "BagSlotsFrame" .. bag)
+    local live, notlive
+    if frame.Virtual == true then
+        live = "Virtual"
+        notlive = "Live"
+    else
+        live = "Live"
+        notlive = "Virtual"
+    end
+
+    local parent = _G[frame:GetName() .. "BagSlotsFrame" .. bag]
     local numslots = parent.Slots
-    if Bagzen.ContainerFrames[section][bag] == nil then
-        Bagzen.ContainerFrames[section][bag] = {}
+
+    -- TODO: set already hided to prevent this loop from running
+    for bag, _ in pairs(Bagzen.ContainerFrames[notlive][section]) do
+        if type(bag) == "number" then
+            for _, f in pairs(Bagzen.ContainerFrames[notlive][section][bag]) do
+                f:Hide()
+            end
+        end
     end
 
     if numslots == 0 then
-        for _, f in pairs(Bagzen.ContainerFrames[section][bag]) do
+        for _, f in pairs(Bagzen.ContainerFrames[live][section][bag]) do
             f:Hide()
         end
         return
@@ -188,51 +158,73 @@ function Bagzen:ContainerItemUpdate(frame, bag)
 
     for slot = 1, numslots do
         local slotframe = nil
-        if Bagzen.ContainerFrames[section][bag][slot] ~= nil then
-            slotframe = Bagzen.ContainerFrames[section][bag][slot]
+        if Bagzen.ContainerFrames[live][section][bag][slot] ~= nil then
+            slotframe = Bagzen.ContainerFrames[live][section][bag][slot]
         else
-            Bagzen.ContainerFrames[section]["count"] = Bagzen.ContainerFrames[section]["count"] + 1
-            local framename = frame:GetName() .. "ContainerSlot" .. Bagzen.ContainerFrames[section]["count"]
-            slotframe = CreateFrame("Button", framename, frame, "BagzanContainerItemTemplate")
-            Bagzen.ContainerFrames[section][bag][slot] = slotframe
+            local parentdummy = _G[frame:GetName() .. "DummyBagSlotFrame" .. bag]
+            Bagzen.ContainerFrames[live][section]["count"] = Bagzen.ContainerFrames[live][section]["count"] + 1
+            local framename = frame:GetName() .. live .. "ContainerSlot" .. Bagzen.ContainerFrames[live][section]["count"]
+            if frame.Virtual == false then
+                if section == "bagframe" then
+                    slotframe = CreateFrame("Button", framename, parentdummy, "ContainerFrameItemButtonTemplate")
+                else
+                    if Bagzen.IsWOTLK then
+                        slotframe = CreateFrame("Button", framename, parentdummy, "BankItemButtonGenericTemplate")
+                    else
+                        slotframe = CreateFrame("Button", framename, parentdummy, "BankItemButtonTemplate")
+                        slotframe.GetInventorySlot = function(self)
+                            return self:GetID()
+                        end
+                    end
+                end
+                -- update graphical changes as we need the secure frame
+                slotframe:SetNormalTexture("Interface\\AddOns\\Bagzen\\textures\\UI-Quickslot2.tga")
+                slotframe:SetPushedTexture("Interface\\AddOns\\Bagzen\\textures\\UI-Quickslot-Depress.tga")
+                slotframe:SetHighlightTexture("Interface\\AddOns\\Bagzen\\textures\\UI-Quickslot-Highlight.tga")
+                _G[slotframe:GetName() .. "IconTexture"]:SetTexCoord(0.03, 0.97, 0.03, 0.97)
+            else
+                slotframe = CreateFrame("Button", framename, parentdummy, "BagzanContainerItemTemplate")
+            end
+            Bagzen.ContainerFrames[live][section][bag][slot] = slotframe
+            slotframe:SetID(slot)
         end
-        slotframe.Bag = bag
-        slotframe:SetID(slot)
     end
 
     local count = 0
     for _, tmpbag in pairs(frame.Bags) do
         if tmpbag == bag then break end
-        count = count + (getglobal(frame:GetName() .. "BagSlotsFrame" .. tmpbag).Slots or 0)
+        count = count + (_G[frame:GetName() .. "BagSlotsFrame" .. tmpbag].Slots or 0)
     end
 
-    for slot, slotframe in pairs(Bagzen.ContainerFrames[section][bag]) do
+    for slot, slotframe in pairs(Bagzen.ContainerFrames[live][section][bag]) do
         if slot <= numslots then
-            local texture = getglobal(slotframe:GetName() .. "texture") or slotframe:CreateTexture(slotframe:GetName() .. "texture", 'OVERLAY')
+            local texture = _G[slotframe:GetName() .. "texture"] or slotframe:CreateTexture(slotframe:GetName() .. "texture", 'OVERLAY')
             local itemtexture = nil
             local itemcount = nil
             if frame.Virtual == false then
-                itemtexture, itemcount = GetContainerItemInfo(slotframe.Bag, slotframe:GetID())
+                 itemtexture, itemcount = GetContainerItemInfo(slotframe:GetParent():GetID(), slotframe:GetID())
             else
                 if (Bagzen.data.global[frame.OwnerRealm][frame.OwnerName].bags and
-                        Bagzen.data.global[frame.OwnerRealm][frame.OwnerName].bags[slotframe.Bag] and
-                        Bagzen.data.global[frame.OwnerRealm][frame.OwnerName].bags[slotframe.Bag].slots[slotframe:GetID()]) then
-                    itemtexture = Bagzen.data.global[frame.OwnerRealm][frame.OwnerName].bags[slotframe.Bag].slots[slotframe:GetID()].texture
-                    itemcount = Bagzen.data.global[frame.OwnerRealm][frame.OwnerName].bags[slotframe.Bag].slots[slotframe:GetID()].count
+                        Bagzen.data.global[frame.OwnerRealm][frame.OwnerName].bags[slotframe:GetParent():GetID()] and
+                        Bagzen.data.global[frame.OwnerRealm][frame.OwnerName].bags[slotframe:GetParent():GetID()].slots[slotframe:GetID()]) then
+                    itemtexture = Bagzen.data.global[frame.OwnerRealm][frame.OwnerName].bags[slotframe:GetParent():GetID()].slots[slotframe:GetID()].texture
+                    itemcount = Bagzen.data.global[frame.OwnerRealm][frame.OwnerName].bags[slotframe:GetParent():GetID()].slots[slotframe:GetID()].count
                 end
             end
             if itemtexture then
                 SetItemButtonTexture(slotframe, itemtexture)
                 SetItemButtonCount(slotframe, itemcount)
-                Bagzen:UpdateCooldown(slotframe.Bag, slotframe)
+                if section == "bagframe" and frame.Virtual == false then
+                    ContainerFrame_UpdateCooldown(slotframe:GetParent():GetID(), slotframe)
+                end
                 local itemLink = nil
                 if frame.Virtual == false then
-                    itemLink = GetContainerItemLink(slotframe.Bag, slotframe:GetID())
+                    itemLink = GetContainerItemLink(slotframe:GetParent():GetID(), slotframe:GetID())
                 else
-                    itemLink = Bagzen.data.global[frame.OwnerRealm][frame.OwnerName].bags[slotframe.Bag].slots[slotframe:GetID()].link
+                    itemLink = Bagzen.data.global[frame.OwnerRealm][frame.OwnerName].bags[slotframe:GetParent():GetID()].slots[slotframe:GetID()].link
                 end
                 local itemID = Bagzen:LinkToItemID(itemLink)
-                local itemName = GetItemInfo(itemID)
+                local itemName = Bagzen:GetItemInfo(itemID)
                 slotframe.ItemID = itemID
                 slotframe.ItemName = itemName
                 slotframe.ItemLink = itemLink
@@ -251,7 +243,7 @@ function Bagzen:ContainerItemUpdate(frame, bag)
                         texture:SetTexture(nil)
                     end
                     -- save item
-                    Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].bags[slotframe.Bag].slots[slot] = {
+                    Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].bags[slotframe:GetParent():GetID()].slots[slot] = {
                         count = itemcount,
                         link = itemLink,
                         texture = itemtexture
@@ -265,14 +257,10 @@ function Bagzen:ContainerItemUpdate(frame, bag)
                 slotframe.ItemName = nil
                 texture:SetTexture(nil)
             end
-            local POS_X = Bagzen.PADDING + (Bagzen.SIZE_X * math.mod(count, Bagzen.settings.global[section].width))
+            local POS_X = Bagzen.PADDING + (Bagzen.SIZE_X * math_mod(count, Bagzen.settings.global[section].width))
             local POS_Y = Bagzen.MOD_Y - (Bagzen.SIZE_Y * math.floor(count / Bagzen.settings.global[section].width))
             slotframe:SetPoint("TOPLEFT", frame:GetName(), "TOPLEFT", POS_X, POS_Y)
             slotframe:Show()
-            if frame.Virtual == false then
-                slotframe:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-                slotframe:RegisterForDrag("LeftButton")
-            end
         else
             slotframe:Hide()
         end
@@ -281,6 +269,7 @@ function Bagzen:ContainerItemUpdate(frame, bag)
 end
 
 function Bagzen:ContainerUpdate(frame, realm, name)
+    local _G = _G or getfenv()
     frame.OwnerName = name
     frame.OwnerRealm = realm
     if frame:GetName() == "BagzenBagFrame" then
@@ -298,18 +287,18 @@ function Bagzen:ContainerUpdate(frame, realm, name)
         end
 
         if frame.Virtual == true then
-            getglobal(frame:GetName() .. "OnlineButton"):Hide()
-            getglobal(frame:GetName() .. "OfflineButton"):Show()
+            _G[frame:GetName() .. "OnlineButton"]:Hide()
+            _G[frame:GetName() .. "OfflineButton"]:Show()
         else
             local numBankSlots = GetNumBankSlots()
             Bagzen.data.global[frame.OwnerRealm][frame.OwnerName].bagslots = numBankSlots
             frame.nextSlotCost = GetBankSlotCost(numBankSlots)
-            getglobal(frame:GetName() .. "OnlineButton"):Show()
-            getglobal(frame:GetName() .. "OfflineButton"):Hide()
+            _G[frame:GetName() .. "OnlineButton"]:Show()
+            _G[frame:GetName() .. "OfflineButton"]:Hide()
         end
     end
 
-    local titleframe = getglobal(frame:GetName() .. "TitleText")
+    local titleframe = _G[frame:GetName() .. "TitleText"]
     titleframe:SetText(string.format("%s's %s", frame.OwnerName, frame.FrameName))
 
     for _, bag in pairs(frame.Bags) do
