@@ -1,0 +1,18 @@
+package-as: Bagzen
+
+manual-changelog: CHANGELOG.md
+
+externals:
+  lib/LibStub: https://repos.wowace.com/wow/ace3/tags/Release-r971/LibStub/
+  lib/CallbackHandler-1.0: https://repos.wowace.com/wow/ace3/tags/Release-r971/CallbackHandler-1.0
+  lib/Ace3/AceAddon-3.0: https://repos.wowace.com/wow/ace3/tags/Release-r971/AceAddon-3.0
+  lib/Ace3/AceConfig-3.0: https://repos.wowace.com/wow/ace3/tags/Release-r971/AceConfig-3.0
+  lib/Ace3/AceConsole-3.0: https://repos.wowace.com/wow/ace3/tags/Release-r971/AceConsole-3.0
+  lib/Ace3/AceDB-3.0: https://repos.wowace.com/wow/ace3/tags/Release-r971/AceDB-3.0
+  lib/Ace3/AceEvent-3.0: https://repos.wowace.com/wow/ace3/tags/Release-r971/AceEvent-3.0
+  lib/Ace3/AceGUI-3.0: https://repos.wowace.com/wow/ace3/tags/Release-r971/AceGUI-3.0
+  lib/Ace3/AceHook-3.0: https://repos.wowace.com/wow/ace3/tags/Release-r971/AceHook-3.0
+
+ignore:
+  - release.config.js
+  - media

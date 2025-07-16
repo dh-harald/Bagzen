@@ -1,4 +1,4 @@
-## Interface: 11200
+## Interface: 11200,30300
 ## Title: Bag|cff4378ccZen|r
 ## Author: Criminal
 ## Notes: OneBag Addon inspired by Baganator
@@ -8,7 +8,9 @@
 #libs
 lib\LibStub\LibStub.lua
 lib\CallbackHandler-1.0\CallbackHandler-1.0.xml
+#@version-vanilla@
 lib\Ace3\AceCore-3.0\AceCore-3.0.xml
+#@end-version-vanilla@
 lib\Ace3\AceEvent-3.0\AceEvent-3.0.xml
 lib\Ace3\AceAddon-3.0\AceAddon-3.0.xml
 lib\Ace3\AceConsole-3.0\AceConsole-3.0.xml

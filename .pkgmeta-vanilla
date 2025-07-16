@@ -1,6 +1,7 @@
 package-as: Bagzen
 
 manual-changelog: CHANGELOG.md
+enable-toc-creation: yes
 
 externals:
   lib/LibStub: https://github.com/laytya/LibStub
