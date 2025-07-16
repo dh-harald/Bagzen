@@ -1,3 +1,10 @@
+# [0.5.0](https://github.com/dh-harald/Bagzen/compare/v0.4.0...v0.5.0) (2025-07-16)
+
+
+### Features
+
+* refactor, added support for 3.3.5 (wotlk) ([864db37](https://github.com/dh-harald/Bagzen/commit/864db37ae10b8283ab0e1b869430ba283b78536c))
+
 # [0.4.0](https://github.com/dh-harald/Bagzen/compare/v0.3.1...v0.4.0) (2025-07-13)
 
 
