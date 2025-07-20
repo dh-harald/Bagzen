@@ -183,11 +183,16 @@ function Bagzen:BagSlotUpdate(parent, bag)
     local numslots = 0
     if parent.Virtual == false then
         numslots = GetContainerNumSlots(bag) or 0
+        -- remove empty slot from character data
+        if numslots == 0 and Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags ~= nil and Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag] ~= nil then
+            Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag] = nil
+        end
     else
         if Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags and Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag] then
             numslots = Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag].size
         end
     end
+
 
     local frame = _G[parent:GetName() .. "BagSlotsFrame" .. bag]
     if frame == nil then
@@ -203,6 +208,18 @@ function Bagzen:BagSlotUpdate(parent, bag)
         end
         frame:SetPoint("TOPLEFT", bagslotsframe:GetName(), "TOPLEFT", 2 * Bagzen.PADDING + index * Bagzen.SIZE_X, -2 * Bagzen.PADDING)
     end
+
+    -- show free slots
+    local slotfree = Bagzen:GetContainerNumFreeSlots(bag, parent.OwnerRealm, parent.OwnerName)
+    local countFrame = _G[frame:GetName() .. "Count"]
+    if slotfree == nil or slotfree == 0 then
+        countFrame:Hide()
+        countFrame:SetText("")
+    else
+        countFrame:Show()
+        countFrame:SetText(slotfree)
+    end
+
     if parent:GetName() == "BagzenBankFrame" then
         if bag > 0 then
             local bagslottexture = _G[frame:GetName() .. "Background"]

@@ -1,3 +1,5 @@
+Bagzen.ItemCache = {}
+
 function Bagzen:UnsignedToSigned(num)
     if num > 32768 then
         num = num - 65536
@@ -25,14 +27,99 @@ function Bagzen:HackID(frame)
     end
 end
 
+---Middle layer for GetItemInfo, make it working on vanilla and wotlk
+---@param arg (itemID|itemLink)
+---@return itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, stackCount, itemEquipLoc, itemTexture, itemSellPrice
 function Bagzen:GetItemInfo(arg)
-    -- make it working on vanilla and wotlk
-    if Bagzen.IsWOTLK then
-        return GetItemInfo(arg)
+    if arg == nil then return nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil end -- sanity check
+    local itemID
+    if type(arg) == "string" then
+        itemID = Bagzen:LinkToItemID(arg)
     else
-        local r1, r2, r3, r4, r5, r6, r7, r8, r9 = GetItemInfo(arg)
-        return r1, r2, r3, r4, nil, r5, r6, r7, r8, r9, nil -- no itemlevel in vanilla, TODO: itemprice
+        itemID = arg
     end
+
+    if Bagzen.ItemCache[itemID] then
+        local c = Bagzen.ItemCache[itemID]
+        return c.itemName, c.itemLink, c.itemRarity, c.itemLevel, c.itemMinLevel, c.itemType, c.itemSubType, c.itemStackCount, c.itemEquipLoc, c.itemTexture, c.itemSellPrice
+    end
+    if Bagzen.IsWOTLK then
+        local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemID)
+        if itemName ~= nil and itemLink ~= nil then
+            Bagzen.ItemCache[itemID] = {
+                itemName = itemName,
+                itemLink = itemLink,
+                itemRarity = itemRarity,
+                itemLevel = itemLevel,
+                itemMinLevel = itemMinLevel,
+                itemType = itemType,
+                itemSubType = itemSubType,
+                itemStackCount = itemStackCount,
+                itemEquipLoc = itemEquipLoc,
+                itemTexture = itemTexture,
+                itemSellPrice = itemSellPrice
+            }
+            return itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice
+        end
+    else
+        local itemName, itemLink, itemRarity, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture = GetItemInfo(itemID)
+        if itemName ~= nil and itemLink ~= nil then
+            Bagzen.ItemCache[itemID] = {
+                itemName = itemName,
+                itemLink = itemLink,
+                itemRarity = itemRarity,
+                itemMinLevel = itemMinLevel,
+                itemType = itemType,
+                itemSubType = itemSubType,
+                itemStackCount = itemStackCount,
+                itemEquipLoc = itemEquipLoc,
+                itemTexture = itemTexture
+            }
+            return itemName, itemLink, itemRarity, nil, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, nil
+        end
+    end
+    return nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil
+end
+
+function Bagzen:GetItemFamily(itemID)
+    if Bagzen.IsWOTLK then
+        return GetItemFamily(itemID)
+    end
+    local _, _, _, _, _, itemType, itemSubType = Bagzen:GetItemInfo(itemID)
+    if itemType ~= nil then
+        itemType = string.lower(itemType)
+    end
+    if itemSubType ~= nil then
+        itemSubType = string.lower(itemSubType)
+    end
+
+    if itemType == nil and itemSubType == nil then return nil end
+
+    if itemType == "projectile" or itemType == "quiver" then
+        -- https://wowwiki-archive.fandom.com/wiki/ItemFamily
+        if itemSubType == "arrow" or itemSubType == "quiver" then
+            return 1 -- quiver / arrow
+        elseif itemSubType == "bullet" or itemSubType == "ammo pouch" then
+            return 2 -- bullet / ammo pouch
+        end
+    end
+end
+
+function Bagzen:GetContainerNumFreeSlots(bag, realmName, unitName)
+    realmName = realmName or Bagzen.realmname
+    unitName = unitName or Bagzen.unitname
+    if Bagzen.data.global[realmName][unitName].bags[bag] then
+        local slots = Bagzen.data.global[realmName][unitName].bags[bag].size
+        if slots > 0 then
+            if Bagzen.data.global[realmName][unitName].bags[bag].slots then
+                for _, _ in pairs(Bagzen.data.global[realmName][unitName].bags[bag].slots) do
+                    slots = slots - 1
+                end
+                return slots
+            end
+        end
+    end
+    return nil
 end
 
 function Bagzen:isQuestItem(itemID)
@@ -49,25 +136,16 @@ end
 
 function Bagzen:GetItemIDByName(name)
     for itemID, data in pairs(Bagzen.ItemCache) do
-        if data.name == name then
+        if data.itemName == name then
             return tonumber(itemID)
         end
     end
 end
 
 function Bagzen:ItemCacheInit()
-    Bagzen.ItemCache = {}
     local count = 0
     for itemID=1, 101000 do
-        local itemName, hyperLink, itemQuality = Bagzen:GetItemInfo(itemID)
-        if itemName ~= nil and hyperLink ~= nil then
-            Bagzen.ItemCache[itemID] = {
-                name = itemName,
-                link = hyperLink,
-                quality = itemQuality
-            }
-            count = count + 1
-        end
+        local _ = Bagzen:GetItemInfo(itemID) -- just fill the cache with GetItemInfo
     end
 end
 

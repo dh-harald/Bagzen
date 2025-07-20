@@ -99,7 +99,7 @@ end
 function Bagzen:ToggleScrap(itemID)
     local scrap = Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].scrap[itemID]
     local useful = Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].useful[itemID]
-    local itemName, _, rarity, _, itemtype = Bagzen:GetItemInfo(tonumber(itemID))
+    local itemName, _, rarity, _, _, itemtype = Bagzen:GetItemInfo(tonumber(itemID))
 
     if itemtype == "Quest" then
         Bagzen:Print("Can't add quest item as scrap")

@@ -165,17 +165,10 @@ function Bagzen:ContainerItemUpdate(frame, bag)
             Bagzen.ContainerFrames[live][section]["count"] = Bagzen.ContainerFrames[live][section]["count"] + 1
             local framename = frame:GetName() .. live .. "ContainerSlot" .. Bagzen.ContainerFrames[live][section]["count"]
             if frame.Virtual == false then
-                if section == "bagframe" then
+                if section == "bagframe" or (section == "bankframe" and bag >= 5) then
                     slotframe = CreateFrame("Button", framename, parentdummy, "ContainerFrameItemButtonTemplate")
                 else
-                    if Bagzen.IsWOTLK then
-                        slotframe = CreateFrame("Button", framename, parentdummy, "BankItemButtonGenericTemplate")
-                    else
-                        slotframe = CreateFrame("Button", framename, parentdummy, "BankItemButtonTemplate")
-                        slotframe.GetInventorySlot = function(self)
-                            return self:GetID()
-                        end
-                    end
+                    slotframe = CreateFrame("Button", framename, parentdummy, "BankItemButtonGenericTemplate")
                 end
                 -- update graphical changes as we need the secure frame
                 slotframe:SetNormalTexture("Interface\\AddOns\\Bagzen\\textures\\UI-Quickslot2.tga")
@@ -296,6 +289,12 @@ function Bagzen:ContainerUpdate(frame, realm, name)
             _G[frame:GetName() .. "OnlineButton"]:Show()
             _G[frame:GetName() .. "OfflineButton"]:Hide()
         end
+    end
+
+    if frame.Virtual == true then
+        _G[frame:GetName() .. "SortButton"]:Hide()
+    else
+        _G[frame:GetName() .. "SortButton"]:Show()
     end
 
     local titleframe = _G[frame:GetName() .. "TitleText"]

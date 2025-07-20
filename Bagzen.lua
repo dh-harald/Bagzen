@@ -19,9 +19,12 @@ Bagzen.client = client
 Bagzen.IsVanilla = false
 -- Bagzen.isTBC = false -- not supported atm
 Bagzen.IsWOTLK = false
+Bagzen.IsTurtle = false
 
 if client >= 10000 and client <= 11300 then -- no classic support
     Bagzen.IsVanilla = true
+    -- https://github.com/refaim/Turtle-WoW-UI-Source/blob/d6137c2ebd291f10ce284e586a5733dd5141bef2/Interface/FrameXML/TargetFrame.xml#L183
+    Bagzen.IsTurtle = TargetHPText ~= nil and TargetHPPercText ~= nil
 elseif client >= 30000 and client <= 30300 then
   Bagzen.IsWOTLK = true
 end

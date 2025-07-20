@@ -38,4 +38,5 @@ UI\BagzenBagFrame.xml
 UI\BagzenBankFrame.xml
 
 Scrap.lua
+Sort.lua
 Events.lua
