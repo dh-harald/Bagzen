@@ -1,3 +1,16 @@
+# [0.6.0](https://github.com/dh-harald/Bagzen/compare/v0.5.0...v0.6.0) (2025-07-20)
+
+
+### Bug Fixes
+
+* add throttling for selling scrap ([cf2d1e6](https://github.com/dh-harald/Bagzen/commit/cf2d1e6d31ee88577b2ef565cdb0058c7bcacc4c))
+* added item locking ([6d8a667](https://github.com/dh-harald/Bagzen/commit/6d8a667acb9becf4757179ec84f55c0a105a355a))
+
+
+### Features
+
+* added sort feature (replaces SortBag) ([902a80c](https://github.com/dh-harald/Bagzen/commit/902a80c8043e62e69d2d192a0e8a6509cb85e216))
+
 # [0.5.0](https://github.com/dh-harald/Bagzen/compare/v0.4.0...v0.5.0) (2025-07-16)
 
 
