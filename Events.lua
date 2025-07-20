@@ -68,6 +68,40 @@ function Bagzen:BANKFRAME_OPENED()
     BagzenBankFrame:Show()
 end
 
+function Bagzen:ITEM_LOCK_CHANGED()
+    local _G = _G or getfenv()
+    local section = nil
+
+    if Bagzen.IsWOTLK then
+        if arg1 == KEYRING_CONTAINER then return end -- sanity check
+        if arg1 >= 0 and arg1 < 5 then
+            section = "bagframe"
+        elseif arg1 >= 5 or arg1 == -1 then
+            section = "bankframe"
+        end
+
+        local frame = Bagzen.ContainerFrames["Live"][section][arg1][arg2]
+        if frame ~= nil and frame:IsShown() then
+            local _, _, locked = GetContainerItemInfo(arg1, arg2)
+            -- frame:SetItemButtonDesaturated(locked or 0)
+            _G[frame:GetName() .. "IconTexture"]:SetDesaturated(locked or 0)
+        end
+    else
+        for _, section in pairs(Bagzen.ContainerFrames["Live"]) do
+            for bag, data in pairs(section) do
+                if type(bag) == "number" and bag ~= KEYRING_CONTAINER then
+                    for slot, frame in pairs(data) do
+                        if frame and frame:IsShown() then
+                            local _, _, locked = GetContainerItemInfo(bag, slot)
+                            _G[frame:GetName() .. "IconTexture"]:SetDesaturated(locked or 0)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
 function Bagzen:MAIL_CLOSED()
     if Bagzen.settings.global.bagframe.close_mail then
         BagzenBagFrame:Hide()
@@ -135,6 +169,7 @@ function Bagzen:OnEnable()
     Bagzen:RegisterEvent("BAG_UPDATE_COOLDOWN")
     Bagzen:RegisterEvent("BANKFRAME_CLOSED")
     Bagzen:RegisterEvent("BANKFRAME_OPENED")
+    Bagzen:RegisterEvent("ITEM_LOCK_CHANGED")
     Bagzen:RegisterEvent("MAIL_CLOSED")
     Bagzen:RegisterEvent("MAIL_INBOX_UPDATE")
     Bagzen:RegisterEvent("MAIL_SHOW")
