@@ -132,3 +132,59 @@ function Bagzen:BindingsToggleScrap()
         end
     end
 end
+
+local glowingButton = nil
+
+local function ScanItems()
+        local bestBag, bestSlot
+        local bestValue
+
+        for bag, slot, itemLink in Bagzen:iterateScrap() do
+                local itemID = Bagzen:LinkToItemID(itemLink)
+
+                local _, _, _, _, _, _, _, maxStack, _, _, value = Bagzen:GetItemInfo(itemID)
+                local _, stack = GetContainerItemInfo(bag, slot)
+
+                if not stack or not maxStack or not value then
+                        return
+                end
+
+                if maxStack > 1 and stack < maxStack * .5 then
+                        value = value * stack * .5
+                else
+                        value = value * stack
+                end
+
+                if not bestValue or value < bestValue then
+                        bestBag, bestSlot = bag, slot
+                        bestValue = value
+                        -- print(id)
+                end
+        end
+
+        -- print(bestBag, bestSlot)
+
+        return bestBag, bestSlot
+
+end
+
+-- Highlights the worst valued scrap on the inventory
+-- Not working on 1.12.1 as no event for MODIFIER_STATE_CHANGED
+-- Unfortunately I haven't found a glowing solution in 3.3.5
+function Bagzen:ScrapHighlight()
+    if arg1 == "LSHIFT" and BagzenBagFrame:IsShown() then
+        if arg2 == 1 then
+            -- Bagzen:Print("DOWN")
+            local bag, slot = ScanItems()
+            if bag and slot then
+                glowingButton = Bagzen.ContainerFrames["Live"]["bagframe"][bag][slot]
+                glowingButton:LockHighlight()
+            end
+        elseif arg2 == 0 then
+            -- Bagzen:Print("UP")
+            if glowingButton then
+                glowingButton:UnlockHighlight()
+            end
+        end
+    end
+end

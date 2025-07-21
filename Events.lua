@@ -131,6 +131,10 @@ function Bagzen:MERCHANT_SHOW()
     end
 end
 
+function Bagzen:MODIFIER_STATE_CHANGED()
+    Bagzen:ScrapHighlight()
+end
+
 function Bagzen:PLAYER_LOGIN()
     Bagzen:ItemCacheInit()
     Bagzen:CharactersFrameInit()
@@ -174,6 +178,7 @@ function Bagzen:OnEnable()
     Bagzen:RegisterEvent("MAIL_INBOX_UPDATE")
     Bagzen:RegisterEvent("MAIL_SHOW")
     Bagzen:RegisterEvent("MERCHANT_SHOW")
+    Bagzen:RegisterEvent("MODIFIER_STATE_CHANGED")
     Bagzen:RegisterEvent("PLAYER_MONEY")
     Bagzen:RegisterEvent("PLAYERBANKSLOTS_CHANGED")
     -- not triggered on WOTLK client
