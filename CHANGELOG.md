@@ -1,3 +1,10 @@
+# [0.7.0](https://github.com/dh-harald/Bagzen/compare/v0.6.0...v0.7.0) (2025-07-21)
+
+
+### Features
+
+* added scap highlight (originally was scrapglow) ([ffa17a9](https://github.com/dh-harald/Bagzen/commit/ffa17a94ceb1a6cf15b9050e0615b219eebd4db5))
+
 # [0.6.0](https://github.com/dh-harald/Bagzen/compare/v0.5.0...v0.6.0) (2025-07-20)
 
 
