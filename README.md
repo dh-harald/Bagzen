@@ -1,3 +1,4 @@
+![GitHub Release](https://img.shields.io/github/v/release/dh-harald/Bagzen) ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/dh-harald/Bagzen/package.yaml) ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/dh-harald/Bagzen/total)
 # Bagzen
 
 OneBag Addon inspired by Baganator for WoW Vanilla 1.12.1 / 3.3.5
