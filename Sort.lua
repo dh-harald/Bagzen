@@ -177,66 +177,6 @@ local function ItemsEqual(a, b)
     return true
 end
 
-local function FindCycle(startIndex, bagdata, bags)
-    local visited = {}
-    local chain = {}
-    local current = startIndex
-
-    while current and not visited[current] do
-        visited[current] = true
-        chain[current] = true
-
-        local item = bagdata[current]
-        if not item then
-            break
-        end
-
-        current = BagSlotToIndex(bags, item.bag, item.slot)
-    end
-
-    if current == startIndex then
-        return chain
-    end
-
-    return nil
-end
-
-local function ResolveCycle(bags, movePlan, current, bagdata, chain)
-    local keys = {}
-    local i = 1
-    for k, _ in pairs(chain) do
-        keys[i] = k
-        i = i + 1
-    end
-
-    local len = TableLength(keys)
-    if len < 2 then return end
-
-    for j = len, 2, -1 do
-        local from = keys[j - 1]
-        local to = keys[j]
-        local srcBag, srcSlot = IndexToBagSlot(bags, from)
-        local dstBag, dstSlot = IndexToBagSlot(bags, to)
-
-        table.insert(movePlan, {
-            srcBag = srcBag,
-            srcSlot = srcSlot,
-            dstBag = dstBag,
-            dstSlot = dstSlot
-        })
-
-        -- Frissítés: current és bagdata
-        current[to] = current[from]
-        current[from] = nil
-
-        if bagdata[to] then
-            bagdata[to].bag = srcBag
-            bagdata[to].slot = srcSlot
-        end
-        bagdata[from] = nil
-    end
-end
-
 local function SpecialBagsAndScrap(frame, bagdata)
     local scrapItemsByFamily = {}
     local normalItemsByFamily = {}
@@ -438,84 +378,99 @@ function Bagzen:ComputeMovePlan(parent)
 
     local current = frame.current
     local bagdata = frame.bagdata
-    local bags = frame.Bags
     local movePlan = {}
     local timeout = 0
 
     bagdata = SpecialBagsAndScrap(frame, bagdata)
 
     while TableLength(bagdata) > 0 do
-        -- Remove items that are already in place
+        -- 1. Remove items that are already in their correct place
+        local used = {}
         for k, v in pairs(bagdata) do
-            local bag, slot = IndexToBagSlot(bags, k)
-            local currentIndex = BagSlotToIndex(bags, bag, slot)
-            if ItemsEqual(current[currentIndex], v) then
+            local bag, slot = IndexToBagSlot(frame.Bags, k)
+            local curIdx = BagSlotToIndex(frame.Bags, bag, slot)
+            local curItem = current[curIdx]
+            if ItemsEqual(curItem, v) then
                 bagdata[k] = nil
+                used[curIdx] = true
             end
         end
 
-        -- 2. move items to empty slots
+        -- 2. Update the bag/slot fields of the remaining bagdata items
         for k, v in pairs(bagdata) do
-            if current[k] == nil then
-                local dstBag, dstSlot = IndexToBagSlot(bags, k)
+            for curIdx, curItem in pairs(current) do
+                if not used[curIdx] and ItemsEqual(curItem, v) then
+                    local bag, slot = IndexToBagSlot(frame.Bags, curIdx)
+                    v.bag = bag
+                    v.slot = slot
+                    used[curIdx] = true
+                    break
+                end
+            end
+        end
+
+        -- 3. First, swaps: every pair where both places have an item and they are not equal
+        local swapped = false
+        for k, v in pairs(bagdata) do
+            local dstBag, dstSlot = IndexToBagSlot(frame.Bags, k)
+            local dstIdx = BagSlotToIndex(frame.Bags, dstBag, dstSlot)
+            local srcIdx = BagSlotToIndex(frame.Bags, v.bag, v.slot)
+            if current[dstIdx] ~= nil and current[srcIdx] ~= nil and not ItemsEqual(current[dstIdx], v) and srcIdx ~= dstIdx then
                 table.insert(movePlan, {
                     srcBag = v.bag,
                     srcSlot = v.slot,
                     dstBag = dstBag,
                     dstSlot = dstSlot
                 })
+                -- Update current!
+                local tmp = current[dstIdx]
+                current[dstIdx] = current[srcIdx]
+                current[srcIdx] = tmp
 
-                current[k] = v
-                local srcIndex = BagSlotToIndex(bags, v.bag, v.slot)
-                current[srcIndex] = nil
-                bagdata[k] = nil
-            end
-        end
-
-        -- 3. resolve cycles
-        local chainFound = false
-        for k, _ in pairs(bagdata) do
-            local chain = FindCycle(k, bagdata, bags)
-            if chain and TableLength(chain) > 1 then
-                ResolveCycle(bags, movePlan, current, bagdata, chain)
-                chainFound = true
-                break
-            end
-        end
-
-        -- 4. Fallback: simple move
-        if not chainFound then
-            for k, v in pairs(bagdata) do
-                local dstBag, dstSlot = IndexToBagSlot(bags, k)
-                table.insert(movePlan, {
-                    srcBag = v.bag,
-                    srcSlot = v.slot,
-                    dstBag = dstBag,
-                    dstSlot = dstSlot
-                })
-
-                local dstIndex = BagSlotToIndex(bags, dstBag, dstSlot)
-                local srcIndex = BagSlotToIndex(bags, v.bag, v.slot)
-
-                current[dstIndex] = current[srcIndex]
-                current[srcIndex] = nil
-
+                -- Update bagdata!
                 for k2, v2 in pairs(bagdata) do
                     if v2.bag == dstBag and v2.slot == dstSlot then
                         bagdata[k2].bag = v.bag
                         bagdata[k2].slot = v.slot
                     end
                 end
-
                 bagdata[k] = nil
-                break
+                swapped = true
+                break -- only perform one swap per iteration
             end
         end
 
-        timeout = timeout + 1
-        if timeout > 200 then
-            Bagzen:Print("Timeout during ComputeMovePlan")
-            break
+        if swapped then
+            timeout = timeout + 1
+            if timeout > 100 then break end
+        else
+            -- 4. If there are no more swaps, move to empty slot
+            local moved = false
+            for k, v in pairs(bagdata) do
+                local dstBag, dstSlot = IndexToBagSlot(frame.Bags, k)
+                local dstIdx = BagSlotToIndex(frame.Bags, dstBag, dstSlot)
+                local srcIdx = BagSlotToIndex(frame.Bags, v.bag, v.slot)
+                if current[dstIdx] == nil and current[srcIdx] ~= nil then
+                    table.insert(movePlan, {
+                        srcBag = v.bag,
+                        srcSlot = v.slot,
+                        dstBag = dstBag,
+                        dstSlot = dstSlot
+                    })
+                    current[dstIdx] = current[srcIdx]
+                    current[srcIdx] = nil
+                    bagdata[k] = nil
+                    moved = true
+                    break -- only perform one move per iteration
+                end
+            end
+
+            timeout = timeout + 1
+            if timeout > 100 then break end
+            if not moved then
+                -- If nothing could be moved, we're done
+                break
+            end
         end
     end
 
