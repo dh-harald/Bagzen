@@ -193,7 +193,6 @@ function Bagzen:BagSlotUpdate(parent, bag)
         end
     end
 
-
     local frame = _G[parent:GetName() .. "BagSlotsFrame" .. bag]
     if frame == nil then
         frame = CreateFrame("Button", parent:GetName() .. "BagSlotsFrame" .. bag, bagslotsframe, "BagzenBagSlotItemTemplate")
@@ -207,17 +206,6 @@ function Bagzen:BagSlotUpdate(parent, bag)
             index = index + 1
         end
         frame:SetPoint("TOPLEFT", bagslotsframe:GetName(), "TOPLEFT", 2 * Bagzen.PADDING + index * Bagzen.SIZE_X, -2 * Bagzen.PADDING)
-    end
-
-    -- show free slots
-    local slotfree = Bagzen:GetContainerNumFreeSlots(bag, parent.OwnerRealm, parent.OwnerName)
-    local countFrame = _G[frame:GetName() .. "Count"]
-    if slotfree == nil or slotfree == 0 then
-        countFrame:Hide()
-        countFrame:SetText("")
-    else
-        countFrame:Show()
-        countFrame:SetText(slotfree)
     end
 
     if parent:GetName() == "BagzenBankFrame" then
@@ -243,7 +231,7 @@ function Bagzen:BagSlotUpdate(parent, bag)
     if bag > 0 then
         frame.Slot = ContainerIDToInventoryID(bag)
     else
-        frame.Slot = 19 + bag
+        frame.Slot = ContainerIDToInventoryID(1) - 1 + bag
     end
     frame.Slots = numslots
     Bagzen:BagSlotItemUpdate(frame)

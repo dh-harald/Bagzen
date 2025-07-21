@@ -141,9 +141,9 @@ function Bagzen:ContainerItemUpdate(frame, bag)
     local numslots = parent.Slots
 
     -- TODO: set already hided to prevent this loop from running
-    for bag, _ in pairs(Bagzen.ContainerFrames[notlive][section]) do
-        if type(bag) == "number" then
-            for _, f in pairs(Bagzen.ContainerFrames[notlive][section][bag]) do
+    for tbag, _ in pairs(Bagzen.ContainerFrames[notlive][section]) do
+        if type(tbag) == "number" then
+            for _, f in pairs(Bagzen.ContainerFrames[notlive][section][tbag]) do
                 f:Hide()
             end
         end
@@ -153,6 +153,9 @@ function Bagzen:ContainerItemUpdate(frame, bag)
         for _, f in pairs(Bagzen.ContainerFrames[live][section][bag]) do
             f:Hide()
         end
+        local countFrame = _G[frame:GetName() .. "BagSlotsFrame" .. bag .. "Count"]
+        countFrame:SetText("")
+        countFrame:Hide()
         return
     end
 
@@ -259,6 +262,11 @@ function Bagzen:ContainerItemUpdate(frame, bag)
         end
         count = count + 1
     end
+    -- show free slots
+    local slotfree = Bagzen:GetContainerNumFreeSlots(bag, frame.OwnerRealm, frame.OwnerName)
+    local countFrame = _G[frame:GetName() .. "BagSlotsFrame" .. bag .. "Count"]
+    countFrame:Show()
+    countFrame:SetText(slotfree)
 end
 
 function Bagzen:ContainerUpdate(frame, realm, name)

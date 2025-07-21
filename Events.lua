@@ -1,5 +1,7 @@
 function Bagzen:BAG_CLOSED()
-    if arg1 > 0 and arg1< 5 then
+    -- remove bag from database
+    Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].bags[arg1] = nil
+    if arg1 > 0 and arg1 < 5 then
         --- bag
         Bagzen:BagSlotUpdate(BagzenBagFrame, arg1)
         Bagzen:ContainerItemUpdate(BagzenBagFrame, arg1)
