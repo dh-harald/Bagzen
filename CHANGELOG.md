@@ -1,3 +1,12 @@
+## [0.7.1](https://github.com/dh-harald/Bagzen/compare/v0.7.0...v0.7.1) (2025-07-21)
+
+
+### Bug Fixes
+
+* fixed bagslots locking ([0ea0b54](https://github.com/dh-harald/Bagzen/commit/0ea0b54276c0634e788fa5fa7455398d2af6521e))
+* next iteration of Sort.lua ([9a6c239](https://github.com/dh-harald/Bagzen/commit/9a6c23951993c5bd37f6b708e676e435c4ea830e))
+* updating free slots ([16d409d](https://github.com/dh-harald/Bagzen/commit/16d409d5e3e6e19023aa373965c1e30cede8f158))
+
 # [0.7.0](https://github.com/dh-harald/Bagzen/compare/v0.6.0...v0.7.0) (2025-07-21)
 
 
