@@ -71,25 +71,58 @@ end
 function Bagzen:ITEM_LOCK_CHANGED()
     local _G = _G or getfenv()
     local section = nil
+    local parent = nil
 
     if Bagzen.IsWOTLK then
+        local container = false
+        if arg1 >= ContainerIDToInventoryID(1) and arg1 <= ContainerIDToInventoryID(4) then
+            arg1 = arg1 - ContainerIDToInventoryID(1) + 1
+            container = true
+        elseif arg1 == -1 and arg2 > 28 then
+            arg1 = arg2 - 28 + NUM_BAG_SLOTS
+            arg2 = nil
+            container = true
+        end
         if arg1 == KEYRING_CONTAINER then return end -- sanity check
         if arg1 >= 0 and arg1 < 5 then
             section = "bagframe"
+            parent = "BagzenBagFrame"
         elseif arg1 >= 5 or arg1 == -1 then
             section = "bankframe"
+            parent = "BagzenBankFrame"
         end
 
-        local frame = Bagzen.ContainerFrames["Live"][section][arg1][arg2]
+        local frame
+        if Bagzen.ContainerFrames["Live"][section][arg1] ~= nil then
+            if container then
+                frame = _G[parent .. "BagSlotsFrame" .. arg1]
+            else
+                frame = Bagzen.ContainerFrames["Live"][section][arg1][arg2]
+            end
+        end
         if frame ~= nil and frame:IsShown() then
-            local _, _, locked = GetContainerItemInfo(arg1, arg2)
-            -- frame:SetItemButtonDesaturated(locked or 0)
+            local locked
+            if container then
+                locked = IsInventoryItemLocked(ContainerIDToInventoryID(arg1))
+            else
+                _, _, locked = GetContainerItemInfo(arg1, arg2)
+            end
             _G[frame:GetName() .. "IconTexture"]:SetDesaturated(locked or 0)
         end
     else
-        for _, section in pairs(Bagzen.ContainerFrames["Live"]) do
+        for sname, section in pairs(Bagzen.ContainerFrames["Live"]) do
+            local parent = nil
+            if sname == "bagframe" then
+                parent = "BagzenBagFrame"
+            elseif sname == "bankframe" then
+                parent = "BagzenBankFrame"
+            end
             for bag, data in pairs(section) do
                 if type(bag) == "number" and bag ~= KEYRING_CONTAINER then
+                    -- bag
+                    local locked = IsInventoryItemLocked(ContainerIDToInventoryID(bag))
+                    _G[parent .. "BagSlotsFrame" .. bag .. "IconTexture"]:SetDesaturated(locked or 0)
+                    -- items
                     for slot, frame in pairs(data) do
                         if frame and frame:IsShown() then
                             local _, _, locked = GetContainerItemInfo(bag, slot)
