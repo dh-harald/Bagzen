@@ -1,3 +1,10 @@
+## [0.7.3](https://github.com/dh-harald/Bagzen/compare/v0.7.2...v0.7.3) (2025-07-22)
+
+
+### Bug Fixes
+
+* better scrapglow ([f9b80e3](https://github.com/dh-harald/Bagzen/commit/f9b80e3729a3e146a4d00e724a10fa0d7ff03d86))
+
 ## [0.7.2](https://github.com/dh-harald/Bagzen/compare/v0.7.1...v0.7.2) (2025-07-22)
 
 
