@@ -1,3 +1,11 @@
+## [0.7.2](https://github.com/dh-harald/Bagzen/compare/v0.7.1...v0.7.2) (2025-07-22)
+
+
+### Bug Fixes
+
+* cant't sort bags in combat or when dead ([e40f190](https://github.com/dh-harald/Bagzen/commit/e40f190e24002468707efce0948813d66bd7cc9d))
+* minor minimap button tweak ([96eeae7](https://github.com/dh-harald/Bagzen/commit/96eeae717a771851b1a9b602fedecce2a442db14))
+
 ## [0.7.1](https://github.com/dh-harald/Bagzen/compare/v0.7.0...v0.7.1) (2025-07-21)
 
 
