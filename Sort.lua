@@ -627,7 +627,7 @@ end
 Bagzen.tmp = {}
 
 function Bagzen:SortBags(parent)
-    if InCombatLockdown() or UnitIsDead("player") then return end -- cant't sort bags in combat or when dead
+    if Bagzen.IsWrath and InCombatLockdown() or UnitIsDead("player") then return end -- cant't sort bags in combat or when dead
     Bagzen:TaskCombineStacksInit(parent)
     local _G = _G or getfenv()
     local frame = _G[parent:GetName() .. "SortFrame"]
