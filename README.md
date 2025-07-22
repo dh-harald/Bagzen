@@ -20,8 +20,11 @@ Re-used ideas/code snippets from the following addons:
 - ![Scrap](https://github.com/Jaliborc/Scrap)
 - ![pfUI](https://github.com/shagu/pfUI)
 
-## AI Help
+## Icons
 - ![ChatGPT](https://chatgpt.com)
+
+## Refactor
+- ![Copilot](https://github.com/features/copilot)
 
 ## Screenshots
 ![Bagzen](/media/bagzen.png)
