@@ -29,7 +29,15 @@ elseif client >= 30000 and client <= 30300 then
   Bagzen.IsWOTLK = true
 end
 
+Bagzen.Version = GetAddOnMetadata("Bagzen", "Version")
+if string.sub(Bagzen.Version, 1, 1) ~= "v" then
+    Bagzen.Version = "dev"
+else
+    Bagzen.Version = string.sub(Bagzen.Version, 2)
+end
+
 Bagzen.icon = LibStub("LibDBIcon-1.0", true)
+Bagzen.icon.tooltip = GameTooltip
 Bagzen.LDB = LibStub("LibDataBroker-1.1"):NewDataObject("Bagzen", {
     type = "launcher",
     icon = "Interface\\Buttons\\Button-Backpack-Up.PNG",
@@ -41,7 +49,7 @@ Bagzen.LDB = LibStub("LibDataBroker-1.1"):NewDataObject("Bagzen", {
         end
     end,
     OnTooltipShow = function(tooltip)
-        tooltip:SetText("Bagzen")
+        tooltip:AddDoubleLine("Bagzen", Bagzen.Version)
         tooltip:AddDoubleLine("Right-Click", "Open Settings", 1, 1, 1, 1, 1, 1)
     end,
 })
