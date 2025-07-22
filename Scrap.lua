@@ -170,20 +170,22 @@ end
 
 -- Highlights the worst valued scrap on the inventory
 -- Not working on 1.12.1 as no event for MODIFIER_STATE_CHANGED
--- Unfortunately I haven't found a glowing solution in 3.3.5
 function Bagzen:ScrapHighlight()
     if arg1 == "LSHIFT" and BagzenBagFrame:IsShown() then
         if arg2 == 1 then
             -- Bagzen:Print("DOWN")
             local bag, slot = ScanItems()
             if bag and slot then
-                glowingButton = Bagzen.ContainerFrames["Live"]["bagframe"][bag][slot]
-                glowingButton:LockHighlight()
+                local _G = _G or getfenv()
+                glowingButton = _G[Bagzen.ContainerFrames["Live"]["bagframe"][bag][slot]:GetName() .. "Shine"]
+                if glowingButton ~= nil then
+                    AutoCastShine_AutoCastStart(glowingButton)
+                end
             end
         elseif arg2 == 0 then
             -- Bagzen:Print("UP")
             if glowingButton then
-                glowingButton:UnlockHighlight()
+                AutoCastShine_AutoCastStop(glowingButton)
             end
         end
     end

@@ -14,6 +14,21 @@
     </Scripts>
   </Frame>
 
+  <Frame name="BagzenContainerFrameItemButtonTemplate" virtual="true" inherits="ContainerFrameItemButtonTemplate">
+    <Frames>
+      <Frame name="$parentShine" inherits="AutoCastShineTemplate">
+        <Anchors>
+          <Anchor point="CENTER">
+            <Offset x="1" y="-1"/>
+          </Anchor>
+        </Anchors>
+        <Size>
+          <AbsDimension x="38" y="38"/>
+        </Size>
+      </Frame>
+    </Frames>
+  </Frame>
+
   <Frame name="BagzenContainerTemplate" virtual="true">
     <Layers>
       <Layer level="BACKGROUND">
