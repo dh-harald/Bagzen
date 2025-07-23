@@ -6,8 +6,8 @@ if Bagzen.IsTurtle then
     Bagzen.BagSortFrame.delay = 1.2
     Bagzen.BankSortFrame.delay = 1.2
 else
-    Bagzen.BagSortFrame.delay = 0.2
-    Bagzen.BankSortFrame.delay = 0.2
+    Bagzen.BagSortFrame.delay = 0.3
+    Bagzen.BankSortFrame.delay = 0.3
 end
 
 Bagzen.SortFrameRetry = 10
