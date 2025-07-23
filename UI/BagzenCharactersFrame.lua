@@ -51,6 +51,7 @@ function Bagzen:CharactersFrameUpdate(frame)
             showcount = showcount + 1
         end
     end
+    frame.ShowCount = showcount
 
     table.sort(chars)
 
@@ -142,4 +143,25 @@ function Bagzen:CharacterButtonOnClick(frame)
     local money = Bagzen.data.global[realmname][unitname].money or 0
     local moneyframe = _G[frame.ParentFrame .. "MoneyFrame"]
     Bagzen:MoneyFrameUpdate(moneyframe, money)
+end
+
+function Bagzen:CharacterFrameOnWheel(frame, arg1)
+    local changed = false
+    if arg1 > 0 then
+        if frame.Offset > 0 then
+            frame.Offset = frame.Offset - 1
+            changed = true
+        end
+    else
+        local showcount = frame:GetParent():GetParent().ShowCount
+        local size = (math.floor(frame:GetParent():GetHeight() + 0.5) - 92) / 20
+        if frame.Offset + size < showcount then
+            frame.Offset = frame.Offset + 1
+            changed = true
+        end
+    end
+    if changed == true then
+        PlaySound("UChatScrollButton")
+        Bagzen:CharactersFrameUpdate(frame:GetParent():GetParent())
+    end
 end

@@ -108,6 +108,9 @@
       <OnClick>
         Bagzen:CharacterButtonOnClick(this)
       </OnClick>
+      <OnMouseWheel>
+        Bagzen:CharacterFrameOnWheel(this:GetParent(), arg1)
+      </OnMouseWheel>
     </Scripts>
   </Button>
 
@@ -215,5 +218,11 @@
         </Frames>
       </Frame>
     </Frames>
+    <Scripts>
+      <OnMouseWheel>
+        local _G = _G or getfenv()
+        Bagzen:CharacterFrameOnWheel(_G[this:GetName() .. "CharacterList"], arg1)
+      </OnMouseWheel>
+    </Scripts>
   </Frame>
 </Ui>
