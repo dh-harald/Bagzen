@@ -27,7 +27,12 @@ function Bagzen:ScrapFrameOnUpdate(frame)
     local next = next
     local _, tmp = next(frame.data)
     if tmp ~= nil then
-        Bagzen:Print("Selling " .. tmp.itemLink)
+        local _, itemCount = GetContainerItemInfo(tmp.bag, tmp.slot)
+        if itemCount > 1 then
+            Bagzen:Print("Selling " .. tmp.itemLink .. " x" .. itemCount)
+        else
+            Bagzen:Print("Selling " .. tmp.itemLink)
+        end
         ClearCursor()
         UseContainerItem(tmp.bag, tmp.slot)
         table.remove(frame.data, 1)
