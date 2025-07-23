@@ -1,3 +1,13 @@
+## [0.7.4](https://github.com/dh-harald/Bagzen/compare/v0.7.3...v0.7.4) (2025-07-23)
+
+
+### Bug Fixes
+
+* enable mouse wheel on characterlist ([d9eb774](https://github.com/dh-harald/Bagzen/commit/d9eb7741f7950619d84ad4450c12975f96fa3ccc))
+* InCombatLockdown() in vanilla, but no restrictions either ([9409a04](https://github.com/dh-harald/Bagzen/commit/9409a049b1bf73933adb78e928d909329e5bd01b))
+* increase delay a little bit in sorting ([b044999](https://github.com/dh-harald/Bagzen/commit/b04499974c0fae313204a06d3dd7a76a6576e7a3))
+* printing itemcount on autosell ([fefb0e6](https://github.com/dh-harald/Bagzen/commit/fefb0e66fe823ea4cb8dfc65a9b17e95d1be1647))
+
 ## [0.7.3](https://github.com/dh-harald/Bagzen/compare/v0.7.2...v0.7.3) (2025-07-22)
 
 
