@@ -1,3 +1,10 @@
+# [0.8.0](https://github.com/dh-harald/Bagzen/compare/v0.7.4...v0.8.0) (2025-07-24)
+
+
+### Features
+
+* added cooldown text to Bag items ([0972211](https://github.com/dh-harald/Bagzen/commit/09722118918dcf723f9afe6fa5e03b9d16c2f63f))
+
 ## [0.7.4](https://github.com/dh-harald/Bagzen/compare/v0.7.3...v0.7.4) (2025-07-23)
 
 
