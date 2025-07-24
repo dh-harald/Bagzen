@@ -4,7 +4,20 @@
   <Script file="BagzenButton.lua"/>
 
   <Font name="BagzenFont" font="Interface\AddOns\Bagzen\fonts\PTSansNarrow.ttf" virtual="true">
-     <Shadow>
+    <Shadow>
+      <Offset>
+        <AbsDimension x="1" y="-1"/>
+      </Offset>
+      <Color r="0" g="0" b="0"/>
+     </Shadow>
+     <FontHeight>
+      <AbsValue val="12"/>
+     </FontHeight>
+     <Color r="1.0" g="0.82" b="0"/>
+  </Font>
+
+  <Font name="BagzenFontOutline" font="Interface\AddOns\Bagzen\fonts\PTSansNarrow.ttf" outline="NORMAL" virtual="true">
+    <Shadow>
       <Offset>
         <AbsDimension x="1" y="-1"/>
       </Offset>

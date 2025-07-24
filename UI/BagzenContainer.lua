@@ -98,6 +98,134 @@ function Bagzen:ContainerItemOnLeave(frame)
     ResetCursor()
 end
 
+local function FitFontToFrame(fontString, frame)
+    if Bagzen.IsWOTLK then
+        local minSize = 8
+        local maxSize = 20
+        local font, _, outline = fontString:GetFont()
+        local w, h = frame:GetWidth(), frame:GetHeight()
+        local size = maxSize
+        fontString:SetFont(font, size, outline)
+        while (fontString:GetStringWidth() > w or fontString:GetStringHeight() > h) and size > minSize do
+            size = size - 1
+            fontString:SetFont(font, size, outline)
+        end
+    elseif Bagzen.IsVanilla then
+        -- no GetStringWidth and GetStringHeight in Vanilla, try to estimate size
+        local font, size, outline = fontString:GetFont()
+        local scale = (frame:GetParent():GetParent():GetParent():GetScale() or 1) * (UIParent:GetScale() or 1)
+        local height = (frame:GetParent() and frame:GetParent():GetHeight() or frame:GetHeight() or 0) * scale
+        size = math.max((height > 0 and height * .64 or 16), 16)
+        fontString:SetFont(font, size, outline)
+    end
+end
+
+-- https://github.com/Stanzilla/WoWUIBugs/issues/47#issuecomment-710698976
+local function GetCooldownLeft(start, duration)
+    -- Before restarting the GetTime() will always be greater than [start]
+    -- After the restart, [start] is technically always bigger because of the 2^32 offset thing
+    if start < GetTime() then
+        local cdEndTime = start + duration
+        local cdLeftDuration = cdEndTime - GetTime()
+
+        return cdLeftDuration
+    end
+
+    local time = time()
+    local startupTime = time - GetTime()
+    -- just a simplification of: ((2^32) - (start * 1000)) / 1000
+    local cdTime = (2 ^ 32) / 1000 - start
+    local cdStartTime = startupTime - cdTime
+    local cdEndTime = cdStartTime + duration
+    local cdLeftDuration = cdEndTime - time
+
+    return cdLeftDuration
+end
+
+function Bagzen:CooldownFrameOnUpdate(frame, elapsed)
+    local scale = frame:GetParent():GetParent():GetParent():GetScale() or 1
+    local framescale = frame.scale or 1
+
+    -- Adjust the size of the cooldown text on resize
+    if framescale ~= scale then
+        frame.scale = scale
+        FitFontToFrame(frame.timeText, frame)
+    end
+
+    -- Timer for controlling text update
+    frame._cooldownUpdateTimer = (frame._cooldownUpdateTimer or 0) + elapsed
+
+    if frame._nextCooldownTextUpdate and frame._cooldownUpdateTimer < frame._nextCooldownTextUpdate then
+        return
+    end
+
+    local start = frame._cooldownStart or 0
+    local duration = frame._cooldownDuration or 0
+    local enable = frame._cooldownEnable or 0
+    local remaining = 0
+
+    if enable and enable ~= 0 and start and duration and duration > 1.5 then
+        remaining = GetCooldownLeft(start, duration)
+        local tmp = remaining - math.floor(remaining)
+        if tmp < 0.001  and tmp >= 0 then
+            remaining = remaining - 0.001
+        end
+    end
+
+    if remaining > 0 then
+        local text, color, nextUpdate
+        if remaining >= 86400 then
+            local days = math.ceil(remaining / 86400)
+            text = string.format("%dd", days)
+            color = {1, 1, 1}
+            nextUpdate = remaining - ((days - 1) * 86400)
+            if nextUpdate < 60 then nextUpdate = 60 end
+        elseif remaining >= 3600 then
+            local hours = math.ceil(remaining / 3600)
+            text = string.format("%dh", hours)
+            color = {1, 1, 1}
+            nextUpdate = remaining - ((hours - 1) * 3600)
+            if nextUpdate < 60 then nextUpdate = 60 end
+        elseif remaining >= 60 then
+            local mins = math.ceil(remaining / 60)
+            text = string.format("%dm", mins)
+            color = {1, 1, 1}
+            nextUpdate = remaining - ((mins - 1) * 60)
+            if nextUpdate < 1 then nextUpdate = 1 end
+        elseif remaining >= 5 then
+            local secs = math.ceil(remaining)
+            text = string.format("%ds", math.floor(remaining))
+            color = {1, 1, 1}
+            nextUpdate = remaining - (secs - 1)
+            if nextUpdate < 0.1 then nextUpdate = 0.1 end
+        else
+            text = string.format("%.1fs", remaining)
+            if remaining <= 1 then
+                color = {1, 0, 0}
+            else
+                color = {1, 1, 1}
+            end
+            nextUpdate = 0.1
+        end
+
+        if frame.lastText ~= text then
+            frame.timeText:SetText(text)
+            frame.timeText:SetTextColor(unpack(color))
+            -- Fit font size to slot
+            FitFontToFrame(frame.timeText, frame, 8, 32)
+            frame.lastText = text
+        end
+
+        frame._nextCooldownTextUpdate = nextUpdate
+        frame._cooldownUpdateTimer = 0
+    else
+        frame.timeText:SetText("")
+        frame.lastText = nil
+        frame._nextCooldownTextUpdate = nil
+        frame._cooldownUpdateTimer = 0
+    end
+end
+
 function Bagzen:ContainerResize(frame)
     local _G = _G or getfenv()
     frame:SetWidth(Bagzen.settings.global[frame.SettingSection].width * Bagzen.SIZE_X)
@@ -171,7 +299,7 @@ function Bagzen:ContainerItemUpdate(frame, bag)
                 if section == "bagframe" or (section == "bankframe" and bag >= 5) then
                     if Bagzen.IsWOTLK then -- we can shine/glow
                         slotframe = CreateFrame("Button", framename, parentdummy, "BagzenContainerFrameItemButtonTemplate")
-                    else
+                    elseif Bagzen.IsVanilla then
                         slotframe = CreateFrame("Button", framename, parentdummy, "ContainerFrameItemButtonTemplate")
                     end
                 else
@@ -182,6 +310,24 @@ function Bagzen:ContainerItemUpdate(frame, bag)
                 slotframe:SetPushedTexture("Interface\\AddOns\\Bagzen\\textures\\UI-Quickslot-Depress.tga")
                 slotframe:SetHighlightTexture("Interface\\AddOns\\Bagzen\\textures\\UI-Quickslot-Highlight.tga")
                 _G[slotframe:GetName() .. "IconTexture"]:SetTexCoord(0.03, 0.97, 0.03, 0.97)
+                if section == "bagframe" then
+                    local cooldownframe = _G[slotframe:GetName() .. "Cooldown"]
+                    if Bagzen.IsWOTLK then
+                        cooldownframe:SetScript("OnUpdate", function(self, elapsed)
+                            Bagzen:CooldownFrameOnUpdate(self, elapsed)
+                        end)
+                    elseif Bagzen.IsVanilla then
+                        cooldownframe:SetScript("OnUpdate", function()
+                            Bagzen:CooldownFrameOnUpdate(this, arg1)
+                        end)
+                    end
+                    slotframe.cooldown = cooldownframe
+                    local fontString = cooldownframe:CreateFontString(slotframe:GetName() .. "CooldownText", "OVERLAY", "BagzenFontOutline")
+                    fontString:SetPoint("CENTER", cooldownframe, "CENTER", 0, 0)
+                    fontString:SetTextColor(1, 1, 1)
+                    fontString:SetText("")
+                    cooldownframe.timeText = fontString
+                end
             else
                 slotframe = CreateFrame("Button", framename, parentdummy, "BagzanContainerItemTemplate")
             end
@@ -199,6 +345,7 @@ function Bagzen:ContainerItemUpdate(frame, bag)
     for slot, slotframe in pairs(Bagzen.ContainerFrames[live][section][bag]) do
         if slot <= numslots then
             local texture = _G[slotframe:GetName() .. "texture"] or slotframe:CreateTexture(slotframe:GetName() .. "texture", 'OVERLAY')
+            local cooldownframe = slotframe.cooldown
             local itemtexture = nil
             local itemcount = nil
             if frame.Virtual == false then
@@ -215,7 +362,16 @@ function Bagzen:ContainerItemUpdate(frame, bag)
                 SetItemButtonTexture(slotframe, itemtexture)
                 SetItemButtonCount(slotframe, itemcount)
                 if section == "bagframe" and frame.Virtual == false then
-                    ContainerFrame_UpdateCooldown(slotframe:GetParent():GetID(), slotframe)
+                    local start, duration, enable = GetContainerItemCooldown(bag, slot)
+                    CooldownFrame_SetTimer(cooldownframe, start, duration, enable)
+                    cooldownframe._cooldownStart = start
+                    cooldownframe._cooldownDuration = duration
+                    cooldownframe._cooldownEnable = enable
+                    if duration > 0 and enable == 0 then
+                        SetItemButtonTextureVertexColor(slotframe, 0.4, 0.4, 0.4)
+                    else
+                        SetItemButtonTextureVertexColor(slotframe, 1, 1, 1)
+                    end
                 end
                 local itemLink = nil
                 if frame.Virtual == false then
@@ -256,6 +412,9 @@ function Bagzen:ContainerItemUpdate(frame, bag)
                 slotframe.ItemLink = nil
                 slotframe.ItemName = nil
                 texture:SetTexture(nil)
+                if section == "bagframe" and frame.Virtual == false then
+                    cooldownframe:Hide()
+                end
             end
             local POS_X = Bagzen.PADDING + (Bagzen.SIZE_X * math_mod(count, Bagzen.settings.global[section].width))
             local POS_Y = Bagzen.MOD_Y - (Bagzen.SIZE_Y * math.floor(count / Bagzen.settings.global[section].width))
