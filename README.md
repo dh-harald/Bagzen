@@ -12,6 +12,11 @@ OneBag Addon inspired by Baganator for WoW Vanilla 1.12.1 / 3.3.5
 - Autosell greys/junks
 - Highlight less valuable junk in the inventory (wrath only)
 
+## Features missing
+- Keychain
+- Guild Bank
+- Scrapglow on vanilla
+
 ## Sources
 Re-used ideas/code snippets from the following addons:
 - ![Ace3](https://github.com/WoWUIDev/Ace3) / ![Ace3v](https://github.com/laytya/Ace3v)
