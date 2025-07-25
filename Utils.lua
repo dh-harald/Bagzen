@@ -102,6 +102,8 @@ function Bagzen:GetItemFamily(itemID)
         elseif itemSubType == "bullet" or itemSubType == "ammo pouch" then
             return 2 -- bullet / ammo pouch
         end
+    elseif itemSubType == "soul bag" or itemID == 6265 then
+        return 4 -- soul bag
     end
 end
 
