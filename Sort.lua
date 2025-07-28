@@ -334,6 +334,9 @@ end
 
 function Bagzen:MoveContainerItem(srcBag, srcSlot, dstBag, dstSlot)
     ret = false
+    if Bagzen.IsWrath and InCombatLockdown() or UnitIsDead("player") then
+        return ret
+    end
     local _, _, srcLocked = GetContainerItemInfo(srcBag, srcSlot)
     local _, _, dstLocked = GetContainerItemInfo(dstBag, dstSlot)
     if not srcLocked and not dstLocked then
