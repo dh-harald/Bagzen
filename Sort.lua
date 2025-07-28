@@ -121,23 +121,26 @@ local priorityItems = {
 }
 
 local function sortTable(t)
-    table.sort(t, function(a, b)
-        for _, key in pairs(allSortKeys) do
-            if a == nil or b == nil or a[key] == nil or b[key] == nil then
-                -- Bagzen:Print(key, a.id, b.id)
-                return
+    if t ~= nil then
+        table.sort(t, function(a, b)
+            for _, key in pairs(allSortKeys) do
+                if a == nil or b == nil or a[key] == nil or b[key] == nil then
+                    -- Bagzen:Print(key, a.id, b.id)
+                    return
+                end
+                if a[key] ~= b[key] then
+                    return a[key] < b[key]
+                end
             end
-            if a[key] ~= b[key] then
-                return a[key] < b[key]
-            end
-        end
-        return  a.id < b.id
-    end)
+            return  a.id < b.id
+        end)
+    end
     return t
 end
 
 local function TableLength(t)
     local count = 0
+    if t == nil then return count end
     for _ in pairs(t) do
         count = count + 1
     end
@@ -146,7 +149,7 @@ end
 
 local function IndexToBagSlot(bags, index)
     local remaining = index
-    for _, bag in ipairs(bags) do
+    for _, bag in pairs(bags) do
         if remaining <= bag.slots then
             return bag.bag, remaining
         else
@@ -158,7 +161,7 @@ end
 
 local function BagSlotToIndex(bags, bag, slot)
     local index = 0
-    for _, b in ipairs(bags) do
+    for _, b in pairs(bags) do
         if b.bag == bag then
             index = index + slot
             return index
@@ -178,15 +181,20 @@ local function ItemsEqual(a, b)
 end
 
 local function SpecialBagsAndScrap(frame, bagdata)
-    local scrapItemsByFamily = {}
-    local normalItemsByFamily = {}
+    local scrapItemsByFamily = {
+        [0] = {} -- standard scrap
+    }
+    local normalItemsByFamily = {
+        [0] = {} -- standard items
+    }
 
     local newbagdata = {}
 
     -- 1. Collect scraps and non-scraps by family
-    for index, item in pairs(bagdata) do
+    for _, item in pairs(bagdata) do
         local itemID = item.itemID
-        local family = Bagzen:GetItemFamily(itemID) or 0
+        local _, _, _, _, _, _, _, _, itemInvLoc = Bagzen:GetItemInfo(itemID)
+        local family = itemInvLoc ~= "INVTYPE_BAG" and Bagzen:GetItemFamily(itemID) or 0
         if Bagzen:isScrap(itemID) then
             if scrapItemsByFamily[family] == nil then
                 scrapItemsByFamily[family] = {}
@@ -218,25 +226,18 @@ local function SpecialBagsAndScrap(frame, bagdata)
         end
     end
 
-    -- 1. sort special tables as it could be in wrong order
-    for family in pairs(scrapItemsByFamily) do
-        if family > 0 then
-            scrapItemsByFamily[family] = sortTable(scrapItemsByFamily[family])
-        end
-    end
-
-    -- 2. insert special scraps to their bags, check overflow
-    local overflow = false
+    -- 1. insert special scraps to their bags
     for family, items in pairs(scrapItemsByFamily) do
         if family > 0 then
             local slotLen = TableLength(slotsByFamily[family])
+            -- sort items first
+            items = sortTable(items)
             local scrapLen = TableLength(items)
-            for i, item in items do
+            for i, item in pairs(items) do
                 local index = slotLen - scrapLen + i
                 if index <= 0 then
                     -- we're running out of special slots, move back to standard scrap
                     table.insert(scrapItemsByFamily[0], item)
-                    overflow = true
                 else
                     newbagdata[slotsByFamily[family][index]] = item
                 end
@@ -244,10 +245,8 @@ local function SpecialBagsAndScrap(frame, bagdata)
         end
     end
 
-    -- 3. resort scrap items it needed
-    if overflow then
-        scrapItemsByFamily[0] = sortTable(scrapItemsByFamily[0])
-    end
+    -- 2. sort remaining scraps
+    scrapItemsByFamily[0] = sortTable(scrapItemsByFamily[0])
 
     -- 3. insert scraps to normal bags
     for family, items in pairs(scrapItemsByFamily) do
@@ -261,11 +260,11 @@ local function SpecialBagsAndScrap(frame, bagdata)
         end
     end
 
-    -- 4. move special items to their bags, check overflow
-    overflow = false
+    -- 4. move special items to their bags
     for family, items in pairs(normalItemsByFamily) do
         if family > 0 then
             local index = 1
+            items = sortTable(items) -- sort items first
             for _, item in pairs(items) do
                 if slotsByFamily[family] ~= nil and                             -- we have special bag for this family
                         newbagdata[slotsByFamily[family][index]] == nil and     -- slot is empty, no scrap there
@@ -273,17 +272,14 @@ local function SpecialBagsAndScrap(frame, bagdata)
                     newbagdata[slotsByFamily[family][index]] = item
                 else
                     table.insert(normalItemsByFamily[0], item)
-                    overflow = true
                 end
                 index = index + 1
             end
         end
     end
 
-    -- 5. resort normal items it needed
-    if overflow then
-        normalItemsByFamily[0] = sortTable(normalItemsByFamily[0])
-    end
+    -- 5. sort normal items
+    normalItemsByFamily[0] = sortTable(normalItemsByFamily[0])
 
     -- 6 move normal items in their place
     for family, items in pairs(normalItemsByFamily) do
@@ -295,15 +291,45 @@ local function SpecialBagsAndScrap(frame, bagdata)
                     newbagdata[slotsByFamily[family][index]] = item
                 else
                     table.insert(normalItemsByFamily[0], item)
-                    overflow = true
                 end
                 index = index + 1
             end
         end
     end
 
-    -- return bagdata
     return newbagdata
+end
+
+local function OptimizeDuplicatePlacements(Bags, current, bagdata)
+    local byItemID = {}
+    for _, item in pairs(current) do
+        if item and item.itemID then
+            if not byItemID[item.itemID] then
+                byItemID[item.itemID] = {}
+            end
+            table.insert(byItemID[item.itemID], item)
+        end
+    end
+
+    for targetIndex, targetItem in pairs(bagdata) do
+        if targetItem ~= nil then
+            local itemID = targetItem.itemID
+            local candidates = byItemID[itemID]
+            if candidates ~= nil then
+                for _, candidate in pairs(candidates) do
+                    local sourceIndex = BagSlotToIndex(Bags, candidate.bag, candidate.slot)
+                    if sourceIndex ~= targetIndex and not bagdata[sourceIndex] then
+                        if ItemsEqual(targetItem, candidate) then
+                            bagdata[targetIndex].bag = candidate.bag
+                            bagdata[targetIndex].slot = candidate.slot
+                            break
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return bagdata
 end
 
 function Bagzen:MoveContainerItem(srcBag, srcSlot, dstBag, dstSlot)
@@ -360,143 +386,69 @@ function Bagzen:TaskCombineStacks(parent)
                 src = item
             elseif count == 2 then
                 if Bagzen:MoveContainerItem(item.bag, item.slot, src.bag, src.slot) then
-                    frame.retry = Bagzen.SortFrameRetry -- reset registry
+                    frame.retry = Bagzen.SortFrameRetry -- reset 
                 end
                 return
             end
         end
     end
 
-    Bagzen:TaskSortBagsInit(parent)
+    -- Bagzen:TaskSortBagsInit(parent)
     frame.task = "SortBags"
     frame.task_running = false
 end
 
-function Bagzen:ComputeMovePlan(parent)
+function Bagzen:MoveItem(parent, current, bagdata)
     local _G = _G or getfenv()
     local frame = _G[parent:GetName() .. "SortFrame"]
+    frame.moves = frame.moves or 0
 
-    local current = frame.current
-    local bagdata = frame.bagdata
-    local movePlan = {}
-    local timeout = 0
-
-    bagdata = SpecialBagsAndScrap(frame, bagdata)
-
-    while TableLength(bagdata) > 0 do
-        -- 1. Remove items that are already in their correct place
-        local used = {}
-        for k, v in pairs(bagdata) do
-            local bag, slot = IndexToBagSlot(frame.Bags, k)
-            local curIdx = BagSlotToIndex(frame.Bags, bag, slot)
-            local curItem = current[curIdx]
-            if ItemsEqual(curItem, v) then
-                bagdata[k] = nil
-                used[curIdx] = true
-            end
-        end
-
-        -- 2. Update the bag/slot fields of the remaining bagdata items
-        for k, v in pairs(bagdata) do
-            for curIdx, curItem in pairs(current) do
-                if not used[curIdx] and ItemsEqual(curItem, v) then
-                    local bag, slot = IndexToBagSlot(frame.Bags, curIdx)
-                    v.bag = bag
-                    v.slot = slot
-                    used[curIdx] = true
-                    break
-                end
-            end
-        end
-
-        -- 3. First, swaps: every pair where both places have an item and they are not equal
-        local swapped = false
-        for k, v in pairs(bagdata) do
-            local dstBag, dstSlot = IndexToBagSlot(frame.Bags, k)
-            local dstIdx = BagSlotToIndex(frame.Bags, dstBag, dstSlot)
-            local srcIdx = BagSlotToIndex(frame.Bags, v.bag, v.slot)
-            if current[dstIdx] ~= nil and current[srcIdx] ~= nil and not ItemsEqual(current[dstIdx], v) and srcIdx ~= dstIdx then
-                table.insert(movePlan, {
-                    srcBag = v.bag,
-                    srcSlot = v.slot,
-                    dstBag = dstBag,
-                    dstSlot = dstSlot
-                })
-                -- Update current!
-                local tmp = current[dstIdx]
-                current[dstIdx] = current[srcIdx]
-                current[srcIdx] = tmp
-
-                -- Update bagdata!
-                for k2, v2 in pairs(bagdata) do
-                    if v2.bag == dstBag and v2.slot == dstSlot then
-                        bagdata[k2].bag = v.bag
-                        bagdata[k2].slot = v.slot
-                    end
-                end
-                bagdata[k] = nil
-                swapped = true
-                break -- only perform one swap per iteration
-            end
-        end
-
-        if swapped then
-            timeout = timeout + 1
-            if timeout > 100 then break end
-        else
-            -- 4. If there are no more swaps, move to empty slot
-            local moved = false
-            for k, v in pairs(bagdata) do
-                local dstBag, dstSlot = IndexToBagSlot(frame.Bags, k)
-                local dstIdx = BagSlotToIndex(frame.Bags, dstBag, dstSlot)
-                local srcIdx = BagSlotToIndex(frame.Bags, v.bag, v.slot)
-                if current[dstIdx] == nil and current[srcIdx] ~= nil then
-                    table.insert(movePlan, {
-                        srcBag = v.bag,
-                        srcSlot = v.slot,
-                        dstBag = dstBag,
-                        dstSlot = dstSlot
-                    })
-                    current[dstIdx] = current[srcIdx]
-                    current[srcIdx] = nil
-                    bagdata[k] = nil
-                    moved = true
-                    break -- only perform one move per iteration
-                end
-            end
-
-            timeout = timeout + 1
-            if timeout > 100 then break end
-            if not moved then
-                -- If nothing could be moved, we're done
-                break
-            end
+    -- remove those items that are already in their correct place
+    for k, v in pairs(bagdata) do
+        if ItemsEqual(current[k], v) then
+            bagdata[k] = nil
         end
     end
 
-    -- Bagzen:Print(TableLength(movePlan), "moves")
-    frame.movePlan = movePlan
-end
-
-function Bagzen:TaskSortBagsInit(parent)
-    local _G = _G or getfenv()
-    local frame = _G[parent:GetName() .. "SortFrame"]
-
-    local Bags = Bagzen:BagSortSetBags(parent)
-    local current = Bagzen:BagSortCurrent(parent)
-    frame.Bags = Bags
-    local bagdata = {}
-
-    for _, v in pairs(current) do
-        table.insert(bagdata, v)
+    -- exit if done
+    if TableLength(bagdata) == 0 then
+        frame.task_running = false
+        frame:Hide()
+        return
     end
 
-    bagdata = sortTable(bagdata)
+    -- safety exit
+    if frame.moves >= 100 then
+        frame.task_running = false
+        frame:Hide()
+        return
+    end
 
-    frame.current = current
-    frame.bagdata = bagdata
+    -- 1. swap
+    for k, v in pairs(bagdata) do
+        local dstBag, dstSlot = IndexToBagSlot(frame.Bags, k)
+        if current[k] ~= nil and v ~= nil and not ItemsEqual(current[k], v) then
+            Bagzen:MoveContainerItem(v.bag, v.slot, dstBag, dstSlot)
+            frame.moves = frame.moves + 1
+            frame.retry = Bagzen.SortFrameRetry -- reset retry
+            return
+        end
+    end
 
-    Bagzen:ComputeMovePlan(parent)
+    -- 2. move to empty slot
+    for k, v in pairs(bagdata) do
+        local dstBag, dstSlot = IndexToBagSlot(frame.Bags, k)
+        if not ItemsEqual(current[k], v) then
+            if current[k] ~= nil and v == nil then
+                Bagzen:MoveContainerItem(dstBag, dstSlot, v.bag, v.slot)
+            else
+                Bagzen:MoveContainerItem(v.bag, v.slot, dstBag, dstSlot)
+            end
+            frame.moves = frame.moves + 1
+            frame.retry = Bagzen.SortFrameRetry -- reset retry
+            return
+        end
+    end
 end
 
 function Bagzen:BagSortSetBags(parent)
@@ -573,22 +525,17 @@ end
 function Bagzen:TaskSortBags(parent)
     local _G = _G or getfenv()
     local frame = _G[parent:GetName() .. "SortFrame"]
-    local step = table.remove(frame.movePlan, 1)
-    if step then
-        -- Bagzen:Print("Moving", step.srcBag, step.srcSlot, "TO", step.dstBag, step.dstSlot)
-        frame.task_running = true
-        if Bagzen:MoveContainerItem(step.srcBag, step.srcSlot, step.dstBag, step.dstSlot) then
-            frame.retry = Bagzen.SortFrameRetry -- reset registry
-        else
-            -- locked, try it again for the next run
-            table.insert(frame.movePlan, 1, step)
-        end
-        frame.task_running = false
-        return
-    end
-    frame:Hide()
-    frame.task_running = false
+
+    local Bags = Bagzen:BagSortSetBags(parent)
+    frame.Bags = Bags
+
+    local current = Bagzen:BagSortCurrent(parent)
+    local bagdata = SpecialBagsAndScrap(frame, current)
+    bagdata = OptimizeDuplicatePlacements(Bags, current, bagdata)
+
+    Bagzen:MoveItem(parent, current, bagdata)
 end
+
 
 function Bagzen:SortFrameOnUpdate(frame)
     if frame.task == nil then
@@ -600,6 +547,7 @@ function Bagzen:SortFrameOnUpdate(frame)
     if (frame.tick or 1) > GetTime() then return else frame.tick = GetTime() + frame.delay end
 
     frame.retry = frame.retry - 1
+
     if frame.retry <= 0
     then
         Bagzen:Print("Something went wrong")
@@ -627,10 +575,14 @@ end
 Bagzen.tmp = {}
 
 function Bagzen:SortBags(parent)
-    if Bagzen.IsWrath and InCombatLockdown() or UnitIsDead("player") then return end -- cant't sort bags in combat or when dead
-    Bagzen:TaskCombineStacksInit(parent)
     local _G = _G or getfenv()
     local frame = _G[parent:GetName() .. "SortFrame"]
     frame.parent = parent
+    if Bagzen.IsWrath and InCombatLockdown() or UnitIsDead("player") then
+        -- cant't sort bags in combat or when dead
+        frame:Hide()
+        return
+    end
+    Bagzen:TaskCombineStacksInit(parent)
     frame:Show()
 end
