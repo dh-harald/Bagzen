@@ -64,6 +64,7 @@ function Bagzen:GetItemInfo(arg)
     else
         local itemName, itemLink, itemRarity, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture = GetItemInfo(itemID)
         if itemName ~= nil and itemLink ~= nil then
+            local itemSellPrice = Bagzen.sellData[itemID]
             Bagzen.ItemCache[itemID] = {
                 itemName = itemName,
                 itemLink = itemLink,
@@ -73,9 +74,10 @@ function Bagzen:GetItemInfo(arg)
                 itemSubType = itemSubType,
                 itemStackCount = itemStackCount,
                 itemEquipLoc = itemEquipLoc,
-                itemTexture = itemTexture
+                itemTexture = itemTexture,
+                itemSellPrice = itemSellPrice
             }
-            return itemName, itemLink, itemRarity, nil, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, nil
+            return itemName, itemLink, itemRarity, nil, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice
         end
     end
     return nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil

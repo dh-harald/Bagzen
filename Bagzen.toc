@@ -23,6 +23,9 @@ lib\LibDataBroker-1.1\LibDataBroker-1.1.lua
 lib\LibDBIcon-1.0\LibDBIcon-1.0.lua
 
 Bagzen.lua
+#@version-vanilla@
+Selldata.lua
+#@end-version-vanilla@
 Utils.lua
 Mail.lua
 Tooltip.lua

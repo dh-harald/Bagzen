@@ -15,7 +15,6 @@ OneBag Addon inspired by Baganator for WoW Vanilla 1.12.1 / 3.3.5
 ## Features missing
 - Keychain
 - Guild Bank
-- Scrapglow on vanilla
 
 ## Sources
 Re-used ideas/code snippets from the following addons:

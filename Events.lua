@@ -167,7 +167,7 @@ function Bagzen:MERCHANT_SHOW()
 end
 
 function Bagzen:MODIFIER_STATE_CHANGED()
-    Bagzen:ScrapHighlight()
+    Bagzen:ScrapHighlight(arg1, arg2)
 end
 
 function Bagzen:PLAYER_LOGIN()
@@ -218,4 +218,21 @@ function Bagzen:OnEnable()
     Bagzen:RegisterEvent("PLAYERBANKSLOTS_CHANGED")
     -- not triggered on WOTLK client
     Bagzen:PLAYER_LOGIN()
+end
+
+-- emulate MODIFIER_STATE_CHANGED (for shift) in vanilla and call ScrapHighlight/ScrapGlow
+if Bagzen.IsVanilla then
+    local frame = CreateFrame("Frame", "BagzenModShift")
+    frame.tick = GetTime()
+    frame.delay = 0.1 -- throttle
+    frame.stateShift = 0
+    frame:SetScript("OnUpdate", function()
+        if frame.tick > GetTime() then return else frame.tick = GetTime() + frame.delay end
+        -- Bagzen:Print(this.tick)
+        local stateShift = IsShiftKeyDown() and 1 or 0
+        if stateShift ~= frame.stateShift then
+            frame.stateShift = stateShift
+            Bagzen:ScrapHighlight("LSHIFT", stateShift)
+        end
+    end)
 end

@@ -14,7 +14,7 @@
     </Scripts>
   </Frame>
 
-  <Frame name="BagzenContainerFrameItemButtonTemplate" virtual="true" inherits="ContainerFrameItemButtonTemplate">
+  <Frame name="BagzenWOTLKContainerFrameItemButtonTemplate" virtual="true" inherits="ContainerFrameItemButtonTemplate">
     <Frames>
       <Frame name="$parentShine" inherits="AutoCastShineTemplate">
         <Anchors>
@@ -26,6 +26,27 @@
           <AbsDimension x="38" y="38"/>
         </Size>
       </Frame>
+    </Frames>
+  </Frame>
+
+  <Frame name="BagzenVanillaContainerFrameItemButtonTemplate" virtual="true" inherits="ContainerFrameItemButtonTemplate">
+    <Frames>
+      <Model name="$parentAutoCast" file="Interface\Buttons\UI-AutoCastButton.mdx" scale="1.5" hidden="true" setAllPoints="true">
+        <Anchors>
+          <Anchor point="CENTER">
+            <Offset x="1" y="-1"/>
+          </Anchor>
+        </Anchors>
+        <Size>
+          <AbsDimension x="38" y="38"/>
+        </Size>
+        <Scripts>
+          <OnLoad>
+            this:SetSequence(0)
+            this:SetSequenceTime(0, 0)
+          </OnLoad>
+        </Scripts>
+      </Model>
     </Frames>
   </Frame>
 

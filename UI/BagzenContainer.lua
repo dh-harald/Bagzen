@@ -298,9 +298,9 @@ function Bagzen:ContainerItemUpdate(frame, bag)
             if frame.Virtual == false then
                 if section == "bagframe" or (section == "bankframe" and bag >= 5) then
                     if Bagzen.IsWOTLK then -- we can shine/glow
-                        slotframe = CreateFrame("Button", framename, parentdummy, "BagzenContainerFrameItemButtonTemplate")
+                        slotframe = CreateFrame("Button", framename, parentdummy, "BagzenWOTLKContainerFrameItemButtonTemplate")
                     elseif Bagzen.IsVanilla then
-                        slotframe = CreateFrame("Button", framename, parentdummy, "ContainerFrameItemButtonTemplate")
+                        slotframe = CreateFrame("Button", framename, parentdummy, "BagzenVanillaContainerFrameItemButtonTemplate")
                     end
                 else
                     slotframe = CreateFrame("Button", framename, parentdummy, "BankItemButtonGenericTemplate")
