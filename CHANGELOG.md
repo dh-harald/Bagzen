@@ -1,3 +1,11 @@
+## [0.8.2](https://github.com/dh-harald/Bagzen/compare/v0.8.1...v0.8.2) (2025-07-28)
+
+
+### Bug Fixes
+
+* added scraphighlight/scrapglow to vanilla ([a4a45e4](https://github.com/dh-harald/Bagzen/commit/a4a45e45a57afd836a7ea5dc08438e607e4175c8))
+* disable item moving when in combat (in wotlk) ([08207bf](https://github.com/dh-harald/Bagzen/commit/08207bfedae8c2d31959d9e84140d8b926132eb3))
+
 ## [0.8.1](https://github.com/dh-harald/Bagzen/compare/v0.8.0...v0.8.1) (2025-07-28)
 
 
