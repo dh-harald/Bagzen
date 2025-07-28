@@ -1,3 +1,11 @@
+## [0.8.1](https://github.com/dh-harald/Bagzen/compare/v0.8.0...v0.8.1) (2025-07-28)
+
+
+### Bug Fixes
+
+* added soul bag family type for vanilla ([b7e3a9c](https://github.com/dh-harald/Bagzen/commit/b7e3a9c96832aafdde911e598d3c1e8dddc3e9ec))
+* refactor sort (again) ([0e10ed6](https://github.com/dh-harald/Bagzen/commit/0e10ed630ec68284fce324eae59e4c0d9dedb5b5))
+
 # [0.8.0](https://github.com/dh-harald/Bagzen/compare/v0.7.4...v0.8.0) (2025-07-24)
 
 
