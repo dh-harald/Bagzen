@@ -1,7 +1,7 @@
 -- based on Baganator and SortBags, help by ChatGPT
 
-Bagzen.BagSortFrame = Bagzen.BagSortFrame or CreateFrame("Frame", "BagzenBagFrameSortFrame")
-Bagzen.BankSortFrame = Bagzen.BankSortFrame or CreateFrame("Frame", "BagzenBankFrameSortFrame")
+Bagzen.BagSortFrame = Bagzen.BagSortFrame or CreateFrame("Frame", "BagzenBagFrameSortFrame", BagzenBagFrame)
+Bagzen.BankSortFrame = Bagzen.BankSortFrame or CreateFrame("Frame", "BagzenBankFrameSortFrame", BagzenBankFrame)
 if Bagzen.IsTurtle then
     Bagzen.BagSortFrame.delay = 1.2
     Bagzen.BankSortFrame.delay = 1.2
@@ -357,7 +357,7 @@ end
 function Bagzen:TaskCombineStacks(parent)
     local _G = _G or getfenv()
     local frame = _G[parent:GetName() .. "SortFrame"]
-    frame.task_running = true
+    frame.taskRunning = true
     local incomplete = {}
     for _, bag in pairs(parent.Bags) do
         if bag ~= KEYRING_CONTAINER then
@@ -381,24 +381,20 @@ function Bagzen:TaskCombineStacks(parent)
     end
 
     for _, data in pairs(incomplete) do
-        local count = 0
-        local src
-        for _, item in pairs(data) do
-            count = count + 1
-            if count == 1 then
-                src = item
-            elseif count == 2 then
-                if Bagzen:MoveContainerItem(item.bag, item.slot, src.bag, src.slot) then
-                    frame.retry = Bagzen.SortFrameRetry -- reset 
-                end
-                return
+        local len = TableLength(data)
+        if len >= 2 then
+            if Bagzen:MoveContainerItem(data[len - 1].bag, data[len - 1].slot, data[len].bag, data[len].slot) then
+                frame.retry = Bagzen.SortFrameRetry -- reset
+                frame.taskRunning = false
             end
+            return
         end
     end
 
     -- Bagzen:TaskSortBagsInit(parent)
     frame.task = "SortBags"
-    frame.task_running = false
+    frame.moves = 0
+    frame.taskRunning = false
 end
 
 function Bagzen:MoveItem(parent, current, bagdata)
@@ -415,14 +411,14 @@ function Bagzen:MoveItem(parent, current, bagdata)
 
     -- exit if done
     if TableLength(bagdata) == 0 then
-        frame.task_running = false
+        frame.taskRunning = false
         frame:Hide()
         return
     end
 
     -- safety exit
     if frame.moves >= 100 then
-        frame.task_running = false
+        frame.taskRunning = false
         frame:Hide()
         return
     end
@@ -554,20 +550,20 @@ function Bagzen:SortFrameOnUpdate(frame)
     if frame.retry <= 0
     then
         Bagzen:Print("Something went wrong")
-        frame.task_running = false
+        frame.taskRunning = false
         frame.task = nil
         frame:Hide()
         return
     end
 
-    if frame.task_running then
+    if frame.taskRunning then
         return
     end
 
     if frame.task == "CombineStacks" then
-        Bagzen:TaskCombineStacks(frame.parent)
+        Bagzen:TaskCombineStacks(frame:GetParent())
     elseif frame.task == "SortBags" then
-        Bagzen:TaskSortBags(frame.parent)
+        Bagzen:TaskSortBags(frame:GetParent())
     else
         Bagzen:Print("Unknown task, exiting")
         frame:Hide()
@@ -580,7 +576,6 @@ Bagzen.tmp = {}
 function Bagzen:SortBags(parent)
     local _G = _G or getfenv()
     local frame = _G[parent:GetName() .. "SortFrame"]
-    frame.parent = parent
     if Bagzen.IsWrath and InCombatLockdown() or UnitIsDead("player") then
         -- cant't sort bags in combat or when dead
         frame:Hide()
