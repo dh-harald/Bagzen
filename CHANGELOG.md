@@ -1,3 +1,10 @@
+## [0.8.3](https://github.com/dh-harald/Bagzen/compare/v0.8.2...v0.8.3) (2025-07-29)
+
+
+### Bug Fixes
+
+* minor sort fixes ([aaa901f](https://github.com/dh-harald/Bagzen/commit/aaa901f455278ea9465dd2eb880af7e3e8d973c3))
+
 ## [0.8.2](https://github.com/dh-harald/Bagzen/compare/v0.8.1...v0.8.2) (2025-07-28)
 
 
