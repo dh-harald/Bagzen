@@ -10,7 +10,7 @@ OneBag Addon inspired by Baganator for WoW Vanilla 1.12.1 / 3.3.5
 - Sorting items in bags & bank
 - Simple junk implementation (based on Scrap)
 - Autosell greys/junks
-- Highlight less valuable junk in the inventory (wrath only)
+- Glow less valuable junk in the inventory
 
 ## Features missing
 - Keychain
