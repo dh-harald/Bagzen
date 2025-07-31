@@ -133,7 +133,12 @@ function Bagzen:BindingsToggleScrap()
         local itemID = BagzenTooltip.itemID
         if itemID then
             Bagzen:ToggleScrap(itemID)
-            Bagzen:ContainerUpdate(BagzenBagFrame, Bagzen.realmname, Bagzen.unitname)
+            if BagzenBagFrame:IsShown() and BagzenBagFrame.Virtual == false then
+                Bagzen:ContainerUpdate(BagzenBagFrame, Bagzen.realmname, Bagzen.unitname)
+            end
+            if BagzenBankFrame:IsShown() and BagzenBankFrame.Virtual == false then
+                Bagzen:ContainerUpdate(BagzenBankFrame, Bagzen.realmname, Bagzen.unitname)
+            end
         end
     end
 end
