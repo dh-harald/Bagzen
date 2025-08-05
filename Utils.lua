@@ -127,6 +127,12 @@ function Bagzen:GetContainerNumFreeSlots(bag, realmName, unitName)
 end
 
 function Bagzen:isQuestItem(itemID)
+    local exclude = {
+        [1688] = true, -- Long Soft Tail
+    }
+    if exclude[itemID] then
+        return false
+    end
     local _, _, _, _, _, itemtype = Bagzen:GetItemInfo(itemID)
     return itemtype == "Quest"
 end
