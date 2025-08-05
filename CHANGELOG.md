@@ -1,3 +1,15 @@
+## [0.9.1](https://github.com/dh-harald/Bagzen/compare/v0.9.0...v0.9.1) (2025-08-05)
+
+
+### Bug Fixes
+
+* charactersframe cosmetics + small bugfix ([79a2064](https://github.com/dh-harald/Bagzen/commit/79a2064861c7a32953628b1e7a0e85b2cb1f2db4))
+* keychain vanilla fixes ([a61b35f](https://github.com/dh-harald/Bagzen/commit/a61b35f331a3451ab81afbcb47b74793029807e3))
+* resize charactersframe on toggling keychain ([c3b8da5](https://github.com/dh-harald/Bagzen/commit/c3b8da5588963e5d3c286bc633d2be9910a59b0d))
+* tint empty keychain slots ([58692a7](https://github.com/dh-harald/Bagzen/commit/58692a793358ac28b3005367a67a36e78fb2e258))
+* unhighlight keychain before hide ([7c8b10a](https://github.com/dh-harald/Bagzen/commit/7c8b10aa903ba913c8b74a4a678d0b717b87c83b))
+* virtual keychain fixes ([8a8d19e](https://github.com/dh-harald/Bagzen/commit/8a8d19e87e94144d898adfb6fafbce9d935e260d))
+
 # [0.9.0](https://github.com/dh-harald/Bagzen/compare/v0.8.4...v0.9.0) (2025-08-05)
 
 
