@@ -1,3 +1,16 @@
+# [0.10.0](https://github.com/dh-harald/Bagzen/compare/v0.9.1...v0.10.0) (2025-08-05)
+
+
+### Bug Fixes
+
+* bankframe ([5658e62](https://github.com/dh-harald/Bagzen/commit/5658e62fc2076c3b793de1895239f4b4c7718745))
+* make the frame a little bit lighter ([21ad54e](https://github.com/dh-harald/Bagzen/commit/21ad54ea4f1fb56e9c87bdda3435d5d76e031c85))
+
+
+### Features
+
+* added colored border based on item quality to itemslots ([4d81234](https://github.com/dh-harald/Bagzen/commit/4d812340eea755e7293a683023dfa66496ba900a))
+
 ## [0.9.1](https://github.com/dh-harald/Bagzen/compare/v0.9.0...v0.9.1) (2025-08-05)
 
 
