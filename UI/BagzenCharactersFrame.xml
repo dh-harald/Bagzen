@@ -119,7 +119,7 @@
     <Layers>
       <Layer level="BACKGROUND">
         <Texture name="$parentBackground" setAllPoints="true">
-          <Color r="0.05" g="0.05" b="0.05" a="0.9"/>
+          <Color r="0.1" g="0.1" b="0.1" a="0.9"/>
         </Texture>
       </Layer>
     </Layers>
