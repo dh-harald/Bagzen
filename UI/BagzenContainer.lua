@@ -404,10 +404,14 @@ function Bagzen:ContainerItemUpdate(frame, bag)
                     itemLink = Bagzen.data.global[frame.OwnerRealm][frame.OwnerName].bags[slotframe:GetParent():GetID()].slots[slotframe:GetID()].link
                 end
                 local itemID = Bagzen:LinkToItemID(itemLink)
-                local itemName = Bagzen:GetItemInfo(itemID)
+                local itemName, _, itemQuality = Bagzen:GetItemInfo(itemID)
+                local itemQualityColor = ITEM_QUALITY_COLORS[itemQuality]
                 slotframe.ItemID = itemID
                 slotframe.ItemName = itemName
                 slotframe.ItemLink = itemLink
+                if itemQualityColor then
+                    SetItemButtonNormalTextureVertexColor(slotframe, itemQualityColor.r, itemQualityColor.g, itemQualityColor.b)
+                end
                 if frame.Virtual == false then
                     if Bagzen:isScrap(itemID) then
                         texture:SetTexture('Interface/Buttons/UI-GroupLoot-Coin-Up')
@@ -439,6 +443,7 @@ function Bagzen:ContainerItemUpdate(frame, bag)
                 if section == "bagframe" and frame.Virtual == false then
                     cooldownframe:Hide()
                 end
+                SetItemButtonNormalTextureVertexColor(slotframe, 1, 1, 1)
             end
             local POS_X = Bagzen.PADDING + (Bagzen.SIZE_X * math_mod(count, Bagzen.settings.global[section].width))
             local POS_Y = Bagzen.MOD_Y - (Bagzen.SIZE_Y * math.floor(count / Bagzen.settings.global[section].width))
