@@ -146,6 +146,8 @@ function Bagzen:BagSlotItemUpdate(frame)
             }
         end
         return -- no keyring button here
+    elseif bag == KEYRING_CONTAINER then
+        return
     elseif bag <= 0 then
         -- backpack or default bank slot
         frame.itemlink = nil
@@ -223,12 +225,14 @@ function Bagzen:BagSlotUpdate(parent, bag)
     end
 
     if bag == KEYRING_CONTAINER then -- create a frame only for keyring
+        if numslots == 0 then
+        end
         local frame = _G[parent:GetName() .. "BagSlotsFrame" .. bag]
         if frame == nil then
             frame = CreateFrame("Frame", parent:GetName() .. "BagSlotsFrame" .. bag, bagslotsframe)
             Bagzen:HackID(frame)
             frame:SetID(bag)
-            frame.Slots = GetKeyRingSize() or 0
+            frame.Slots = numslots
         end
         Bagzen:BagSlotItemUpdate(frame)
         return

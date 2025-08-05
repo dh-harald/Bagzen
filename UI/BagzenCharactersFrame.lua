@@ -131,17 +131,60 @@ function Bagzen:CharactersFrameResize(parent)
     searchFrame:SetWidth(width - 4 * Bagzen.PADDING)
 end
 
+function Bagzen:CharactersFrameFixOffset(frame)
+    local _G = _G or getfenv()
+    local searchText = _G[frame:GetName() .. "CharactersFrameSearchBox"]:GetText()
+    local charactersframe = _G[frame:GetName() .. "CharactersFrame"]
+    local size = (math.floor(charactersframe:GetHeight() + 0.5) - 92) / 20
+    local offset = _G[frame:GetName() .. "CharactersFrameCharacterList"].Offset
+
+    local chars = {}
+    local showcount = 0
+    for character, _ in pairs(Bagzen.data.global[Bagzen.realmname]) do
+        if searchText == "" or string.find(string.lower(character), string.lower(searchText)) then
+            table.insert(chars, character)
+            showcount = showcount + 1
+        end
+    end
+
+    table.sort(chars)
+
+    local curpos
+    for i, character in pairs(chars) do
+        if character == frame.OwnerName then
+            curpos = i
+            break
+        end
+    end
+
+    if offset + size < curpos then
+        offset = curpos - size + 1
+        _G[frame:GetName() .. "CharactersFrameCharacterList"].Offset = offset
+    end
+
+    if showcount - offset < size then
+        if showcount > size then
+            offset = showcount - size
+        else
+            offset = 0
+        end
+        _G[frame:GetName() .. "CharactersFrameCharacterList"].Offset = offset
+    end
+end
+
 function Bagzen:CharacterButtonOnClick(frame)
     local _G = _G or getfenv()
     local framename = frame:GetName()
     local realmname = _G[framename .. "RightText"]:GetText()
     local unitname = _G[framename .. "LeftText"]:GetText()
+    local parentFrame = _G[frame.ParentFrame]
 
-    Bagzen:ContainerUpdate(_G[frame.ParentFrame], realmname, unitname)
-    Bagzen:CharactersFrameUpdate(_G[frame.ParentFrame])
-    Bagzen:ContainerReposition(_G[frame.ParentFrame])
+    Bagzen:ContainerUpdate(parentFrame, realmname, unitname)
+    Bagzen:CharactersFrameFixOffset(parentFrame)
+    Bagzen:CharactersFrameUpdate(parentFrame)
+    Bagzen:ContainerReposition(parentFrame)
     local money = Bagzen.data.global[realmname][unitname].money or 0
-    local moneyframe = _G[frame.ParentFrame .. "MoneyFrame"]
+    local moneyframe = _G[parentFrame:GetName() .. "MoneyFrame"]
     Bagzen:MoneyFrameUpdate(moneyframe, money)
 end
 
