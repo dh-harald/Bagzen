@@ -28,6 +28,7 @@ function Bagzen:KeyChainButtonOnClick(frame)
         frame:SetNormalTexture("Interface\\AddOns\\Bagzen\\icons\\key.tga")
         frame:SetHighlightTexture("Interface\\AddOns\\Bagzen\\icons\\key.tga")
         frame:SetPushedTexture("Interface\\AddOns\\Bagzen\\icons\\key.tga")
+        Bagzen:UnHighlightSlots(parent)
         dummyframe:Hide()
         Bagzen.settings.global[parent.SettingSection].keychain = false
     end
