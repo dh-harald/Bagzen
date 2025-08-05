@@ -15,6 +15,13 @@
   </Frame>
 
   <Frame name="BagzenWOTLKContainerFrameItemButtonTemplate" virtual="true" inherits="ContainerFrameItemButtonTemplate">
+    <Layers>
+      <Layer level="BACKGROUND">
+        <Texture name="$parentBackground" setAllPoints="true">
+          <Color r="0.05" g="0.05" b="0.05" a="0.1"/>
+        </Texture>
+      </Layer>
+    </Layers>
     <Frames>
       <Frame name="$parentShine" inherits="AutoCastShineTemplate">
         <Anchors>
@@ -30,6 +37,13 @@
   </Frame>
 
   <Frame name="BagzenVanillaContainerFrameItemButtonTemplate" virtual="true" inherits="ContainerFrameItemButtonTemplate">
+    <Layers>
+      <Layer level="BACKGROUND">
+        <Texture name="$parentBackground" setAllPoints="true">
+          <Color r="0.05" g="0.05" b="0.05" a="0.5"/>
+        </Texture>
+      </Layer>
+    </Layers>
     <Frames>
       <Model name="$parentAutoCast" file="Interface\Buttons\UI-AutoCastButton.mdx" scale="1.5" hidden="true" setAllPoints="true">
         <Anchors>

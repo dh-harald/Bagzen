@@ -341,6 +341,13 @@ function Bagzen:ContainerItemUpdate(frame, bag)
             end
             Bagzen.ContainerFrames[live][section][bag][slot] = slotframe
             slotframe:SetID(slot)
+            local slotbackground = _G[slotframe:GetName() .. "Background"]
+            if bag == KEYRING_CONTAINER then
+                -- tint the background of keyring slots
+                slotbackground:SetTexture(0.83, 0.78, 0.64, 0.1)
+            else
+                slotbackground:SetTexture(0, 0, 0, 0.1)
+            end
         end
     end
 
