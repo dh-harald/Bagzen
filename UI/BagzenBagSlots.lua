@@ -68,8 +68,9 @@ end
 function Bagzen:BagSlotItemOnEnter(frame)
     local bag = frame:GetID()
     if bag == KEYRING_CONTAINER then return end -- sanity check
+    local virtual = frame:GetParent():GetParent().Virtual
 
-    local show = bag < 1 or frame.ItemLink or (frame:GetParent():GetParent():GetName() == "BagzenBankFrame" and frame.Purchasable and frame.Virtual == false)
+    local show = bag < 1 or frame.ItemLink or (frame:GetParent():GetParent():GetName() == "BagzenBankFrame" and frame.Purchasable and virtual == false)
 
     if show then
         GameTooltip:SetOwner(this, "ANCHOR_CURSOR")
@@ -85,7 +86,11 @@ function Bagzen:BagSlotItemOnEnter(frame)
             end
         else
             if frame.ItemLink then
-                GameTooltip:SetHyperlink(frame.ItemLink)
+                if virtual == true then
+                    GameTooltip:SetHyperlink(frame.ItemLink)
+                else
+                    GameTooltip:SetInventoryItem("player", frame.Slot)
+                end
             else
                 show = false
             end
@@ -166,6 +171,13 @@ function Bagzen:BagSlotItemUpdate(frame)
             size = GetContainerNumSlots(bag),
             slots = {}
         }
+    end
+    if virtual == true or bag < 1 then
+        frame:RegisterForClicks(nil)
+        frame:RegisterForDrag(nil)
+    else
+        frame:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+        frame:RegisterForDrag("LeftButton")
     end
 end
 
