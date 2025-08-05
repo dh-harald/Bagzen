@@ -14,6 +14,7 @@ function Bagzen:CloseButtonOnClick(frame)
 end
 
 function Bagzen:KeyChainButtonOnClick(frame)
+    local _G = _G or getfenv()
     local parent = frame:GetParent()
     parent.KeyChain = not parent.KeyChain
     local dummyframe = _G[parent:GetName() .. "DummyBagSlotFrame" .. KEYRING_CONTAINER]

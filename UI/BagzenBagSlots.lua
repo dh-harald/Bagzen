@@ -212,14 +212,13 @@ function Bagzen:BagSlotUpdate(parent, bag)
         else
             numslots = GetContainerNumSlots(bag) or 0
         end
-        numslots = GetContainerNumSlots(bag) or 0
         -- remove empty slot from character data
         if numslots == 0 and Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags ~= nil and Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag] ~= nil then
             Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag] = nil
         end
     else
         if Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags and Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag] then
-            numslots = Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag].size
+            numslots = Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag].size or 0
         end
     end
 
