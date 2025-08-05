@@ -1,3 +1,10 @@
+# [0.9.0](https://github.com/dh-harald/Bagzen/compare/v0.8.4...v0.9.0) (2025-08-05)
+
+
+### Features
+
+* added keychain ([e1ff6d6](https://github.com/dh-harald/Bagzen/commit/e1ff6d627e6cb207514c5dcc8b99a09d8a6363ba))
+
 ## [0.8.4](https://github.com/dh-harald/Bagzen/compare/v0.8.3...v0.8.4) (2025-08-05)
 
 
