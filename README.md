@@ -13,7 +13,6 @@ OneBag Addon inspired by Baganator for WoW Vanilla 1.12.1 / 3.3.5
 - Glow less valuable junk in the inventory
 
 ## Features missing
-- Keychain
 - Guild Bank
 
 ## Sources
