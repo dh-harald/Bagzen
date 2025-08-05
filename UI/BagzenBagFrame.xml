@@ -27,6 +27,13 @@
           <Anchor point="TOPRIGHT" relativePoint="TOPLEFT"/>
         </Anchors>
       </Frame>
+      <Button name="$parentKeyChainButton" inherits="BagzenKeychainButton">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT">
+            <Offset x="8" y="18"/>
+          </Anchor>
+        </Anchors>
+      </Button>
     </Frames>
     <Scripts>
       <OnHide>

@@ -71,6 +71,7 @@ local default_settings = {
             close_vendor = true,
             close_mail = true,
             bagsframe = false,
+            keychain = false,
         },
         bankframe = {
             width = 18,

@@ -12,3 +12,23 @@ end
 function Bagzen:CloseButtonOnClick(frame)
     frame:GetParent():Hide()
 end
+
+function Bagzen:KeyChainButtonOnClick(frame)
+    local parent = frame:GetParent()
+    parent.KeyChain = not parent.KeyChain
+    local dummyframe = _G[parent:GetName() .. "DummyBagSlotFrame" .. KEYRING_CONTAINER]
+    if frame:GetParent().KeyChain then
+        frame:SetNormalTexture("Interface\\AddOns\\Bagzen\\icons\\keyh.tga")
+        frame:SetHighlightTexture("Interface\\AddOns\\Bagzen\\icons\\keyh.tga")
+        frame:SetPushedTexture("Interface\\AddOns\\Bagzen\\icons\\keyh.tga")
+        dummyframe:Show()
+        Bagzen.settings.global[parent.SettingSection].keychain = true
+    else
+        frame:SetNormalTexture("Interface\\AddOns\\Bagzen\\icons\\key.tga")
+        frame:SetHighlightTexture("Interface\\AddOns\\Bagzen\\icons\\key.tga")
+        frame:SetPushedTexture("Interface\\AddOns\\Bagzen\\icons\\key.tga")
+        dummyframe:Hide()
+        Bagzen.settings.global[parent.SettingSection].keychain = false
+    end
+    Bagzen:ContainerResize(frame:GetParent())
+end

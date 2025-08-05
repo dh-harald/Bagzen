@@ -137,8 +137,15 @@ function Bagzen:BagSlotItemUpdate(frame)
     local icontexture = _G[name .. "IconTexture"]
     local parent = frame:GetParent():GetParent()
     local virtual = parent.Virtual
-    if bag == KEYRING_CONTAINER then
-        return -- sanity check
+    if virtual == false and bag == KEYRING_CONTAINER then
+        local numslots = GetKeyRingSize() or 0
+        if numslots > 0 then
+            Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].bags[bag] = {
+                size = GetKeyRingSize() or 0,
+                slots = {}
+            }
+        end
+        return -- no keyring button here
     elseif bag <= 0 then
         -- backpack or default bank slot
         frame.itemlink = nil
@@ -184,16 +191,27 @@ end
 function Bagzen:BagSlotUpdate(parent, bag)
     local _G = _G or getfenv()
     local bagslotsframe = _G[parent:GetName() .. "BagSlotsFrame"]
-    if bag == KEYRING_CONTAINER then return end -- no bag for keyring
     local dummyframe = _G[parent:GetName() .. "DummyBagSlotFrame" .. bag]
     if dummyframe == nil then
         dummyframe = CreateFrame("Frame", parent:GetName() .. "DummyBagSlotFrame" .. bag, parent)
         Bagzen:HackID(dummyframe)
         dummyframe:SetID(bag)
+        if bag == KEYRING_CONTAINER then
+            if parent.KeyChain == true then
+                dummyframe:Show()
+            else
+                dummyframe:Hide()
+            end
+        end
     end
 
     local numslots = 0
     if parent.Virtual == false then
+        if bag == KEYRING_CONTAINER then
+            numslots = GetKeyRingSize() or 0
+        else
+            numslots = GetContainerNumSlots(bag) or 0
+        end
         numslots = GetContainerNumSlots(bag) or 0
         -- remove empty slot from character data
         if numslots == 0 and Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags ~= nil and Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag] ~= nil then
@@ -203,6 +221,18 @@ function Bagzen:BagSlotUpdate(parent, bag)
         if Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags and Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag] then
             numslots = Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag].size
         end
+    end
+
+    if bag == KEYRING_CONTAINER then -- create a frame only for keyring
+        local frame = _G[parent:GetName() .. "BagSlotsFrame" .. bag]
+        if frame == nil then
+            frame = CreateFrame("Frame", parent:GetName() .. "BagSlotsFrame" .. bag, bagslotsframe)
+            Bagzen:HackID(frame)
+            frame:SetID(bag)
+            frame.Slots = GetKeyRingSize() or 0
+        end
+        Bagzen:BagSlotItemUpdate(frame)
+        return
     end
 
     local frame = _G[parent:GetName() .. "BagSlotsFrame" .. bag]

@@ -182,4 +182,30 @@
       </OnLeave>
     </Scripts>
   </Button>
+
+  <Button name="BagzenKeychainButton" virtual="true">
+    <Size>
+      <AbsDimension x="16" y="8"/>
+    </Size>
+    <Scripts>
+      <OnLoad>
+        this:SetNormalTexture("Interface\\AddOns\\Bagzen\\icons\\key.tga")
+        this:SetHighlightTexture("Interface\\AddOns\\Bagzen\\icons\\key.tga")
+        this:SetPushedTexture("Interface\\AddOns\\Bagzen\\icons\\key.tga")
+      </OnLoad>
+      <OnClick>
+        Bagzen:KeyChainButtonOnClick(this)
+      </OnClick>
+      <OnEnter>
+        if this:GetParent().KeyChain then
+          Bagzen:HighlightSlots(this:GetParent(), KEYRING_CONTAINER)
+        end
+      </OnEnter>
+      <OnLeave>
+        if this:GetParent().KeyChain then
+          Bagzen:UnHighlightSlots(this:GetParent())
+        end
+      </OnLeave>
+    </Scripts>
+  </Button>
 </Ui>

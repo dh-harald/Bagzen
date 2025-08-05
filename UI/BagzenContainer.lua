@@ -51,6 +51,9 @@ function Bagzen:ContainerInit(frame, bags)
     if frame:GetName() == "BagzenBankFrame" then
         BagzenBankFrame.Virtual = true
     end
+
+    frame.KeyChain = (frame:GetName() == "BagzenBagFrame") and (Bagzen.settings.global[frame.SettingSection].keychain or false)
+
     Bagzen:BagSlotsInit(frame)
     frame.OwnerName = Bagzen.unitname
     frame.OwnerRealm = Bagzen.realmname
@@ -228,12 +231,18 @@ end
 
 function Bagzen:ContainerResize(frame)
     local _G = _G or getfenv()
-    frame:SetWidth(Bagzen.settings.global[frame.SettingSection].width * Bagzen.SIZE_X)
+    local section = frame.SettingSection
+    frame:SetWidth(Bagzen.settings.global[section].width * Bagzen.SIZE_X)
     local count = 0
     for _, bag in pairs(frame.Bags) do
-        if bag ~= KEYRING_CONTAINER then
-            local bagframe = _G[frame:GetName() .. "BagSlotsFrame" .. bag]
-            if bagframe then
+        local bagframe = _G[frame:GetName() .. "BagSlotsFrame" .. bag]
+        if bagframe then
+            if frame.KeyChain == true and bag == KEYRING_CONTAINER then
+                if math_mod(count, Bagzen.settings.global[section].width) > 0 then
+                    count = count + Bagzen.settings.global[section].width - math_mod(count, Bagzen.settings.global[section].width)
+                end
+            end
+            if frame.KeyChain == true or bag ~= KEYRING_CONTAINER then
                 count = count + (bagframe.Slots or 0)
             end
         end
@@ -254,7 +263,6 @@ end
 
 function Bagzen:ContainerItemUpdate(frame, bag)
     local _G = _G or getfenv()
-    if bag == KEYRING_CONTAINER then return end -- sanity check
     local section = frame.SettingSection
     local live, notlive
     if frame.Virtual == true then
@@ -342,6 +350,13 @@ function Bagzen:ContainerItemUpdate(frame, bag)
         count = count + (_G[frame:GetName() .. "BagSlotsFrame" .. tmpbag].Slots or 0)
     end
 
+    if bag == KEYRING_CONTAINER then
+        -- start a new row for keyring
+        if math_mod(count, Bagzen.settings.global[section].width) > 0 then
+            count = count + Bagzen.settings.global[section].width - math_mod(count, Bagzen.settings.global[section].width)
+        end
+    end
+
     for slot, slotframe in pairs(Bagzen.ContainerFrames[live][section][bag]) do
         if slot <= numslots then
             local texture = _G[slotframe:GetName() .. "texture"] or slotframe:CreateTexture(slotframe:GetName() .. "texture", 'OVERLAY')
@@ -425,11 +440,14 @@ function Bagzen:ContainerItemUpdate(frame, bag)
         end
         count = count + 1
     end
-    -- show free slots
-    local slotfree = Bagzen:GetContainerNumFreeSlots(bag, frame.OwnerRealm, frame.OwnerName)
-    local countFrame = _G[frame:GetName() .. "BagSlotsFrame" .. bag .. "Count"]
-    countFrame:Show()
-    countFrame:SetText(slotfree)
+
+    -- show free slots on bags (no keyring)
+    if bag ~= KEYRING_CONTAINER then
+        local slotfree = Bagzen:GetContainerNumFreeSlots(bag, frame.OwnerRealm, frame.OwnerName)
+        local countFrame = _G[frame:GetName() .. "BagSlotsFrame" .. bag .. "Count"]
+        countFrame:Show()
+        countFrame:SetText(slotfree)
+    end
 end
 
 function Bagzen:ContainerUpdate(frame, realm, name)

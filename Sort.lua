@@ -360,7 +360,7 @@ function Bagzen:TaskCombineStacks(parent)
     frame.taskRunning = true
     local incomplete = {}
     for _, bag in pairs(parent.Bags) do
-        if bag ~= KEYRING_CONTAINER then
+        if bag ~= KEYRING_CONTAINER then -- AFAIK no stacking keys
             for slot = 1, GetContainerNumSlots(bag) do
                 local itemID = Bagzen:LinkToItemID(GetContainerItemLink(bag, slot))
                 if itemID then
@@ -453,7 +453,7 @@ end
 function Bagzen:BagSortSetBags(parent)
     local Bags = {}
     for _, bag in pairs(parent.Bags) do
-        if bag ~= KEYRING_CONTAINER then -- sanity check
+        if bag ~= KEYRING_CONTAINER then
             if Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag] ~= nil then
                 local numslots = Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag].size or 0
                 local itemLink = Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag].link or ""
@@ -471,6 +471,12 @@ function Bagzen:BagSortSetBags(parent)
                     special = special
                 })
             end
+        else
+            table.insert(Bags, {
+                bag = bag,
+                slots = GetKeyRingSize() or 0,
+                special = 256 -- keyring
+            })
         end
     end
     return Bags
@@ -483,36 +489,33 @@ function Bagzen:BagSortCurrent(parent)
     local bagdata = {}
     local count = 0
     for _, bag in pairs(parent.Bags) do
-    -- for _, bag in pairs(parent.Bags) do
-        if bag ~= KEYRING_CONTAINER then -- sanity check
-            if Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag] then
-                local numslots = Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag].size
-                -- Bagzen.tmp[bag] =
-                for slot = 1, numslots do
-                    count = count + 1
-                    local item = Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag].slots[slot]
-                    if item ~= nil then
-                        local data = {
-                            ["bag"] = bag,
-                            ["slot"] = slot,
-                            ["id"] = count,
-                        }
-                        local itemID = Bagzen:LinkToItemID(item.link)
-                        local itemName, _, itemRarity, _, _, itemType, itemSubType, _, itemInvLoc  = Bagzen:GetItemInfo(itemID)
-                        data["priority"] = priorityItems[itemID] or 100
-                        data["questItem"] = -(Bagzen:isQuestItem(itemID) and 1 or 0)
-                        data["quality"] = (itemRarity or -1) * -1
-                        data["itemInvLoc"] = orderHelper.invLoc[string.upper(itemInvLoc)] or 100
-                        data["itemType"] = orderHelper.itemType[string.lower(itemType)] or 100
-                        data["itemSubType"] = orderHelper.itemSubType[string.lower(itemSubType)] or 100
-                        data["itemName"] = itemName
-                        data["itemID"] = itemID
-                        data["itemCount"] = item.count
-                        data["invertedItemID"] = -itemID
-                        data["invertedItemCount"] = item.count
-                        -- setmetatable(data, itemMetatable)
-                        bagdata[count] = data
-                    end
+        if Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag] then
+            local numslots = Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag].size
+            -- Bagzen.tmp[bag] =
+            for slot = 1, numslots do
+                count = count + 1
+                local item = Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag].slots[slot]
+                if item ~= nil then
+                    local data = {
+                        ["bag"] = bag,
+                        ["slot"] = slot,
+                        ["id"] = count,
+                    }
+                    local itemID = Bagzen:LinkToItemID(item.link)
+                    local itemName, _, itemRarity, _, _, itemType, itemSubType, _, itemInvLoc  = Bagzen:GetItemInfo(itemID)
+                    data["priority"] = priorityItems[itemID] or 100
+                    data["questItem"] = -(Bagzen:isQuestItem(itemID) and 1 or 0)
+                    data["quality"] = (itemRarity or -1) * -1
+                    data["itemInvLoc"] = orderHelper.invLoc[string.upper(itemInvLoc)] or 100
+                    data["itemType"] = orderHelper.itemType[string.lower(itemType)] or 100
+                    data["itemSubType"] = orderHelper.itemSubType[string.lower(itemSubType)] or 100
+                    data["itemName"] = itemName
+                    data["itemID"] = itemID
+                    data["itemCount"] = item.count
+                    data["invertedItemID"] = -itemID
+                    data["invertedItemCount"] = item.count
+                    -- setmetatable(data, itemMetatable)
+                    bagdata[count] = data
                 end
             end
         end

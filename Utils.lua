@@ -84,6 +84,18 @@ function Bagzen:GetItemInfo(arg)
 end
 
 function Bagzen:GetItemFamily(itemID)
+    -- https://www.wowhead.com/classic/guide/classic-keyring-dungeon-keys-guide
+    local keys = {
+        [5396] = true,  -- Key to Searing Gorge
+        [6893] = true,  -- Workshop Key
+        [7146] = true,  -- The Scarlet Key
+        [11000] = true, -- Shadowforge Key
+        [11140] = true, -- Prison Cell Key
+        [12382] = true, -- Key to the City
+        [13704] = true, -- Skeleton Key
+        [18249] = true, -- Crescent Key
+    }
+
     if Bagzen.IsWOTLK then
         return GetItemFamily(itemID)
     end
@@ -106,6 +118,8 @@ function Bagzen:GetItemFamily(itemID)
         end
     elseif itemSubType == "soul bag" or itemID == 6265 then
         return 4 -- soul bag
+    elseif keys[itemID] then
+        return 256 -- keyring
     end
 end
 

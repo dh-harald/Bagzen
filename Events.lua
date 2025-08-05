@@ -14,8 +14,7 @@ end
 
 function Bagzen:BAG_UPDATE()
     local _G = _G or getfenv()
-    -- TODO keyring
-    if (arg1 == KEYRING_CONTAINER) or (arg1 < -1) or (arg1 > 10)
+    if (arg1 < KEYRING_CONTAINER) or (arg1 > 10)
     then
         -- sometimes it's called for bankframe (5) when it's not open
         -- on WOTLK, looks triggered for extra bagslots,
@@ -24,7 +23,7 @@ function Bagzen:BAG_UPDATE()
     end
 
     local parent = nil
-    if arg1 >= 0 and arg1 < 5 then
+    if arg1 == KEYRING_CONTAINER or arg1 >= 0 and arg1 < 5 then
         parent = _G["BagzenBagFrame"]
     elseif arg1 == -1 or arg1 >= 5 then
         parent = _G["BagzenBankFrame"]
@@ -35,13 +34,16 @@ function Bagzen:BAG_UPDATE()
 
     local full = false
     for _, bag in pairs(parent.Bags) do
-        if bag ~= KEYRING_CONTAINER then
-            local frame = _G[parent:GetName() .. "BagSlotsFrame" .. bag]
-            local numslots = GetContainerNumSlots(bag) or 0
-            if frame.Slots ~= numslots then
-                full = true
-                break
-            end
+        local frame = _G[parent:GetName() .. "BagSlotsFrame" .. bag]
+        local numslots
+        if bag == KEYRING_CONTAINER then
+            numslots = GetKeyRingSize() or 0
+        else
+            numslots = GetContainerNumSlots(bag) or 0
+        end
+        if frame.Slots ~= numslots then
+            full = true
+            break
         end
     end
 
@@ -85,8 +87,7 @@ function Bagzen:ITEM_LOCK_CHANGED()
             arg2 = nil
             container = true
         end
-        if arg1 == KEYRING_CONTAINER then return end -- sanity check
-        if arg1 >= 0 and arg1 < 5 then
+        if arg1 == KEYRING_CONTAINER or arg1 >= 0 and arg1 < 5 then
             section = "bagframe"
             parent = "BagzenBagFrame"
         elseif arg1 >= 5 or arg1 == -1 then
@@ -120,10 +121,12 @@ function Bagzen:ITEM_LOCK_CHANGED()
                 parent = "BagzenBankFrame"
             end
             for bag, data in pairs(section) do
-                if type(bag) == "number" and bag ~= KEYRING_CONTAINER then
+                if type(bag) == "number" then
                     -- bag
-                    local locked = IsInventoryItemLocked(ContainerIDToInventoryID(bag))
-                    _G[parent .. "BagSlotsFrame" .. bag .. "IconTexture"]:SetDesaturated(locked or 0)
+                    if bag ~= KEYRING_CONTAINER then
+                        local locked = IsInventoryItemLocked(ContainerIDToInventoryID(bag))
+                        _G[parent .. "BagSlotsFrame" .. bag .. "IconTexture"]:SetDesaturated(locked or 0)
+                    end
                     -- items
                     for slot, frame in pairs(data) do
                         if frame and frame:IsShown() then
