@@ -129,6 +129,8 @@ function Bagzen:CharactersFrameResize(parent)
 
     local searchFrame = _G[parent:GetName() .. "CharactersFrameSearchBox"]
     searchFrame:SetWidth(width - 4 * Bagzen.PADDING)
+    Bagzen:CharactersFrameFixOffset(parent)
+    Bagzen:CharactersFrameUpdate(parent)
 end
 
 function Bagzen:CharactersFrameFixOffset(frame)

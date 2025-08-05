@@ -32,5 +32,5 @@ function Bagzen:KeyChainButtonOnClick(frame)
         dummyframe:Hide()
         Bagzen.settings.global[parent.SettingSection].keychain = false
     end
-    Bagzen:ContainerResize(frame:GetParent())
+    Bagzen:ContainerResize(parent)
 end
