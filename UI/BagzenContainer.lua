@@ -237,7 +237,7 @@ function Bagzen:ContainerResize(frame)
     for _, bag in pairs(frame.Bags) do
         local bagframe = _G[frame:GetName() .. "BagSlotsFrame" .. bag]
         if bagframe then
-            if frame.KeyChain == true and bag == KEYRING_CONTAINER then
+            if frame.KeyChain == true and bag == KEYRING_CONTAINER and (bagframe.Slots or 0) > 0 then
                 if math_mod(count, Bagzen.settings.global[section].width) > 0 then
                     count = count + Bagzen.settings.global[section].width - math_mod(count, Bagzen.settings.global[section].width)
                 end
@@ -285,7 +285,7 @@ function Bagzen:ContainerItemUpdate(frame, bag)
         end
     end
 
-    if numslots == 0 then
+    if numslots == 0 and bag ~= KEYRING_CONTAINER then
         for _, f in pairs(Bagzen.ContainerFrames[live][section][bag]) do
             f:Hide()
         end

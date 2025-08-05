@@ -145,8 +145,11 @@ function Bagzen:BagSlotItemUpdate(frame)
                 slots = {}
             }
         end
+        frame.Slots = numslots
         return -- no keyring button here
     elseif bag == KEYRING_CONTAINER then
+        frame.Slots = Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag] and Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag].size or 0
+        Bagzen:Print(frame.Slots)
         return
     elseif bag <= 0 then
         -- backpack or default bank slot
