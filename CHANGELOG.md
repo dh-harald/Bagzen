@@ -1,3 +1,12 @@
+## [0.8.4](https://github.com/dh-harald/Bagzen/compare/v0.8.3...v0.8.4) (2025-08-05)
+
+
+### Bug Fixes
+
+* bagslots fixes ([c047dbc](https://github.com/dh-harald/Bagzen/commit/c047dbcb08e2a91db18c4f1fb7bf392e9c216ac7))
+* refresh bag and bank if needed on scrap toggle ([f72e39e](https://github.com/dh-harald/Bagzen/commit/f72e39e38feb8e8cc2d0e19a5c0a52bb32719175))
+* some scrap/questitem tunes ([f38892a](https://github.com/dh-harald/Bagzen/commit/f38892aec489a877b0bab1af580cbc6d8dbcbdc9))
+
 ## [0.8.3](https://github.com/dh-harald/Bagzen/compare/v0.8.2...v0.8.3) (2025-07-29)
 
 
