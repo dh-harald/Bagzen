@@ -165,13 +165,18 @@ function Bagzen:BagSlotItemUpdate(frame)
         end
         if baglink ~= nil then
             local itemID = Bagzen:LinkToItemID(baglink)
-            local _, itemLink, _, _, _, _, _, _, _, texture = Bagzen:GetItemInfo(itemID)
+            local _, itemLink, itemQuality, _, _, _, _, _, _, texture = Bagzen:GetItemInfo(itemID)
+            local itemQualityColor = ITEM_QUALITY_COLORS[itemQuality]
             icontexture:SetTexture(texture)
             frame.ItemLink = itemLink
+            if itemQualityColor then
+                SetItemButtonNormalTextureVertexColor(frame, itemQualityColor.r, itemQualityColor.g, itemQualityColor.b)
+            end
         else
             icontexture:SetTexture(nil)
             frame.ItemLink = nil
             frame.Slots = 0
+            SetItemButtonNormalTextureVertexColor(frame, 1, 1, 1)
         end
     end
     if virtual == false and (frame.ItemLink or bag < 1) then
