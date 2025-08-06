@@ -1,3 +1,10 @@
+## [0.10.1](https://github.com/dh-harald/Bagzen/compare/v0.10.0...v0.10.1) (2025-08-06)
+
+
+### Bug Fixes
+
+* add bordercolor to bagslots frame as well ([ebf710e](https://github.com/dh-harald/Bagzen/commit/ebf710e57f9b5e4bc69ee10f3946125ca712a181))
+
 # [0.10.0](https://github.com/dh-harald/Bagzen/compare/v0.9.1...v0.10.0) (2025-08-05)
 
 
