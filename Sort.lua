@@ -482,6 +482,17 @@ function Bagzen:BagSortSetBags(parent)
     return Bags
 end
 
+-- Added to handle page numbers
+function Bagzen:SortItemNameHelper(itemName)
+    local out = itemName
+    if string.sub(itemName, 1, 33) == "Shredder Operating Manual - Page " then
+        out = string.sub(itemName, 1, 33) .. string.format("%02d", tonumber(string.sub(itemName, 34)))
+    elseif string.sub(itemName, 1, 36) == "Green Hills of Stranglethorn - Page " then
+        out = string.sub(itemName, 1, 36) .. string.format("%02d", tonumber(string.sub(itemName, 37)))
+    end
+    return out
+end
+
 function Bagzen:BagSortCurrent(parent)
     -- local _G = _G or getfenv()
     ---local frame = _G[parent:GetName() .. "SortFrame"]
@@ -509,7 +520,7 @@ function Bagzen:BagSortCurrent(parent)
                     data["itemInvLoc"] = orderHelper.invLoc[string.upper(itemInvLoc)] or 100
                     data["itemType"] = orderHelper.itemType[string.lower(itemType)] or 100
                     data["itemSubType"] = orderHelper.itemSubType[string.lower(itemSubType)] or 100
-                    data["itemName"] = itemName
+                    data["itemName"] = Bagzen:SortItemNameHelper(itemName)
                     data["itemID"] = itemID
                     data["itemCount"] = item.count
                     data["invertedItemID"] = -itemID
