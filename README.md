@@ -34,4 +34,4 @@ Re-used ideas/code snippets from the following addons:
 
 ## Tested on
 - 1.12.1 Turtle Wow
-- 3.3.5 Warmane
+- 3.3.5 Epoch
