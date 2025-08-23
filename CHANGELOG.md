@@ -1,3 +1,13 @@
+## [0.10.2](https://github.com/dh-harald/Bagzen/compare/v0.10.1...v0.10.2) (2025-08-23)
+
+
+### Bug Fixes
+
+* added delayed init to prevent errors on un-initialized state ([dd87c4a](https://github.com/dh-harald/Bagzen/commit/dd87c4a64ec4589861d9a8619102b354e0f0703c))
+* added extra condition for sorting pages based on numbers ([c5ed49f](https://github.com/dh-harald/Bagzen/commit/c5ed49fcc9c74df83dbd04ab6af85e64be968f44))
+* added more tooltip includes, fixed hyperLink on wrath client ([4f7dfed](https://github.com/dh-harald/Bagzen/commit/4f7dfed6697cd6a842ca39681d581b94e39b1685))
+* dirty fix for wrath autorepair ([677c1d3](https://github.com/dh-harald/Bagzen/commit/677c1d35afe263466a8bc5b66accbc81a9e7f20d))
+
 ## [0.10.1](https://github.com/dh-harald/Bagzen/compare/v0.10.0...v0.10.1) (2025-08-06)
 
 
