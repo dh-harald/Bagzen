@@ -50,10 +50,9 @@ end
 
 function Bagzen:RepairItems()
     local cost, possible = GetRepairAllCost()
-    if cost > 0 and possible then
-        Bagzen:Print("Your items have been repaired for" .. " " .. Bagzen:CreateGoldString(cost))
-        RepairAllItems()
-    end
+    if not possible or cost <= 0 then return end
+    Bagzen:Print("Your items have been repaired for" .. " " .. Bagzen:CreateGoldString(cost))
+    RepairAllItems()
 end
 
 function Bagzen:iterateScrap()
