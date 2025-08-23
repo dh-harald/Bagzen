@@ -1,3 +1,15 @@
+-- frame for delayed init
+Bagzen.InitFrame = Bagzen.InitFrame or CreateFrame("Frame", "BagzenInitFrame")
+Bagzen.InitFrame.delay = 0.1
+Bagzen.InitFrame.finished = false
+Bagzen.InitFrame.Queue = {
+    [1] = {"PLAYER_LOGIN"}
+}
+Bagzen.InitFrame:Hide()
+Bagzen.InitFrame:SetScript("OnUpdate", function()
+    Bagzen:InitFrameOnUpdate(this)
+end)
+
 function Bagzen:BAG_CLOSED()
     -- remove bag from database
     Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].bags[arg1] = nil
@@ -13,6 +25,11 @@ function Bagzen:BAG_CLOSED()
 end
 
 function Bagzen:BAG_UPDATE()
+    -- delay until init completed
+    if Bagzen.InitFrame.finished == false then
+        table.insert(Bagzen.InitFrame.Queue, {"BAG_UPDATE", arg1})
+        return
+    end
     local _G = _G or getfenv()
     if (arg1 < KEYRING_CONTAINER) or (arg1 > 10)
     then
@@ -57,6 +74,11 @@ function Bagzen:BAG_UPDATE()
 end
 
 function Bagzen:BAG_UPDATE_COOLDOWN()
+    -- delay until init completed
+    if Bagzen.InitFrame.finished == false then
+        table.insert(Bagzen.InitFrame.Queue, {"BAG_UPDATE_COOLDOWN"})
+        return
+    end
     Bagzen:ContainerUpdate(BagzenBagFrame, Bagzen.realmname, Bagzen.unitname)
 end
 
@@ -205,6 +227,36 @@ function Bagzen:PLAYERBANKSLOTS_CHANGED()
     Bagzen:ContainerUpdate(BagzenBankFrame, Bagzen.realmname, Bagzen.unitname)
 end
 
+function Bagzen:InitFrameOnUpdate(frame)
+    if (frame.tick or 1) > GetTime() then return else frame.tick = GetTime() + frame.delay end
+    if Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].bags[0] == nil then return end
+    local ready = true
+    -- wait until itemlinks are available
+    for i = 1, 4 do
+        local baglink = GetInventoryItemLink("player", i + 19)
+        if baglink ~= nil then
+            if string.find(baglink, "%[%]") then
+                ready = false
+            end
+        end
+    end
+    if ready == false then return end
+    frame.finished = true
+    for k, v in pairs(frame.Queue) do
+        if v[1] == "PLAYER_LOGIN" then
+            Bagzen:PLAYER_LOGIN()
+        elseif v[1] == "BAG_UPDATE" then
+            if v[2] >= 0 and v[2] < 5 then
+                Bagzen:BagSlotUpdate(BagzenBagFrame, v[2])
+                Bagzen:ContainerItemUpdate(BagzenBagFrame, v[2])
+            end
+        elseif v[1] == "BAG_UPDATE_COOLDOWN" then
+            Bagzen:BAG_UPDATE_COOLDOWN()
+        end
+    end
+    frame:Hide()
+end
+
 function Bagzen:OnEnable()
     Bagzen:RegisterEvent("BAG_CLOSED")
     Bagzen:RegisterEvent("BAG_UPDATE")
@@ -219,8 +271,9 @@ function Bagzen:OnEnable()
     Bagzen:RegisterEvent("MODIFIER_STATE_CHANGED")
     Bagzen:RegisterEvent("PLAYER_MONEY")
     Bagzen:RegisterEvent("PLAYERBANKSLOTS_CHANGED")
+    Bagzen.InitFrame:Show()
     -- not triggered on WOTLK client
-    Bagzen:PLAYER_LOGIN()
+    --Bagzen:PLAYER_LOGIN()
 end
 
 -- emulate MODIFIER_STATE_CHANGED (for shift) in vanilla and call ScrapHighlight/ScrapGlow
