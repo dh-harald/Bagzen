@@ -328,6 +328,10 @@ function Bagzen:OnInitialize()
         Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].bags = {}
     end
 
+    if Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].bags[0] == nil then
+        Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].bags[0] = {}
+    end
+
     if Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].scrap == nil then
         Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].scrap = {}
     end
