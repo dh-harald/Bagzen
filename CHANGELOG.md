@@ -1,3 +1,11 @@
+## [0.10.3](https://github.com/dh-harald/Bagzen/compare/v0.10.2...v0.10.3) (2025-09-04)
+
+
+### Bug Fixes
+
+* mail scanning ([e8ab905](https://github.com/dh-harald/Bagzen/commit/e8ab905804473c8d798a418cd99cfebcb5b65618))
+* try to fix caching issue on bagslots ([1e6f8ce](https://github.com/dh-harald/Bagzen/commit/1e6f8ceafa9288afcf4bcf36246e04775be84996))
+
 ## [0.10.2](https://github.com/dh-harald/Bagzen/compare/v0.10.1...v0.10.2) (2025-08-23)
 
 
