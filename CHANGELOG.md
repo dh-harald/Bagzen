@@ -1,3 +1,12 @@
+## [0.10.4](https://github.com/dh-harald/Bagzen/compare/v0.10.3...v0.10.4) (2025-09-04)
+
+
+### Bug Fixes
+
+* autorepair in Epoch (wrath?) mkII ([43b45ea](https://github.com/dh-harald/Bagzen/commit/43b45eaedef8840bbffb3265adc77595f12eb8c6))
+* initialize properly the user database on first start ([73370d4](https://github.com/dh-harald/Bagzen/commit/73370d48c4b25b69937a63a05a8a27855da0b821)), closes [#1](https://github.com/dh-harald/Bagzen/issues/1)
+* set proper size for uninitalized frames ([db5fcef](https://github.com/dh-harald/Bagzen/commit/db5fcef3a3ff3e4026145653fb83c44e7f397e71))
+
 ## [0.10.3](https://github.com/dh-harald/Bagzen/compare/v0.10.2...v0.10.3) (2025-09-04)
 
 
