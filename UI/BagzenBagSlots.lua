@@ -141,7 +141,7 @@ function Bagzen:BagSlotItemUpdate(frame)
         local numslots = GetKeyRingSize() or 0
         if numslots > 0 then
             Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].bags[bag] = {
-                size = GetKeyRingSize() or 0,
+                size = numslots,
                 slots = {}
             }
         end
@@ -165,11 +165,12 @@ function Bagzen:BagSlotItemUpdate(frame)
         end
         if baglink ~= nil then
             local itemID = Bagzen:LinkToItemID(baglink)
-            local _, itemLink, itemQuality, _, _, _, _, _, _, texture = Bagzen:GetItemInfo(itemID)
-            local itemQualityColor = ITEM_QUALITY_COLORS[itemQuality]
-            icontexture:SetTexture(texture)
-            frame.ItemLink = itemLink
+            local _, _, itemQuality, _, _, _, _, _, _, texture = Bagzen:GetItemInfo(itemID)
+            local itemQualityColor = ITEM_QUALITY_COLORS[itemQuality] or Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag].quality
+            icontexture:SetTexture(texture or Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag].texture)
+            frame.ItemLink = baglink
             if itemQualityColor then
+                frame.itemQuality = itemQuality -- save this
                 SetItemButtonNormalTextureVertexColor(frame, itemQualityColor.r, itemQualityColor.g, itemQualityColor.b)
             end
         else
@@ -185,6 +186,7 @@ function Bagzen:BagSlotItemUpdate(frame)
             texture = icontexture:GetTexture(),
             link = frame.ItemLink,
             size = GetContainerNumSlots(bag),
+            quality = frame.itemQuality,
             slots = {}
         }
     end

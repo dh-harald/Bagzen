@@ -45,7 +45,7 @@ function Bagzen:GetItemInfo(arg)
     end
     if Bagzen.IsWOTLK then
         local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemID)
-        if itemName ~= nil and itemLink ~= nil then
+        if itemName ~= nil and itemLink ~= nil and itemTexture ~= nil then
             Bagzen.ItemCache[itemID] = {
                 itemName = itemName,
                 itemLink = itemLink,
@@ -63,7 +63,7 @@ function Bagzen:GetItemInfo(arg)
         end
     else
         local itemName, itemLink, itemRarity, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture = GetItemInfo(itemID)
-        if itemName ~= nil and itemLink ~= nil then
+        if itemName ~= nil and itemLink ~= nil and itemTexture ~= nil then
             local itemSellPrice = Bagzen.sellData[itemID]
             Bagzen.ItemCache[itemID] = {
                 itemName = itemName,
@@ -143,6 +143,7 @@ end
 function Bagzen:isQuestItem(itemID)
     local exclude = {
         [1688] = true, -- Long Soft Tail
+        [2799] = true, -- Gorilla Fang
     }
     if exclude[itemID] then
         return false

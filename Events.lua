@@ -196,7 +196,9 @@ function Bagzen:MODIFIER_STATE_CHANGED()
 end
 
 function Bagzen:PLAYER_LOGIN()
-    Bagzen:ItemCacheInit()
+    if Bagzen.IsVanilla then
+        Bagzen:ItemCacheInit() -- no need to do it on WOTLK
+    end
     Bagzen:CharactersFrameInit()
     Bagzen:ContainerInit(BagzenBagFrame, {0, 1, 2, 3, 4, KEYRING_CONTAINER})
     Bagzen:ContainerInit(BagzenBankFrame, {-1, 5, 6, 7, 8, 9, 10})
