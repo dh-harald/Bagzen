@@ -1,3 +1,10 @@
+## [0.10.5](https://github.com/dh-harald/Bagzen/compare/v0.10.4...v0.10.5) (2025-09-04)
+
+
+### Bug Fixes
+
+* remove debug print ([89fa19f](https://github.com/dh-harald/Bagzen/commit/89fa19f9ed562768077dd2a2283f6d75136b09c1))
+
 ## [0.10.4](https://github.com/dh-harald/Bagzen/compare/v0.10.3...v0.10.4) (2025-09-04)
 
 
