@@ -8,7 +8,12 @@ function Bagzen:ScanMails()
             if hasItem ~= nil and hasItem > 0 then
                 for j = 1, hasItem do
                     local itemName, texture, count = GetInboxItem(i, j)
-                    local itemID = Bagzen:GetItemIDByName(itemName)
+                    local itemID
+                    if GetInboxItemLink then
+                        itemID = Bagzen:LinkToItemID(GetInboxItemLink(i, j))
+                    else
+                        itemID = Bagzen:GetItemIDByName(itemName)
+                    end
                     if itemID then
                         local data = {
                             itemid = itemID,
