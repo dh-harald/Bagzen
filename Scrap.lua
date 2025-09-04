@@ -50,7 +50,6 @@ end
 
 function Bagzen:RepairItems()
     local cost, possible = GetRepairAllCost()
-    print(cost, possible)
     if (cost >= 0 and possible) then
         -- TODO: add guild repair // proper repair cost calculation (sometimes it's too fast)
         local money = GetMoney()
