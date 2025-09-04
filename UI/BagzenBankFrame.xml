@@ -5,7 +5,7 @@
 
   <Frame name="BagzenBankFrame" toplevel="true" movable="true" parent="UIParent" enableMouse="true" hidden="true" inherits="BagzenContainerTemplate">
     <Size>
-      <AbsDimension x="300" y="300"/>
+      <AbsDimension x="720" y="152"/>
     </Size>
     <Anchors>
       <Anchor point="LEFT">
