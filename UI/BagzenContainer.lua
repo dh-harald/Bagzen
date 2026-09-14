@@ -69,11 +69,14 @@ function Bagzen:ContainerInit(frame, bags)
 end
 
 function Bagzen:ContainerGetPosition(frame)
-        local point, _, relativePoint, xOfs, yOfs = frame:GetPoint()
-        Bagzen.settings.char[frame.SettingSection].point = point
-        Bagzen.settings.char[frame.SettingSection].relativePoint = relativePoint
-        Bagzen.settings.char[frame.SettingSection].xOfs = xOfs
-        Bagzen.settings.char[frame.SettingSection].yOfs = yOfs
+    local point, _, relativePoint, xOfs, yOfs = frame:GetPoint()
+    if Bagzen.IsUA == true then
+        yOfs = -yOfs -- I don't know, why
+    end
+    Bagzen.settings.char[frame.SettingSection].point = point
+    Bagzen.settings.char[frame.SettingSection].relativePoint = relativePoint
+    Bagzen.settings.char[frame.SettingSection].xOfs = xOfs
+    Bagzen.settings.char[frame.SettingSection].yOfs = yOfs
 end
 
 function Bagzen:ContainerOnMouseDown(frame)
@@ -93,6 +96,10 @@ function Bagzen:ContainerItemOnEnter(frame)
         GameTooltip:ClearLines()
         GameTooltip:SetHyperlink("item:" .. Bagzen:LinkToItemID(frame.ItemLink) .. ":0:0:0")
         GameTooltip:Show()
+        if Bagzen.IsUA then
+            -- GameTooltip setters cannot be wrapped on UA
+            Bagzen:TooltipAddCounts(GameTooltip, Bagzen:LinkToItemID(frame.ItemLink))
+        end
     end
 end
 
@@ -235,7 +242,7 @@ function Bagzen:ContainerResize(frame)
     frame:SetWidth(Bagzen.settings.global[section].width * Bagzen.SIZE_X)
     local count = 0
     for _, bag in pairs(frame.Bags) do
-        local bagframe = _G[frame:GetName() .. "BagSlotsFrame" .. bag]
+        local bagframe = _G[frame:GetName() .. "BagSlotsFrame" .. Bagzen:FixBagNumber(bag)]
         if bagframe then
             if frame.KeyChain == true and bag == KEYRING_CONTAINER and (bagframe.Slots or 0) > 0 then
                 if math_mod(count, Bagzen.settings.global[section].width) > 0 then
@@ -273,7 +280,7 @@ function Bagzen:ContainerItemUpdate(frame, bag)
         notlive = "Virtual"
     end
 
-    local parent = _G[frame:GetName() .. "BagSlotsFrame" .. bag]
+    local parent = _G[frame:GetName() .. "BagSlotsFrame" .. Bagzen:FixBagNumber(bag)]
     local numslots = parent.Slots
 
     -- TODO: set already hided to prevent this loop from running
@@ -289,7 +296,7 @@ function Bagzen:ContainerItemUpdate(frame, bag)
         for _, f in pairs(Bagzen.ContainerFrames[live][section][bag]) do
             f:Hide()
         end
-        local countFrame = _G[frame:GetName() .. "BagSlotsFrame" .. bag .. "Count"]
+        local countFrame = _G[frame:GetName() .. "BagSlotsFrame" .. Bagzen:FixBagNumber(bag) .. "Count"]
         countFrame:SetText("")
         countFrame:Hide()
         return
@@ -300,7 +307,7 @@ function Bagzen:ContainerItemUpdate(frame, bag)
         if Bagzen.ContainerFrames[live][section][bag][slot] ~= nil then
             slotframe = Bagzen.ContainerFrames[live][section][bag][slot]
         else
-            local parentdummy = _G[frame:GetName() .. "DummyBagSlotFrame" .. bag]
+            local parentdummy = _G[frame:GetName() .. "DummyBagSlotFrame" .. Bagzen:FixBagNumber(bag)]
             Bagzen.ContainerFrames[live][section]["count"] = Bagzen.ContainerFrames[live][section]["count"] + 1
             local framename = frame:GetName() .. live .. "ContainerSlot" .. Bagzen.ContainerFrames[live][section]["count"]
             if frame.Virtual == false then
@@ -312,11 +319,15 @@ function Bagzen:ContainerItemUpdate(frame, bag)
                     end
                 else
                     slotframe = CreateFrame("Button", framename, parentdummy, "BankItemButtonGenericTemplate")
+                    if Bagzen.IsUA then
+                        Bagzen:TooltipHookBankButton(slotframe)
+                    end
                 end
                 -- update graphical changes as we need the secure frame
-                slotframe:SetNormalTexture("Interface\\AddOns\\Bagzen\\textures\\UI-Quickslot2.tga")
-                slotframe:SetPushedTexture("Interface\\AddOns\\Bagzen\\textures\\UI-Quickslot-Depress.tga")
-                slotframe:SetHighlightTexture("Interface\\AddOns\\Bagzen\\textures\\UI-Quickslot-Highlight.tga")
+                slotframe:SetNormalTexture("Interface\\AddOns\\Bagzen\\textures\\UI-Quickslot2")
+                slotframe:SetPushedTexture("Interface\\AddOns\\Bagzen\\textures\\UI-Quickslot-Depress")
+                -- the highlight stays the template's own (ItemButtonTemplate's
+                -- ButtonHilight-Square); HighlightSlots relies on it via LockHighlight
                 _G[slotframe:GetName() .. "IconTexture"]:SetTexCoord(0.03, 0.97, 0.03, 0.97)
                 if section == "bagframe" then
                     local cooldownframe = _G[slotframe:GetName() .. "Cooldown"]
@@ -356,7 +367,7 @@ function Bagzen:ContainerItemUpdate(frame, bag)
     local count = 0
     for _, tmpbag in pairs(frame.Bags) do
         if tmpbag == bag then break end
-        count = count + (_G[frame:GetName() .. "BagSlotsFrame" .. tmpbag].Slots or 0)
+        count = count + (_G[frame:GetName() .. "BagSlotsFrame" .. Bagzen:FixBagNumber(tmpbag)].Slots or 0)
     end
 
     if bag == KEYRING_CONTAINER then
@@ -419,7 +430,7 @@ function Bagzen:ContainerItemUpdate(frame, bag)
                         texture:SetWidth(15)
                         texture:SetHeight(15)
                     elseif Bagzen:isQuestItem(itemID) then
-                        texture:SetTexture('Interface\\AddOns\\Bagzen\\textures\\BagQuestIcon.tga')
+                        texture:SetTexture('Interface\\AddOns\\Bagzen\\textures\\BagQuestIcon')
                         texture:SetPoint('TOPLEFT', 2, -2)
                         texture:SetWidth(32)
                         texture:SetHeight(32)
@@ -458,7 +469,7 @@ function Bagzen:ContainerItemUpdate(frame, bag)
     -- show free slots on bags (no keyring)
     if bag ~= KEYRING_CONTAINER then
         local slotfree = Bagzen:GetContainerNumFreeSlots(bag, frame.OwnerRealm, frame.OwnerName)
-        local countFrame = _G[frame:GetName() .. "BagSlotsFrame" .. bag .. "Count"]
+        local countFrame = _G[frame:GetName() .. "BagSlotsFrame" .. Bagzen:FixBagNumber(bag) .. "Count"]
         countFrame:Show()
         countFrame:SetText(slotfree)
     end

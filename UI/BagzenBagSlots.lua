@@ -34,7 +34,7 @@ end
 function Bagzen:HighlightSlots(frame, bag)
     local _G = _G or getfenv()
     local name = frame:GetName()
-    local bagframe = _G[name .. "BagSlotsFrame" .. bag]
+    local bagframe = _G[name .. "BagSlotsFrame" .. Bagzen:FixBagNumber(bag)]
     local live = "Live"
     if frame.Virtual == true then
         live = "Virtual"
@@ -55,7 +55,7 @@ function Bagzen:UnHighlightSlots(frame)
     end
     for _, bag in pairs(frame.Bags) do
         if Bagzen.ContainerFrames[live][frame.SettingSection][bag] then
-            local bagframe = _G[name .. "BagSlotsFrame" .. bag]
+            local bagframe = _G[name .. "BagSlotsFrame" .. Bagzen:FixBagNumber(bag)]
             for i, slotframe in pairs(Bagzen.ContainerFrames[live][frame.SettingSection][bag]) do
                 if i <= bagframe.Slots then
                     slotframe:UnlockHighlight()
@@ -96,6 +96,10 @@ function Bagzen:BagSlotItemOnEnter(frame)
             end
         end
         GameTooltip:Show()
+        if Bagzen.IsUA and bag > 0 and frame.ItemLink then
+            -- GameTooltip setters cannot be wrapped on UA
+            Bagzen:TooltipAddCounts(GameTooltip, Bagzen:LinkToItemID(frame.ItemLink))
+        end
 
         Bagzen:HighlightSlots(frame:GetParent():GetParent(), bag)
     end
@@ -157,7 +161,16 @@ function Bagzen:BagSlotItemUpdate(frame)
     else
         local baglink = nil
         if virtual == false then
-            baglink = GetInventoryItemLink("player", frame.Slot)
+            if Bagzen.IsUA
+            then
+                local numslots = Bagzen:GetContainerNumSlots(bag)
+                if numslots > 0
+                then
+                    baglink = Bagzen:GetUABagLink(frame.Slot, numslots)
+                end
+            else
+                baglink = GetInventoryItemLink("player", frame.Slot)
+            end
         else
             if Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags and Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag] then
                 baglink = Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag].link
@@ -185,7 +198,7 @@ function Bagzen:BagSlotItemUpdate(frame)
         Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].bags[bag] = {
             texture = icontexture:GetTexture(),
             link = frame.ItemLink,
-            size = GetContainerNumSlots(bag),
+            size = Bagzen:GetContainerNumSlots(bag),
             quality = frame.itemQuality,
             slots = {}
         }
@@ -202,9 +215,9 @@ end
 function Bagzen:BagSlotUpdate(parent, bag)
     local _G = _G or getfenv()
     local bagslotsframe = _G[parent:GetName() .. "BagSlotsFrame"]
-    local dummyframe = _G[parent:GetName() .. "DummyBagSlotFrame" .. bag]
+    local dummyframe = _G[parent:GetName() .. "DummyBagSlotFrame" .. Bagzen:FixBagNumber(bag)]
     if dummyframe == nil then
-        dummyframe = CreateFrame("Frame", parent:GetName() .. "DummyBagSlotFrame" .. bag, parent)
+        dummyframe = CreateFrame("Frame", parent:GetName() .. "DummyBagSlotFrame" .. Bagzen:FixBagNumber(bag), parent)
         Bagzen:HackID(dummyframe)
         dummyframe:SetID(bag)
         if bag == KEYRING_CONTAINER then
@@ -221,7 +234,7 @@ function Bagzen:BagSlotUpdate(parent, bag)
         if bag == KEYRING_CONTAINER then
             numslots = GetKeyRingSize() or 0
         else
-            numslots = GetContainerNumSlots(bag) or 0
+            numslots = Bagzen:GetContainerNumSlots(bag) or 0
         end
         -- remove empty slot from character data
         if numslots == 0 and Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags ~= nil and Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag] ~= nil then
@@ -234,9 +247,9 @@ function Bagzen:BagSlotUpdate(parent, bag)
     end
 
     if bag == KEYRING_CONTAINER then -- create a frame only for keyring
-        local frame = _G[parent:GetName() .. "BagSlotsFrame" .. bag]
+        local frame = _G[parent:GetName() .. "BagSlotsFrame" .. Bagzen:FixBagNumber(bag)]
         if frame == nil then
-            frame = CreateFrame("Frame", parent:GetName() .. "BagSlotsFrame" .. bag, bagslotsframe)
+            frame = CreateFrame("Frame", parent:GetName() .. "BagSlotsFrame" .. Bagzen:FixBagNumber(bag), bagslotsframe)
             Bagzen:HackID(frame)
             frame:SetID(bag)
             frame.Slots = numslots
@@ -245,9 +258,9 @@ function Bagzen:BagSlotUpdate(parent, bag)
         return
     end
 
-    local frame = _G[parent:GetName() .. "BagSlotsFrame" .. bag]
+    local frame = _G[parent:GetName() .. "BagSlotsFrame" .. Bagzen:FixBagNumber(bag)]
     if frame == nil then
-        frame = CreateFrame("Button", parent:GetName() .. "BagSlotsFrame" .. bag, bagslotsframe, "BagzenBagSlotItemTemplate")
+        frame = CreateFrame("Button", parent:GetName() .. "BagSlotsFrame" .. Bagzen:FixBagNumber(bag), bagslotsframe, "BagzenBagSlotItemTemplate")
         Bagzen:HackID(frame)
         frame:SetID(bag)
         local index = 0

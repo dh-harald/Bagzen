@@ -4,8 +4,15 @@ function Bagzen:ScanMails()
     Bagzen.data.global[Bagzen.realmname][Bagzen.unitname].mails = {}
     if numItems > 0 then
         for i = 1, numItems do
+            -- hasItem is the attachment count on wrath, 1/nil on the legacy
+            -- 1.12.1 client and a boolean on Unreal Azeroth (one attachment)
             local _, _, _, _, _, _, _, hasItem = GetInboxHeaderInfo(i)
-            if hasItem ~= nil and hasItem > 0 then
+            if hasItem == true then
+                hasItem = 1
+            elseif type(hasItem) ~= "number" then
+                hasItem = 0
+            end
+            if hasItem > 0 then
                 for j = 1, hasItem do
                     local itemName, texture, count = GetInboxItem(i, j)
                     local itemID
@@ -46,13 +53,16 @@ local BagzenSendMail = function(recipient, subject, body)
 
         for i = 1, ATTACHMENTS_MAX_SEND do
             local name, texture, count = GetSendMailItem(i)
-            local data = {
-                itemid = Bagzen:GetItemIDByName(name),
-                name = name,
-                texture = texture,
-                count = count
-            }
-            table.insert(Bagzen.data.global[Bagzen.realmname][recipient].mails, data)
+            -- an empty attachment slot returns nil, nil, 0 on Unreal Azeroth
+            if name ~= nil and name ~= "" then
+                local data = {
+                    itemid = Bagzen:GetItemIDByName(name),
+                    name = name,
+                    texture = texture,
+                    count = count
+                }
+                table.insert(Bagzen.data.global[Bagzen.realmname][recipient].mails, data)
+            end
         end
     end
 end

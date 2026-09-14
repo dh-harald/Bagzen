@@ -9,7 +9,7 @@ function Bagzen:SearchBoxOnTextChanged(frame)
     local parentName = parent:GetName()
     if parentName == "BagzenBagFrame" or parentName == "BagzenBankFrame" then
         for _, bag in pairs(parent.Bags) do
-            local slots = _G[parentName .. "BagSlotsFrame" .. bag].Slots
+            local slots = _G[parentName .. "BagSlotsFrame" .. Bagzen:FixBagNumber(bag)].Slots
             for i, slotframe in pairs(Bagzen.ContainerFrames[live][parent.SettingSection][bag]) do
                 if i <= slots then
                     local itemName = slotframe.ItemName

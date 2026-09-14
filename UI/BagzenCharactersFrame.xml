@@ -7,10 +7,10 @@
     <Size>
       <AbsDimension x="20" y="20"/>
     </Size>
-    <NormalTexture file="Interface\AddOns\Bagzen\icons\up.tga"/>
-    <PushedTexture file="Interface\AddOns\Bagzen\icons\up.tga"/>
-    <DisabledTexture file="Interface\AddOns\Bagzen\icons\upd.tga"/>
-    <HighlightTexture file="Interface\AddOns\Bagzen\icons\uph.tga"/>
+    <NormalTexture file="Interface\AddOns\Bagzen\icons\up"/>
+    <PushedTexture file="Interface\AddOns\Bagzen\icons\up"/>
+    <DisabledTexture file="Interface\AddOns\Bagzen\icons\upd"/>
+    <HighlightTexture file="Interface\AddOns\Bagzen\icons\uph"/>
     <Scripts>
       <OnClick>
         PlaySound("UChatScrollButton")
@@ -25,10 +25,10 @@
     <Size>
       <AbsDimension x="20" y="20"/>
     </Size>
-    <NormalTexture file="Interface\AddOns\Bagzen\icons\down.tga"/>
-    <PushedTexture file="Interface\AddOns\Bagzen\icons\down.tga"/>
-    <DisabledTexture file="Interface\AddOns\Bagzen\icons\downd.tga"/>
-    <HighlightTexture file="Interface\AddOns\Bagzen\icons\downh.tga"/>
+    <NormalTexture file="Interface\AddOns\Bagzen\icons\down"/>
+    <PushedTexture file="Interface\AddOns\Bagzen\icons\down"/>
+    <DisabledTexture file="Interface\AddOns\Bagzen\icons\downd"/>
+    <HighlightTexture file="Interface\AddOns\Bagzen\icons\downh"/>
     <Scripts>
       <OnClick>
         PlaySound("UChatScrollButton")
@@ -55,10 +55,10 @@
     <Size>
       <AbsDimension y="20"/>
     </Size>
-    <HighlightTexture file="Interface\AddOns\Bagzen\textures\button-highlight.tga" alphaMode="ADD"/>
+    <HighlightTexture file="Interface\AddOns\Bagzen\textures\button-highlight" alphaMode="ADD"/>
     <Layers>
       <Layer level="BACKGROUND">
-        <Texture name="$parentDot" file="Interface\AddOns\Bagzen\icons\dot.tga" hidden="true">
+        <Texture name="$parentDot" file="Interface\AddOns\Bagzen\icons\dot" hidden="true">
           <Anchors>
             <Anchor point="TOPLEFT" relativePoint="TOPLEFT">
               <Offset>

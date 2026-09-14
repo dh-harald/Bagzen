@@ -185,7 +185,6 @@ local function ScanItems()
 end
 
 -- Highlights the worst valued scrap on the inventory
--- Not working on 1.12.1 as no event for MODIFIER_STATE_CHANGED
 function Bagzen:ScrapHighlight(modifier, state)
     if modifier == "LSHIFT" and BagzenBagFrame:IsShown() then
         if state == 1 then

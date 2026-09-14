@@ -33,5 +33,6 @@ Re-used ideas/code snippets from the following addons:
 ![Bagzen](/media/bagzen.png)
 
 ## Tested on
-- 1.12.1 Turtle Wow
+- 1.12.1 Legacy
+- 1.12.1 Unreal Azeroth
 - 3.3.5 Epoch

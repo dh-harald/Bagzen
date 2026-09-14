@@ -45,15 +45,22 @@
       </Layer>
     </Layers>
     <Frames>
-      <Model name="$parentAutoCast" file="Interface\Buttons\UI-AutoCastButton.mdx" scale="1.5" hidden="true" setAllPoints="true">
+      <!-- Sized by anchors reaching 6px past the button on every side, no
+           scale: SetScale is inert on a Model on Unreal Azeroth. Outset value
+           from the ElvUI vanilla port's spell book autocast skin. -->
+      <Model name="$parentAutoCast" file="Interface\Buttons\UI-AutoCastButton.mdx" hidden="true">
         <Anchors>
-          <Anchor point="CENTER">
-            <Offset x="1" y="-1"/>
+          <Anchor point="TOPLEFT">
+            <Offset>
+              <AbsDimension x="-6" y="6"/>
+            </Offset>
+          </Anchor>
+          <Anchor point="BOTTOMRIGHT">
+            <Offset>
+              <AbsDimension x="6" y="-6"/>
+            </Offset>
           </Anchor>
         </Anchors>
-        <Size>
-          <AbsDimension x="38" y="38"/>
-        </Size>
         <Scripts>
           <OnLoad>
             this:SetSequence(0)

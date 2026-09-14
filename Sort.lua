@@ -2,15 +2,26 @@
 
 Bagzen.BagSortFrame = Bagzen.BagSortFrame or CreateFrame("Frame", "BagzenBagFrameSortFrame", BagzenBagFrame)
 Bagzen.BankSortFrame = Bagzen.BankSortFrame or CreateFrame("Frame", "BagzenBankFrameSortFrame", BagzenBankFrame)
-if Bagzen.IsTurtle then
-    Bagzen.BagSortFrame.delay = 1.2
-    Bagzen.BankSortFrame.delay = 1.2
+-- Pacing (ElvUI vanilla port, Bags/Sort.lua): a short tick, and one move at a
+-- time that is only followed by the next once it has settled (see
+-- PendingState), instead of a fixed delay per move. Fast servers finish in a
+-- few ticks, slow ones are waited for. The legacy 1.12.1 client cannot keep up
+-- with a 0.05s tick; Unreal Azeroth can.
+if Bagzen.IsUA then
+    Bagzen.SortTickInterval = 0.05
 else
-    Bagzen.BagSortFrame.delay = 0.3
-    Bagzen.BankSortFrame.delay = 0.3
+    Bagzen.SortTickInterval = 0.1
 end
-
-Bagzen.SortFrameRetry = 10
+-- A move whose slots have settled but still hold what they held before, this
+-- long after it was issued, was refused by the client.
+Bagzen.SortMoveTimeout = 1.0
+-- Ends the run: a pending move that has not settled this long (slot kept
+-- locked, or the saved data never caught up), or steps that issue no move
+-- for this long.
+Bagzen.SortStallTimeout = 3.0
+-- Refused moves allowed per run: the stack phase re-issues the same merge
+-- after a refusal, and each issued move restarts the stall clock.
+Bagzen.SortMaxRefusals = 4
 
 Bagzen.BagSortFrame:Hide()
 Bagzen.BankSortFrame:Hide()
@@ -23,12 +34,16 @@ Bagzen.BankSortFrame:SetScript("OnUpdate", function()
 end)
 
 Bagzen.BagSortFrame:SetScript("OnShow", function()
-    this.taskRunning = false
-    this.retry = Bagzen.SortFrameRetry
+    this.pending = nil
+    this.stallSince = nil
+    this.refusals = 0
+    this.tick = nil
 end)
 Bagzen.BankSortFrame:SetScript("OnShow", function()
-    this.taskRunning = false
-    this.retry = Bagzen.SortFrameRetry
+    this.pending = nil
+    this.stallSince = nil
+    this.refusals = 0
+    this.tick = nil
 end)
 
 Bagzen.BagSortFrame:SetScript("OnHide", function()
@@ -333,7 +348,7 @@ local function OptimizeDuplicatePlacements(Bags, current, bagdata)
 end
 
 function Bagzen:MoveContainerItem(srcBag, srcSlot, dstBag, dstSlot)
-    ret = false
+    local ret = false
     if Bagzen.IsWrath and InCombatLockdown() or UnitIsDead("player") then
         return ret
     end
@@ -348,6 +363,79 @@ function Bagzen:MoveContainerItem(srcBag, srcSlot, dstBag, dstSlot)
     return ret
 end
 
+-- Live contents of a slot as one comparable string ("" when empty).
+local function LiveSlotKey(bag, slot)
+    local link = GetContainerItemLink(bag, slot)
+    if not link then return "" end
+    local _, count = GetContainerItemInfo(bag, slot)
+    return link .. "#" .. tostring(count)
+end
+
+-- True once a slot is unlocked and Bagzen's saved copy matches it: the planner
+-- reads the saved data (refreshed from BAG_UPDATE), not the live slots, so a
+-- move only counts as done once that has caught up. An empty slot is missing
+-- from the saved data, or saved without a link (UA reports "" as the texture
+-- of an empty slot, which the save treats as an item).
+local function SlotSettled(parent, bag, slot)
+    local _, _, locked = GetContainerItemInfo(bag, slot)
+    if locked then return false end
+
+    local saved = Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag]
+    local item = saved and saved.slots and saved.slots[slot]
+    local savedKey = ""
+    if item and item.link then
+        savedKey = item.link .. "#" .. tostring(item.count)
+    end
+    return savedKey == LiveSlotKey(bag, slot)
+end
+
+-- Issues one move and records it as pending; no further move is issued until
+-- PendingState no longer reports "wait".
+local function IssueMove(frame, srcBag, srcSlot, dstBag, dstSlot)
+    local srcKey = LiveSlotKey(srcBag, srcSlot)
+    local dstKey = LiveSlotKey(dstBag, dstSlot)
+    if not Bagzen:MoveContainerItem(srcBag, srcSlot, dstBag, dstSlot) then
+        return false
+    end
+    frame.pending = {
+        srcBag = srcBag,
+        srcSlot = srcSlot,
+        dstBag = dstBag,
+        dstSlot = dstSlot,
+        srcKey = srcKey,
+        dstKey = dstKey,
+        at = GetTime(),
+    }
+    frame.moves = (frame.moves or 0) + 1
+    frame.stallSince = nil
+    return true
+end
+
+-- "settled": both slots have settled and at least one of them changed.
+-- "refused": both settled but unchanged after SortMoveTimeout; the next step
+-- replans from the current state. "failed": not settled after
+-- SortStallTimeout. "wait": anything else.
+local function PendingState(frame, now)
+    local p = frame.pending
+    local parent = frame:GetParent()
+    local age = now - p.at
+
+    if SlotSettled(parent, p.srcBag, p.srcSlot) and SlotSettled(parent, p.dstBag, p.dstSlot) then
+        if LiveSlotKey(p.srcBag, p.srcSlot) ~= p.srcKey or LiveSlotKey(p.dstBag, p.dstSlot) ~= p.dstKey then
+            return "settled"
+        end
+        if age >= Bagzen.SortMoveTimeout then
+            return "refused"
+        end
+        return "wait"
+    end
+
+    if age > Bagzen.SortStallTimeout then
+        return "failed"
+    end
+    return "wait"
+end
+
 function Bagzen:TaskCombineStacksInit(parent)
     local _G = _G or getfenv()
     local frame = _G[parent:GetName() .. "SortFrame"]
@@ -357,7 +445,6 @@ end
 function Bagzen:TaskCombineStacks(parent)
     local _G = _G or getfenv()
     local frame = _G[parent:GetName() .. "SortFrame"]
-    frame.taskRunning = true
     local incomplete = {}
     for _, bag in pairs(parent.Bags) do
         if bag ~= KEYRING_CONTAINER then -- AFAIK no stacking keys
@@ -366,7 +453,7 @@ function Bagzen:TaskCombineStacks(parent)
                 if itemID then
                     local _, count = GetContainerItemInfo(bag, slot)
                     local _, _, _, _, _, _, _, stack = Bagzen:GetItemInfo(itemID)
-                    if stack > 1 and count ~= stack then
+                    if stack and stack > 1 and count ~= stack then
                         if incomplete[itemID] == nil then
                             incomplete[itemID] = {}
                         end
@@ -383,10 +470,7 @@ function Bagzen:TaskCombineStacks(parent)
     for _, data in pairs(incomplete) do
         local len = TableLength(data)
         if len >= 2 then
-            if Bagzen:MoveContainerItem(data[len - 1].bag, data[len - 1].slot, data[len].bag, data[len].slot) then
-                frame.retry = Bagzen.SortFrameRetry -- reset
-                frame.taskRunning = false
-            end
+            IssueMove(frame, data[len - 1].bag, data[len - 1].slot, data[len].bag, data[len].slot)
             return
         end
     end
@@ -394,7 +478,7 @@ function Bagzen:TaskCombineStacks(parent)
     -- Bagzen:TaskSortBagsInit(parent)
     frame.task = "SortBags"
     frame.moves = 0
-    frame.taskRunning = false
+    frame.stallSince = nil
 end
 
 function Bagzen:MoveItem(parent, current, bagdata)
@@ -411,14 +495,12 @@ function Bagzen:MoveItem(parent, current, bagdata)
 
     -- exit if done
     if TableLength(bagdata) == 0 then
-        frame.taskRunning = false
         frame:Hide()
         return
     end
 
     -- safety exit
     if frame.moves >= 100 then
-        frame.taskRunning = false
         frame:Hide()
         return
     end
@@ -427,9 +509,7 @@ function Bagzen:MoveItem(parent, current, bagdata)
     for k, v in pairs(bagdata) do
         local dstBag, dstSlot = IndexToBagSlot(frame.Bags, k)
         if current[k] ~= nil and v ~= nil and not ItemsEqual(current[k], v) then
-            Bagzen:MoveContainerItem(v.bag, v.slot, dstBag, dstSlot)
-            frame.moves = frame.moves + 1
-            frame.retry = Bagzen.SortFrameRetry -- reset retry
+            IssueMove(frame, v.bag, v.slot, dstBag, dstSlot)
             return
         end
     end
@@ -438,13 +518,7 @@ function Bagzen:MoveItem(parent, current, bagdata)
     for k, v in pairs(bagdata) do
         local dstBag, dstSlot = IndexToBagSlot(frame.Bags, k)
         if not ItemsEqual(current[k], v) then
-            if current[k] ~= nil and v == nil then
-                Bagzen:MoveContainerItem(dstBag, dstSlot, v.bag, v.slot)
-            else
-                Bagzen:MoveContainerItem(v.bag, v.slot, dstBag, dstSlot)
-            end
-            frame.moves = frame.moves + 1
-            frame.retry = Bagzen.SortFrameRetry -- reset retry
+            IssueMove(frame, v.bag, v.slot, dstBag, dstSlot)
             return
         end
     end
@@ -485,9 +559,9 @@ end
 -- Added to handle page numbers
 function Bagzen:SortItemNameHelper(itemName)
     local out = itemName
-    if string.sub(itemName, 1, 33) == "Shredder Operating Manual - Page " then
+    if string.len(itemName) > 33 and string.sub(itemName, 1, 33) == "Shredder Operating Manual - Page " then
         out = string.sub(itemName, 1, 33) .. string.format("%02d", tonumber(string.sub(itemName, 34)))
-    elseif string.sub(itemName, 1, 36) == "Green Hills of Stranglethorn - Page " then
+    elseif string.len(itemName) > 36 and string.sub(itemName, 1, 36) == "Green Hills of Stranglethorn - Page " then
         out = string.sub(itemName, 1, 36) .. string.format("%02d", tonumber(string.sub(itemName, 37)))
     end
     return out
@@ -506,7 +580,7 @@ function Bagzen:BagSortCurrent(parent)
             for slot = 1, numslots do
                 count = count + 1
                 local item = Bagzen.data.global[parent.OwnerRealm][parent.OwnerName].bags[bag].slots[slot]
-                if item ~= nil then
+                if item ~= nil and item.link ~= nil then
                     local data = {
                         ["bag"] = bag,
                         ["slot"] = slot,
@@ -517,9 +591,9 @@ function Bagzen:BagSortCurrent(parent)
                     data["priority"] = priorityItems[itemID] or 100
                     data["questItem"] = -(Bagzen:isQuestItem(itemID) and 1 or 0)
                     data["quality"] = (itemRarity or -1) * -1
-                    data["itemInvLoc"] = orderHelper.invLoc[string.upper(itemInvLoc)] or 100
-                    data["itemType"] = orderHelper.itemType[string.lower(itemType)] or 100
-                    data["itemSubType"] = orderHelper.itemSubType[string.lower(itemSubType)] or 100
+                    data["itemInvLoc"] = (itemInvLoc and orderHelper.invLoc[string.upper(itemInvLoc)]) or 100
+                    data["itemType"] = (itemType and orderHelper.itemType[string.lower(itemType)]) or 100
+                    data["itemSubType"] = (itemSubType and orderHelper.itemSubType[string.lower(itemSubType)]) or 100
                     data["itemName"] = Bagzen:SortItemNameHelper(itemName)
                     data["itemID"] = itemID
                     data["itemCount"] = item.count
@@ -557,20 +631,33 @@ function Bagzen:SortFrameOnUpdate(frame)
         return
     end
 
-    if (frame.tick or 1) > GetTime() then return else frame.tick = GetTime() + frame.delay end
+    local now = GetTime()
+    if (frame.tick or 0) > now then return end
+    frame.tick = now + Bagzen.SortTickInterval
 
-    frame.retry = frame.retry - 1
-
-    if frame.retry <= 0
-    then
-        Bagzen:Print("Something went wrong")
-        frame.taskRunning = false
-        frame.task = nil
-        frame:Hide()
-        return
+    if frame.pending then
+        local state = PendingState(frame, now)
+        if state == "wait" then
+            return
+        end
+        frame.pending = nil
+        if state == "refused" then
+            frame.refusals = (frame.refusals or 0) + 1
+        end
+        if state == "failed" or frame.refusals > Bagzen.SortMaxRefusals then
+            Bagzen:Print("Something went wrong")
+            frame.task = nil
+            frame:Hide()
+            return
+        end
     end
 
-    if frame.taskRunning then
+    -- IssueMove clears stallSince; a step that issues nothing leaves it running
+    frame.stallSince = frame.stallSince or now
+    if now - frame.stallSince > Bagzen.SortStallTimeout then
+        Bagzen:Print("Something went wrong")
+        frame.task = nil
+        frame:Hide()
         return
     end
 

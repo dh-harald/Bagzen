@@ -30,6 +30,8 @@ externals:
   lib/Ace3/AceHook-3.0:
     url: https://github.com/WoWUIDev/Ace3/AceHook-3.0
     tag: Release-r971
+  lib/LibDBIcon-1.0: https://github.com/dh-harald/LibDBIcon-1.0
+  lib/LibDataBroker-1.1: https://github.com/dh-harald/LibDataBroker-1.1
 
 ignore:
   - release.config.js

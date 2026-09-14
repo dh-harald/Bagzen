@@ -25,33 +25,43 @@ function Bagzen:BAG_CLOSED()
 end
 
 function Bagzen:BAG_UPDATE()
+    -- print(event, arg1)
     -- delay until init completed
     if Bagzen.InitFrame.finished == false then
         table.insert(Bagzen.InitFrame.Queue, {"BAG_UPDATE", arg1})
         return
     end
-    local _G = _G or getfenv()
-    if (arg1 < KEYRING_CONTAINER) or (arg1 > 10)
-    then
-        -- sometimes it's called for bankframe (5) when it's not open
-        -- on WOTLK, looks triggered for extra bagslots,
-        -- on WOTLK, triggering (-4) which I don't know, what it means
-        return -- sanity check
-    end
 
+    local _G = _G or getfenv()
+    local full = false
     local parent = nil
-    if arg1 == KEYRING_CONTAINER or arg1 >= 0 and arg1 < 5 then
-        parent = _G["BagzenBagFrame"]
-    elseif arg1 == -1 or arg1 >= 5 then
-        parent = _G["BagzenBankFrame"]
-        if parent.Virtual == true then
+
+    if arg1 ~= nil
+    then
+        if (arg1 < KEYRING_CONTAINER) or (arg1 > 10)
+        then
+            -- sometimes it's called for bankframe (5) when it's not open
+            -- on WOTLK, looks triggered for extra bagslots,
+            -- on WOTLK, triggering (-4) which I don't know, what it means
             return -- sanity check
         end
+
+        if arg1 == KEYRING_CONTAINER or arg1 >= 0 and arg1 < 5 then
+            parent = _G["BagzenBagFrame"]
+        elseif arg1 == -1 or arg1 >= 5 then
+            parent = _G["BagzenBankFrame"]
+            if parent.Virtual == true then
+                return -- sanity check
+            end
+        end
+    else
+        -- Unreal Azeroth sometimes fires this event with no parameter
+        parent = _G["BagzenBagFrame"]
+        full = true
     end
 
-    local full = false
     for _, bag in pairs(parent.Bags) do
-        local frame = _G[parent:GetName() .. "BagSlotsFrame" .. bag]
+        local frame = _G[parent:GetName() .. "BagSlotsFrame" .. Bagzen:FixBagNumber(bag)]
         local numslots
         if bag == KEYRING_CONTAINER then
             numslots = GetKeyRingSize() or 0
@@ -147,13 +157,13 @@ function Bagzen:ITEM_LOCK_CHANGED()
                     -- bag
                     if bag ~= KEYRING_CONTAINER then
                         local locked = IsInventoryItemLocked(ContainerIDToInventoryID(bag))
-                        _G[parent .. "BagSlotsFrame" .. bag .. "IconTexture"]:SetDesaturated(locked or 0)
+                        _G[parent .. "BagSlotsFrame" .. Bagzen:FixBagNumber(bag) .. "IconTexture"]:SetDesaturated(locked or false)
                     end
                     -- items
                     for slot, frame in pairs(data) do
                         if frame and frame:IsShown() then
                             local _, _, locked = GetContainerItemInfo(bag, slot)
-                            _G[frame:GetName() .. "IconTexture"]:SetDesaturated(locked or 0)
+                            _G[frame:GetName() .. "IconTexture"]:SetDesaturated(locked or false)
                         end
                     end
                 end
@@ -196,9 +206,9 @@ function Bagzen:MODIFIER_STATE_CHANGED()
 end
 
 function Bagzen:PLAYER_LOGIN()
-    if Bagzen.IsVanilla then
-        Bagzen:ItemCacheInit() -- no need to do it on WOTLK
-    end
+--    if Bagzen.IsVanilla then
+--        Bagzen:ItemCacheInit() -- no need to do it on WOTLK
+--    end
     Bagzen:CharactersFrameInit()
     Bagzen:ContainerInit(BagzenBagFrame, {0, 1, 2, 3, 4, KEYRING_CONTAINER})
     Bagzen:ContainerInit(BagzenBankFrame, {-1, 5, 6, 7, 8, 9, 10})
@@ -270,7 +280,9 @@ function Bagzen:OnEnable()
     Bagzen:RegisterEvent("MAIL_INBOX_UPDATE")
     Bagzen:RegisterEvent("MAIL_SHOW")
     Bagzen:RegisterEvent("MERCHANT_SHOW")
-    Bagzen:RegisterEvent("MODIFIER_STATE_CHANGED")
+    if Bagzen.IsWOTLK then
+        Bagzen:RegisterEvent("MODIFIER_STATE_CHANGED")
+    end
     Bagzen:RegisterEvent("PLAYER_MONEY")
     Bagzen:RegisterEvent("PLAYERBANKSLOTS_CHANGED")
     Bagzen.InitFrame:Show()
@@ -278,19 +290,14 @@ function Bagzen:OnEnable()
     --Bagzen:PLAYER_LOGIN()
 end
 
--- emulate MODIFIER_STATE_CHANGED (for shift) in vanilla and call ScrapHighlight/ScrapGlow
+-- Vanilla has no MODIFIER_STATE_CHANGED event; LibModifierState-1.0 emulates
+-- it. Its key is "SHIFT" rather than the real event's side-specific
+-- "LSHIFT"/"RSHIFT"; state is 1/0 on both.
 if Bagzen.IsVanilla then
-    local frame = CreateFrame("Frame", "BagzenModShift")
-    frame.tick = GetTime()
-    frame.delay = 0.1 -- throttle
-    frame.stateShift = 0
-    frame:SetScript("OnUpdate", function()
-        if frame.tick > GetTime() then return else frame.tick = GetTime() + frame.delay end
-        -- Bagzen:Print(this.tick)
-        local stateShift = IsShiftKeyDown() and 1 or 0
-        if stateShift ~= frame.stateShift then
-            frame.stateShift = stateShift
-            Bagzen:ScrapHighlight("LSHIFT", stateShift)
+    local LMS = LibStub("LibModifierState-1.0")
+    LMS.RegisterCallback(Bagzen, "MODIFIER_STATE_CHANGED", function(event, key, state)
+        if key == "SHIFT" then
+            Bagzen:ScrapHighlight("LSHIFT", state)
         end
     end)
 end

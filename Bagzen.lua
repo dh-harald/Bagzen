@@ -20,6 +20,12 @@ Bagzen.IsVanilla = false
 -- Bagzen.isTBC = false -- not supported atm
 Bagzen.IsWOTLK = false
 Bagzen.IsTurtle = false
+Bagzen.IsUA = false  -- Unreal Azeroth
+
+if client == 5875 or GetUECvar then
+    Bagzen.IsVanilla = true
+    Bagzen.IsUA = true
+end
 
 if client >= 10000 and client <= 11300 then -- no classic support
     Bagzen.IsVanilla = true
@@ -55,7 +61,7 @@ Bagzen.LDB = LibStub("LibDataBroker-1.1"):NewDataObject("Bagzen", {
 })
 
 function Bagzen:ChatCommand()
-    InterfaceOptionsFrame_OpenToCategory("Bagzen")
+    Bagzen:OpenOptions()
 end
 
 local default_settings = {
@@ -219,7 +225,7 @@ local ConfigTable = {
                 auto_close = {
                     type = "group",
                     order = 210,
-                    name = "Auto open",
+                    name = "Auto Close",
                     args = {
                         auto_close_vendor = {
                             order = 220,
@@ -307,9 +313,19 @@ function Bagzen:OnInitialize()
     Bagzen.data = LibStub("AceDB-3.0"):New("BagzenData", default_data)
 
     -- config dialog
-    local ACD = LibStub("AceConfigDialog-3.0")
-    LibStub('AceConfig-3.0').RegisterOptionsTable(Bagzen, "Bagzen", ConfigTable)
-    Bagzen.OptionsFrame = ACD:AddToBlizOptions("Bagzen", "Bagzen")
+    if Bagzen.IsVanilla == true
+    then
+        local LC = LibStub("LibConfig-1.0")
+        LC:RegisterOptionsTable("Bagzen", "Bagzen", ConfigTable)
+        Bagzen.OptionsFrame = LC:AddToBlizOptions("Bagzen", "Bagzen")
+    elseif Bagzen.IsWOTLK == true
+    then
+        local ACD = LibStub("AceConfigDialog-3.0")
+        LibStub('AceConfig-3.0').RegisterOptionsTable(Bagzen, "Bagzen", ConfigTable)
+        Bagzen.OptionsFrame = ACD:AddToBlizOptions("Bagzen", "Bagzen")
+    end
+
+    -- Bagzen:RegisterOptions(ConfigTable)
 
     -- minimap icon
     Bagzen.icon:Register("Bagzen", Bagzen.LDB, Bagzen.settings.profile.minimap)
@@ -407,6 +423,11 @@ function Bagzen:OnInitialize()
     -- remove hooks from original BankFrame
     local bankframe = _G["BankFrame"]
     if bankframe then
-        bankframe:UnregisterAllEvents()
+        if Bagzen.IsUA then
+            -- UnregisterAllEvents() not working in Unreal Azeroth
+            pcall(bankframe.SetScript, bankframe, "OnEvent", nil)
+        else
+            bankframe:UnregisterAllEvents()
+        end
     end
 end

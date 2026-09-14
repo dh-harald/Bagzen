@@ -86,7 +86,7 @@ function Bagzen:CharactersFrameUpdate(frame)
         righttext:SetText(Bagzen.realmname)
         button.value = count
         button.ParentFrame = frame:GetName()
-        button:SetPoint("TOPLEFT", charactersframe:GetName(), "TOPLEFT", 2, MOD_Y - (count - 1) * (Bagzen.SIZE_Y / 2))
+        Bagzen:CharacterButtonAnchors(button, charactersframe, MOD_Y - (count - 1) * (Bagzen.SIZE_Y / 2))
 
         if frame.OwnerRealm == righttext:GetText() and frame.OwnerName == lefttext:GetText() then
             dot:Show()
@@ -129,8 +129,83 @@ function Bagzen:CharactersFrameResize(parent)
 
     local searchFrame = _G[parent:GetName() .. "CharactersFrameSearchBox"]
     searchFrame:SetWidth(width - 4 * Bagzen.PADDING)
+    Bagzen:CharactersFrameAnchors(frame, width, frame:GetHeight())
     Bagzen:CharactersFrameFixOffset(parent)
     Bagzen:CharactersFrameUpdate(parent)
+end
+
+-- The template's Title and CharacterList anchor TOPLEFT to the parent's
+-- TOPRIGHT, producing an inverted rect. The stock client normalizes that
+-- (Title spans the full width, CharacterList becomes the 24px column at the
+-- right edge); Unreal Azeroth collapses the frame onto its first anchor
+-- instead. Build that geometry explicitly with single anchors and sizes so
+-- both clients lay out the same. ClearAllPoints is only safe because every
+-- axis is set again here.
+function Bagzen:CharactersFrameAnchors(frame, width, height)
+    local _G = _G or getfenv()
+    local name = frame:GetName()
+
+    local title = _G[name .. "Title"]
+    title:ClearAllPoints()
+    title:SetPoint("TOP", frame, "TOP", 0, 0)
+    title:SetWidth(width - 4)
+    title:SetHeight(20)
+
+    -- UA ignores justifyV and two-edge text spans: one CENTER anchor plus an
+    -- explicit width centers the text reliably
+    local titletext = _G[name .. "TitleText"]
+    titletext:ClearAllPoints()
+    titletext:SetPoint("CENTER", title, "CENTER", 0, 0)
+    titletext:SetWidth(width - 4)
+
+    local list = _G[name .. "CharacterList"]
+    list:ClearAllPoints()
+    list:SetPoint("TOPRIGHT", frame, "TOPRIGHT", 2, -48)
+    list:SetWidth(24)
+    list:SetHeight(height - 50)
+
+    -- holds the scroll buttons only (no thumb); they anchor to its TOP/BOTTOM
+    local slider = _G[name .. "CharacterListSlider"]
+    slider:ClearAllPoints()
+    slider:SetPoint("TOPRIGHT", list, "TOPRIGHT", 0, -20)
+    slider:SetWidth(24)
+    slider:SetHeight(height - 90)
+end
+
+-- Row buttons take their right edge from the template's CharacterList
+-- anchor, and their FontStrings combine setAllPoints with a two-edge span;
+-- Unreal Azeroth renders both at the wrong spot. Size the row explicitly
+-- (2px to the frame's right edge) and pin each text to its own edge with an
+-- explicit width.
+function Bagzen:CharacterButtonAnchors(button, charactersframe, y)
+    local _G = _G or getfenv()
+    local name = button:GetName()
+    local width = charactersframe:GetWidth() - 2
+    local textwidth = (width - 40) / 2
+
+    button:ClearAllPoints()
+    button:SetPoint("TOPLEFT", charactersframe, "TOPLEFT", 2, y)
+    button:SetWidth(width)
+    button:SetHeight(20)
+
+    -- Button SetWidth/SetHeight does not resize the highlight texture on UA
+    local highlight = button.GetHighlightTexture and button:GetHighlightTexture()
+    if highlight then
+        highlight:ClearAllPoints()
+        highlight:SetAllPoints(button)
+    end
+
+    local lefttext = _G[name .. "LeftText"]
+    lefttext:ClearAllPoints()
+    lefttext:SetPoint("LEFT", button, "LEFT", 20, 0)
+    lefttext:SetWidth(textwidth)
+    lefttext:SetJustifyH("LEFT")
+
+    local righttext = _G[name .. "RightText"]
+    righttext:ClearAllPoints()
+    righttext:SetPoint("RIGHT", button, "RIGHT", -20, 0)
+    righttext:SetWidth(textwidth)
+    righttext:SetJustifyH("RIGHT")
 end
 
 function Bagzen:CharactersFrameFixOffset(frame)

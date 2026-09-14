@@ -37,7 +37,7 @@
         </FontString>
       </Layer>
     </Layers>
-     <NormalTexture name="$parentNormalTexture" file="Interface\AddOns\Bagzen\textures\UI-Quickslot2.tga">
+     <NormalTexture name="$parentNormalTexture" file="Interface\AddOns\Bagzen\textures\UI-Quickslot2">
       <Size>
         <AbsDimension x="64" y="64"/>
       </Size>
@@ -47,7 +47,7 @@
         </Anchor>
       </Anchors>
     </NormalTexture>
-    <PushedTexture file="Interface\AddOns\Bagzen\textures\UI-Quickslot-Depress.tga"/>
-    <HighlightTexture file="Interface\AddOns\Bagzen\textures\ButtonHilight-Square.tga" alphaMode="ADD"/>
+    <PushedTexture file="Interface\AddOns\Bagzen\textures\UI-Quickslot-Depress"/>
+    <HighlightTexture file="Interface\AddOns\Bagzen\textures\ButtonHilight-Square" alphaMode="ADD"/>
   </Button>
 </Ui>

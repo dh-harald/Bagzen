@@ -14,7 +14,7 @@
                 </Texture>
             </Layer>
             <Layer level="ARTWORK">
-                <Texture name="$parentSearchIcon" file="Interface\AddOns\Bagzen\icons\search.tga">
+                <Texture name="$parentSearchIcon" file="Interface\AddOns\Bagzen\icons\search">
                     <Size x="16" y="16"/>
                     <Anchors>
                         <Anchor point="LEFT">
