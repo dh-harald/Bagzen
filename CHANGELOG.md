@@ -1,3 +1,10 @@
+# [0.11.0](https://github.com/dh-harald/Bagzen/compare/v0.10.5...v0.11.0) (2026-09-14)
+
+
+### Features
+
+* initial Unreal Azeroth support ([a227aca](https://github.com/dh-harald/Bagzen/commit/a227aca8d88990a39531ef2f89b86670e6f6db2b))
+
 ## [0.10.5](https://github.com/dh-harald/Bagzen/compare/v0.10.4...v0.10.5) (2025-09-04)
 
 
