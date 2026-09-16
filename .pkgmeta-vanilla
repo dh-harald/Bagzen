@@ -6,7 +6,7 @@ enable-toc-creation: yes
 externals:
   lib/LibStub: https://github.com/laytya/LibStub
   lib/CallbackHandler-1.0: https://github.com/laytya/CallbackHandler-1.0
-  lib/LibModifierState-1.0: https://github.com/dh-harald/LibModifierState-1.0
+  lib/LibModifierState-1.0: https://github.com/dh-harald/Ace3v/LibModifierState-1.0
   lib/Ace3/AceAddon-3.0: https://github.com/laytya/Ace3v/AceAddon-3.0
   lib/Ace3/AceConfig-3.0: https://github.com/laytya/Ace3v/AceConfig-3.0
   lib/Ace3/AceConsole-3.0: https://github.com/laytya/Ace3v/AceConsole-3.0
@@ -15,9 +15,9 @@ externals:
   lib/Ace3/AceEvent-3.0: https://github.com/laytya/Ace3v/AceEvent-3.0
   lib/Ace3/AceGUI-3.0: https://github.com/laytya/Ace3v/AceGUI-3.0
   lib/Ace3/AceHook-3.0: https://github.com/laytya/Ace3v/AceHook-3.0
-  lib/LibConfig-1.0: https://github.com/dh-harald/LibConfig-1.0
-  lib/LibDBIcon-1.0: https://github.com/dh-harald/LibDBIcon-1.0
-  lib/LibDataBroker-1.1: https://github.com/dh-harald/LibDataBroker-1.1
+  lib/LibConfig-1.0: https://github.com/dh-harald/Ace3v/LibConfig-1.0
+  lib/LibDBIcon-1.0: https://github.com/dh-harald/Ace3v/LibDBIcon-1.0
+  lib/LibDataBroker-1.1: https://github.com/dh-harald/Ace3v/LibDataBroker-1.1
 
 ignore:
   - release.config.js
