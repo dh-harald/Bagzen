@@ -1,3 +1,10 @@
+## [0.11.1](https://github.com/dh-harald/Bagzen/compare/v0.11.0...v0.11.1) (2026-09-17)
+
+
+### Bug Fixes
+
+* **frames:** remove workaround for GetPoint anomaly (it's fixed) ([a050faa](https://github.com/dh-harald/Bagzen/commit/a050faa320a23f7c7b79afd24b644a00412fe01a))
+
 # [0.11.0](https://github.com/dh-harald/Bagzen/compare/v0.10.5...v0.11.0) (2026-09-14)
 
 
