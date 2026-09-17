@@ -70,9 +70,6 @@ end
 
 function Bagzen:ContainerGetPosition(frame)
     local point, _, relativePoint, xOfs, yOfs = frame:GetPoint()
-    if Bagzen.IsUA == true then
-        yOfs = -yOfs -- I don't know, why
-    end
     Bagzen.settings.char[frame.SettingSection].point = point
     Bagzen.settings.char[frame.SettingSection].relativePoint = relativePoint
     Bagzen.settings.char[frame.SettingSection].xOfs = xOfs
