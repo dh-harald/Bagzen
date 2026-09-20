@@ -10,7 +10,7 @@ Bagzen.BankSortFrame = Bagzen.BankSortFrame or CreateFrame("Frame", "BagzenBankF
 if Bagzen.IsUA then
     Bagzen.SortTickInterval = 0.05
 else
-    Bagzen.SortTickInterval = 0.1
+    Bagzen.SortTickInterval = 0.2
 end
 -- A move whose slots have settled but still hold what they held before, this
 -- long after it was issued, was refused by the client.

@@ -167,6 +167,16 @@ local function PostHookScript(frame, script, handler)
     end)
 end
 
+-- Both hook helpers are shared with the modules that borrow native frames,
+-- where a stock update pass has to be followed by Bagzen's own.
+function Bagzen:PostHookGlobal(name, handler)
+    PostHookGlobal(name, handler)
+end
+
+function Bagzen:PostHookScript(frame, script, handler)
+    PostHookScript(frame, script, handler)
+end
+
 -- Stock bag buttons (ContainerFrameItemButtonTemplate), Bagzen's live bag and
 -- bank-bag slots included. `button` is nil when the per-frame OnUpdate calls
 -- the global; the global itself then falls back to `this`.

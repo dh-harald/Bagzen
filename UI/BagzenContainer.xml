@@ -14,63 +14,6 @@
     </Scripts>
   </Frame>
 
-  <Frame name="BagzenWOTLKContainerFrameItemButtonTemplate" virtual="true" inherits="ContainerFrameItemButtonTemplate">
-    <Layers>
-      <Layer level="BACKGROUND">
-        <Texture name="$parentBackground" setAllPoints="true">
-          <Color r="0.05" g="0.05" b="0.05" a="0.1"/>
-        </Texture>
-      </Layer>
-    </Layers>
-    <Frames>
-      <Frame name="$parentShine" inherits="AutoCastShineTemplate">
-        <Anchors>
-          <Anchor point="CENTER">
-            <Offset x="1" y="-1"/>
-          </Anchor>
-        </Anchors>
-        <Size>
-          <AbsDimension x="38" y="38"/>
-        </Size>
-      </Frame>
-    </Frames>
-  </Frame>
-
-  <Frame name="BagzenVanillaContainerFrameItemButtonTemplate" virtual="true" inherits="ContainerFrameItemButtonTemplate">
-    <Layers>
-      <Layer level="BACKGROUND">
-        <Texture name="$parentBackground" setAllPoints="true">
-          <Color r="0.05" g="0.05" b="0.05" a="0.5"/>
-        </Texture>
-      </Layer>
-    </Layers>
-    <Frames>
-      <!-- Sized by anchors reaching 6px past the button on every side, no
-           scale: SetScale is inert on a Model on Unreal Azeroth. Outset value
-           from the ElvUI vanilla port's spell book autocast skin. -->
-      <Model name="$parentAutoCast" file="Interface\Buttons\UI-AutoCastButton.mdx" hidden="true">
-        <Anchors>
-          <Anchor point="TOPLEFT">
-            <Offset>
-              <AbsDimension x="-6" y="6"/>
-            </Offset>
-          </Anchor>
-          <Anchor point="BOTTOMRIGHT">
-            <Offset>
-              <AbsDimension x="6" y="-6"/>
-            </Offset>
-          </Anchor>
-        </Anchors>
-        <Scripts>
-          <OnLoad>
-            this:SetSequence(0)
-            this:SetSequenceTime(0, 0)
-          </OnLoad>
-        </Scripts>
-      </Model>
-    </Frames>
-  </Frame>
-
   <Frame name="BagzenContainerTemplate" virtual="true">
     <Layers>
       <Layer level="BACKGROUND">

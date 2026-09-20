@@ -409,10 +409,13 @@ function Bagzen:OnInitialize()
     -- Bagzen:SecureHook("ToggleBag", BagzenToggleBag)
     -- Bagzen:SecureHook("CloseBag", BagzenCloseBag)
 
-    -- remove bagframes
+    -- Park every stock container window: Bagzen shows one window of its own,
+    -- and each of these lends the item buttons of one bag to it. Their count
+    -- differs per client (12 on vanilla, 13 on wrath), and the ones past the
+    -- bag frame's six are the bank's.
     local hidden = CreateFrame("Frame")
     hidden:Hide()
-    for i = 1, 6 do
+    for i = 1, (NUM_CONTAINER_FRAMES or 12) do
         local f = _G["ContainerFrame" .. i]
         if f then
             f:SetParent(hidden)

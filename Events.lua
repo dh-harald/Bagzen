@@ -61,7 +61,7 @@ function Bagzen:BAG_UPDATE()
     end
 
     for _, bag in pairs(parent.Bags) do
-        local frame = _G[parent:GetName() .. "BagSlotsFrame" .. Bagzen:FixBagNumber(bag)]
+        local frame = Bagzen:GetBagSlot(parent, bag)
         local numslots
         if bag == KEYRING_CONTAINER then
             numslots = GetKeyRingSize() or 0
@@ -130,7 +130,7 @@ function Bagzen:ITEM_LOCK_CHANGED()
         local frame
         if Bagzen.ContainerFrames["Live"][section][arg1] ~= nil then
             if container then
-                frame = _G[parent .. "BagSlotsFrame" .. arg1]
+                frame = Bagzen:GetBagSlot(_G[parent], arg1)
             else
                 frame = Bagzen.ContainerFrames["Live"][section][arg1][arg2]
             end
@@ -157,7 +157,10 @@ function Bagzen:ITEM_LOCK_CHANGED()
                     -- bag
                     if bag ~= KEYRING_CONTAINER then
                         local locked = IsInventoryItemLocked(ContainerIDToInventoryID(bag))
-                        _G[parent .. "BagSlotsFrame" .. Bagzen:FixBagNumber(bag) .. "IconTexture"]:SetDesaturated(locked or false)
+                        local bagslot = Bagzen:GetBagSlot(_G[parent], bag)
+                        if bagslot then
+                            _G[bagslot:GetName() .. "IconTexture"]:SetDesaturated(locked or false)
+                        end
                     end
                     -- items
                     for slot, frame in pairs(data) do
