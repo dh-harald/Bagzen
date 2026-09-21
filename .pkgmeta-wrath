@@ -36,4 +36,3 @@ externals:
 ignore:
   - release.config.js
   - media
-  - Selldata.lua

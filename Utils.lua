@@ -1,5 +1,10 @@
 Bagzen.ItemCache = {}
 
+-- Vanilla's GetItemInfo returns no sell price, so the vendor value comes from
+-- this shared library, which only the vanilla build loads. Shared with ElvUI
+-- through LibStub, so whichever addon loads first carries the data for both.
+local ItemPrice = LibStub("ItemPrice-1.1", true)
+
 function Bagzen:UnsignedToSigned(num)
     if num > 32768 then
         num = num - 65536
@@ -77,7 +82,7 @@ function Bagzen:GetItemInfo(arg)
     else
         local itemName, itemLink, itemRarity, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture = GetItemInfo(itemID)
         if itemName ~= nil and itemLink ~= nil and itemTexture ~= nil then
-            local itemSellPrice = Bagzen.sellData[itemID]
+            local itemSellPrice = ItemPrice and ItemPrice:GetPriceById(itemID)
             Bagzen.ItemCache[itemID] = {
                 itemName = itemName,
                 itemLink = itemLink,

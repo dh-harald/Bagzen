@@ -18,6 +18,7 @@ externals:
   lib/LibConfig-1.0: https://github.com/dh-harald/Ace3v/LibConfig-1.0
   lib/LibDBIcon-1.0: https://github.com/dh-harald/Ace3v/LibDBIcon-1.0
   lib/LibDataBroker-1.1: https://github.com/dh-harald/Ace3v/LibDataBroker-1.1
+  lib/LibItemPrice-1.1: https://github.com/dh-harald/Ace3v/LibItemPrice-1.1
 
 ignore:
   - release.config.js
