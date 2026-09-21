@@ -1,3 +1,11 @@
+# [0.12.0](https://github.com/dh-harald/Bagzen/compare/v0.11.1...v0.12.0) (2026-09-21)
+
+
+### Features
+
+* **refactor:** show live frames with the client's own buttons ([ff79545](https://github.com/dh-harald/Bagzen/commit/ff79545ea5bbe93fde242511d81105e3a117e736))
+* Using LibItemPrice-1.1 instead of own selldata database ([e006b66](https://github.com/dh-harald/Bagzen/commit/e006b6610de470a60c45bf7507ddc86d0d0993e1))
+
 ## [0.11.1](https://github.com/dh-harald/Bagzen/compare/v0.11.0...v0.11.1) (2026-09-17)
 
 
