@@ -10,6 +10,7 @@ lib\LibStub\LibStub.lua
 lib\CallbackHandler-1.0\CallbackHandler-1.0.xml
 #@version-vanilla@
 lib\Ace3\AceCore-3.0\AceCore-3.0.xml
+lib\Ace3\AceConfigRegistry-3.0\AceConfigRegistry-3.0.xml
 lib\LibConfig-1.0\LibConfig-1.0.xml
 lib\LibModifierState-1.0\LibModifierState-1.0.xml
 lib\LibItemPrice-1.1\LibItemPrice-1.1.xml
