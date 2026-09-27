@@ -428,6 +428,10 @@ local function SkinLiveSlot(slotframe, section, bag)
         fontString:SetTextColor(1, 1, 1)
         fontString:SetText("")
         cooldownframe.timeText = fontString
+        -- This slot draws its own countdown: opt out of other addons'
+        -- cooldown text (noOCC: ElvUI, noCooldownCount: OmniCC)
+        cooldownframe.noOCC = true
+        cooldownframe.noCooldownCount = true
     end
     slotframe.cooldown = cooldownframe
 
