@@ -1,3 +1,11 @@
+## [0.12.1](https://github.com/dh-harald/Bagzen/compare/v0.12.0...v0.12.1) (2026-09-28)
+
+
+### Bug Fixes
+
+* GCD could be a little bit more than 1.5s ([ad81063](https://github.com/dh-harald/Bagzen/commit/ad81063c94b00f60070355398e33770bb2d38d09))
+* opt out cooldown counts for ElvUI/OmniCC ([7fa47f7](https://github.com/dh-harald/Bagzen/commit/7fa47f730adbf63fd3209f42d53f2a2dca58084c))
+
 # [0.12.0](https://github.com/dh-harald/Bagzen/compare/v0.11.1...v0.12.0) (2026-09-21)
 
 
