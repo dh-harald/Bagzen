@@ -127,6 +127,12 @@ local function FitFontToFrame(fontString, frame)
     end
 end
 
+-- The longest cooldown taken to be the global cooldown, which gets no
+-- cooldown text. A client can report the 1.5 second GCD as a
+-- single-precision float (1.5000001192093), past a limit of exactly 1.5;
+-- 1.9 matches ElvUI's cooldown text.
+local GCD_MAX = 1.9
+
 -- https://github.com/Stanzilla/WoWUIBugs/issues/47#issuecomment-710698976
 local function GetCooldownLeft(start, duration)
     -- Before restarting the GetTime() will always be greater than [start]
@@ -171,7 +177,7 @@ function Bagzen:CooldownFrameOnUpdate(frame, elapsed)
     local enable = frame._cooldownEnable or 0
     local remaining = 0
 
-    if enable and enable ~= 0 and start and duration and duration > 1.5 then
+    if enable and enable ~= 0 and start and duration and duration > GCD_MAX then
         remaining = GetCooldownLeft(start, duration)
         local tmp = remaining - math.floor(remaining)
         if tmp < 0.001  and tmp >= 0 then
