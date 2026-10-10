@@ -1,3 +1,11 @@
+## [0.12.2](https://github.com/dh-harald/Bagzen/compare/v0.12.1...v0.12.2) (2026-10-10)
+
+
+### Bug Fixes
+
+* add herb and enchanting bag type (for sorting) ([878eae9](https://github.com/dh-harald/Bagzen/commit/878eae9dce3b2e4f33649695fc8f303803df27c5))
+* bank sorting (nil) and workaround for UA ([b10dbdf](https://github.com/dh-harald/Bagzen/commit/b10dbdf63f446347c61c756cc49062bbc88e0ce4))
+
 ## [0.12.1](https://github.com/dh-harald/Bagzen/compare/v0.12.0...v0.12.1) (2026-09-28)
 
 
