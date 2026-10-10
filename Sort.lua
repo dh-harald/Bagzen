@@ -263,15 +263,21 @@ local function SpecialBagsAndScrap(frame, bagdata)
     -- 2. sort remaining scraps
     scrapItemsByFamily[0] = sortTable(scrapItemsByFamily[0])
 
+    -- Items no general slot is left for: possible when a special bag holds
+    -- items of no family (one missing from the family lists, or a bag of
+    -- unknown type). They are placed last, see step 7.
+    local overflow = {}
+    local generalSlots = slotsByFamily[0] or {}
+
     -- 3. insert scraps to normal bags
-    for family, items in pairs(scrapItemsByFamily) do
-        if family == 0 then
-            local slotLen = TableLength(slotsByFamily[family])
-            local scrapLen = TableLength(items)
-            for i, item in pairs(items) do
-                local index = slotLen - scrapLen + i
-                newbagdata[slotsByFamily[family][index]] = item
-            end
+    local slotLen = TableLength(generalSlots)
+    local scrapLen = TableLength(scrapItemsByFamily[0])
+    for i, item in pairs(scrapItemsByFamily[0]) do
+        local index = slotLen - scrapLen + i
+        if index <= 0 then
+            table.insert(overflow, item)
+        else
+            newbagdata[generalSlots[index]] = item
         end
     end
 
@@ -296,19 +302,44 @@ local function SpecialBagsAndScrap(frame, bagdata)
     -- 5. sort normal items
     normalItemsByFamily[0] = sortTable(normalItemsByFamily[0])
 
-    -- 6 move normal items in their place
-    for family, items in pairs(normalItemsByFamily) do
-        if family == 0 then
-            index = 1
-            for _, item in pairs(items) do
-                if newbagdata[slotsByFamily[family][index]] == nil then
-                    -- slot is empty, no scrap there
-                    newbagdata[slotsByFamily[family][index]] = item
-                else
-                    table.insert(normalItemsByFamily[0], item)
+    -- 6. move normal items in their place; an item that meets a slot already
+    -- taken by a scrap is retried on the next slot
+    local items = normalItemsByFamily[0]
+    local index = 1
+    local i = 1
+    while items[i] ~= nil do
+        local item = items[i]
+        local target = generalSlots[index]
+        if target == nil then
+            table.insert(overflow, item)
+        elseif newbagdata[target] == nil then
+            newbagdata[target] = item
+        else
+            table.insert(items, item)
+        end
+        index = index + 1
+        i = i + 1
+    end
+
+    -- 7. overflow keeps its current slot, where the client has accepted it,
+    -- unless the plan gave that slot to another item; then the first free one
+    local total = 0
+    for _, bagInfo in pairs(frame.Bags) do
+        total = total + bagInfo.slots
+    end
+    for _, item in pairs(overflow) do
+        local target = BagSlotToIndex(frame.Bags, item.bag, item.slot)
+        if target == nil or newbagdata[target] ~= nil then
+            target = nil
+            for k = 1, total do
+                if newbagdata[k] == nil then
+                    target = k
+                    break
                 end
-                index = index + 1
             end
+        end
+        if target ~= nil then
+            newbagdata[target] = item
         end
     end
 
@@ -356,7 +387,17 @@ function Bagzen:MoveContainerItem(srcBag, srcSlot, dstBag, dstSlot)
     local _, _, dstLocked = GetContainerItemInfo(dstBag, dstSlot)
     if not srcLocked and not dstLocked then
         PickupContainerItem(srcBag, srcSlot)
-        PickupContainerItem(dstBag, dstSlot)
+        if Bagzen.IsUA and dstBag == -1 and srcBag >= 5 then
+            -- Unreal Azeroth silently ignores a PickupContainerItem(-1, slot)
+            -- drop onto the main bank panel when the item comes from a bank
+            -- bag; only the inventory route lands there. From the panel
+            -- itself or from a carried bag the container drop works, and
+            -- within the panel the inventory drop fails with "The item was
+            -- not found."
+            PickupInventoryItem(BankButtonIDToInvSlotID(dstSlot))
+        else
+            PickupContainerItem(dstBag, dstSlot)
+        end
         ClearCursor()
         ret = true
     end
