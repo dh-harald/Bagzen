@@ -101,6 +101,97 @@ function Bagzen:GetItemInfo(arg)
     return nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil
 end
 
+-- Vanilla has no GetItemFamily, and an item's bag family is not exposed by
+-- GetItemInfo, so the items a profession bag accepts are listed by id. The
+-- family values are the wrath client's ItemFamily bits. An item missing from
+-- these lists is never placed into such a bag by the sorter, so the lists
+-- only need to be correct, not complete.
+local herbItems = {
+    [765] = true,   -- Silverleaf
+    [785] = true,   -- Mageroyal
+    [2447] = true,  -- Peacebloom
+    [2449] = true,  -- Earthroot
+    [2450] = true,  -- Briarthorn
+    [2452] = true,  -- Swiftthistle
+    [2453] = true,  -- Bruiseweed
+    [3355] = true,  -- Wild Steelbloom
+    [3356] = true,  -- Kingsblood
+    [3357] = true,  -- Liferoot
+    [3358] = true,  -- Khadgar's Whisker
+    [3369] = true,  -- Grave Moss
+    [3818] = true,  -- Fadeleaf
+    [3819] = true,  -- Wintersbite
+    [3820] = true,  -- Stranglekelp
+    [3821] = true,  -- Goldthorn
+    [4625] = true,  -- Firebloom
+    [8153] = true,  -- Wildvine
+    [8831] = true,  -- Purple Lotus
+    [8836] = true,  -- Arthas' Tears
+    [8838] = true,  -- Sungrass
+    [8839] = true,  -- Blindweed
+    [8845] = true,  -- Ghost Mushroom
+    [8846] = true,  -- Gromsblood
+    [13463] = true, -- Dreamfoil
+    [13464] = true, -- Golden Sansam
+    [13465] = true, -- Mountain Silversage
+    [13466] = true, -- Plaguebloom
+    [13467] = true, -- Icecap
+    [13468] = true, -- Black Lotus
+    [19726] = true, -- Bloodvine
+}
+
+local enchantingItems = {
+    -- dusts
+    [10940] = true, -- Strange Dust
+    [11083] = true, -- Soul Dust
+    [11137] = true, -- Vision Dust
+    [11176] = true, -- Dream Dust
+    [16204] = true, -- Illusion Dust
+    -- essences
+    [10938] = true, -- Lesser Magic Essence
+    [10939] = true, -- Greater Magic Essence
+    [10998] = true, -- Lesser Astral Essence
+    [11082] = true, -- Greater Astral Essence
+    [11134] = true, -- Lesser Mystic Essence
+    [11135] = true, -- Greater Mystic Essence
+    [11174] = true, -- Lesser Nether Essence
+    [11175] = true, -- Greater Nether Essence
+    [16202] = true, -- Lesser Eternal Essence
+    [16203] = true, -- Greater Eternal Essence
+    -- shards and crystals
+    [10978] = true, -- Small Glimmering Shard
+    [11084] = true, -- Large Glimmering Shard
+    [11138] = true, -- Small Glowing Shard
+    [11139] = true, -- Large Glowing Shard
+    [11177] = true, -- Small Radiant Shard
+    [11178] = true, -- Large Radiant Shard
+    [14343] = true, -- Small Brilliant Shard
+    [14344] = true, -- Large Brilliant Shard
+    [20725] = true, -- Nexus Crystal
+    -- rods
+    [6217] = true,  -- Copper Rod
+    [6218] = true,  -- Runed Copper Rod
+    [6338] = true,  -- Silver Rod
+    [6339] = true,  -- Runed Silver Rod
+    [11128] = true, -- Golden Rod
+    [11130] = true, -- Runed Golden Rod
+    [11144] = true, -- Truesilver Rod
+    [11145] = true, -- Runed Truesilver Rod
+    [16206] = true, -- Arcanite Rod
+    [16207] = true, -- Runed Arcanite Rod
+}
+
+-- Container subtypes of the 1.12.1 client (enUS) that only accept one family.
+local specialBagSubtypes = {
+    ["soul bag"] = 4,
+    ["herb bag"] = 32,
+    ["enchanting bag"] = 64,
+}
+
+-- Family of a container whose subtype is neither a plain bag nor listed
+-- above: no item maps to it, so the sorter leaves nothing in it.
+local FAMILY_UNKNOWN_BAG = 65536
+
 function Bagzen:GetItemFamily(itemID)
     -- https://www.wowhead.com/classic/guide/classic-keyring-dungeon-keys-guide
     local keys = {
@@ -134,8 +225,15 @@ function Bagzen:GetItemFamily(itemID)
         elseif itemSubType == "bullet" or itemSubType == "ammo pouch" then
             return 2 -- bullet / ammo pouch
         end
-    elseif itemSubType == "soul bag" or itemID == 6265 then
-        return 4 -- soul bag
+    elseif itemType == "container" then
+        if itemSubType == "bag" then return nil end
+        return specialBagSubtypes[itemSubType] or FAMILY_UNKNOWN_BAG
+    elseif itemID == 6265 then
+        return 4 -- soul shard
+    elseif herbItems[itemID] then
+        return 32
+    elseif enchantingItems[itemID] then
+        return 64
     elseif keys[itemID] then
         return 256 -- keyring
     end
