@@ -19,6 +19,6 @@ jobs:
           token: ${{ secrets.SR_PAT }}
       - uses: cycjimmy/semantic-release-action@v8.0.1
         with:
-          semantic_version: 24.2.6
+          semantic_version: 24.2.9
         env:
           GITHUB_TOKEN: ${{ secrets.SR_PAT }}
