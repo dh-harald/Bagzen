@@ -1,3 +1,10 @@
+## [0.12.3](https://github.com/dh-harald/Bagzen/compare/v0.12.2...v0.12.3) (2026-10-15)
+
+
+### Bug Fixes
+
+* remove tooltip workaround on UA ([570ae8d](https://github.com/dh-harald/Bagzen/commit/570ae8df254fe4f130ca4035f6813b1878c2f84f))
+
 ## [0.12.2](https://github.com/dh-harald/Bagzen/compare/v0.12.1...v0.12.2) (2026-10-10)
 
 
