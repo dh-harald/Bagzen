@@ -93,8 +93,8 @@ function Bagzen:ContainerItemOnEnter(frame)
         GameTooltip:ClearLines()
         GameTooltip:SetHyperlink("item:" .. Bagzen:LinkToItemID(frame.ItemLink) .. ":0:0:0")
         GameTooltip:Show()
-        if Bagzen.IsUA then
-            -- GameTooltip setters cannot be wrapped on UA
+        if not Bagzen.IsWOTLK then
+            -- the SetHyperlink wrapper skips a tooltip that is not shown yet
             Bagzen:TooltipAddCounts(GameTooltip, Bagzen:LinkToItemID(frame.ItemLink))
         end
     end
@@ -561,9 +561,6 @@ local function BorrowBankPanelSlot(frame, slot)
     slotframe:SetAlpha(1)
     slotframe.Borrowed = true
     SkinLiveSlot(slotframe, frame.SettingSection, -1)
-    if Bagzen.IsUA then
-        Bagzen:TooltipHookBankButton(slotframe)
-    end
     return slotframe
 end
 

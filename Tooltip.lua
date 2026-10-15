@@ -8,13 +8,11 @@
 --     turns visible, while a bag button re-runs its OnEnter (and so
 --     SetBagItem, which clears the tooltip) every frame it is hovered
 --     (ContainerFrameItemButton_OnUpdate).
---   * Unreal Azeroth: replacing GameTooltip's methods does not take effect,
---     the replaced setters are never called. The item is resolved from the
---     hovered surface instead, one hook per surface: post-hooks on FrameXML
---     hover globals, chained OnEnter scripts on inline-XML buttons (the
---     load-on-demand trade skill, craft and auction UIs once they load), and
---     direct calls from Bagzen's own buttons (UnrealUI itemprice "Hover path"
---     approach). Action buttons are not covered: no API returns their item.
+--     Unreal Azeroth takes the vanilla path: it calls a replaced GameTooltip
+--     setter method through Lua as well.
+-- Bagzen's own SetHyperlink buttons add the lines once more after their
+-- explicit Show(), since the wrapper skips a tooltip that is not shown yet;
+-- TooltipAddCounts never adds the same lines twice.
 
 local _G = _G or getfenv()
 
@@ -43,8 +41,14 @@ local ITEM_SETTERS = {
         if not container or not slot then return end
         return Bagzen:LinkToItemID(GetContainerItemLink(container, slot))
     end },
+    -- Main bank slots arrive as inventory ids 40-63 (BankButtonIDToInvSlotID);
+    -- UA's GetInventoryItemLink returns links for equipment slots only, so
+    -- those are read through the bank container.
     SetInventoryItem = { arity = 2, resolve = function(unit, slot)
         if not unit or not slot then return end
+        if slot > 39 and slot <= 39 + (NUM_BANKGENERIC_SLOTS or 24) then
+            return Bagzen:LinkToItemID(GetContainerItemLink(BANK_CONTAINER or -1, slot - 39))
+        end
         return Bagzen:LinkToItemID(GetInventoryItemLink(unit, slot))
     end },
     SetInboxItem = { arity = 2, resolve = function(index, attachment)
@@ -112,12 +116,16 @@ local function CallSetter(original, self, arity, a1, a2)
 end
 
 -- The item id is stored before the native call: on wrath the child OnShow
--- fires synchronously inside the setter and reads it.
+-- fires synchronously inside the setter and reads it. The setters are called
+-- from inline XML OnEnter handlers that keep reading the `this` global; on UA
+-- a script fired by the added lines (Show() -> OnShow) leaves `this` on that
+-- inner frame, so it is put back.
 local function WrapSetter(name, setter)
     local original = GameTooltip[name]
     if type(original) ~= "function" then return end
 
     GameTooltip[name] = function(self, a1, a2)
+        local caller = this
         local ok, itemID = pcall(setter.resolve, a1, a2)
         if not ok then
             itemID = nil
@@ -127,6 +135,7 @@ local function WrapSetter(name, setter)
         if itemID and not Bagzen.IsWOTLK then
             Bagzen:TooltipAddCounts(self, itemID)
         end
+        this = caller
         return r1, r2, r3
     end
 end
@@ -177,181 +186,8 @@ function Bagzen:PostHookScript(frame, script, handler)
     PostHookScript(frame, script, handler)
 end
 
--- Stock bag buttons (ContainerFrameItemButtonTemplate), Bagzen's live bag and
--- bank-bag slots included. `button` is nil when the per-frame OnUpdate calls
--- the global; the global itself then falls back to `this`.
-function Bagzen:TooltipContainerItemEnter(button)
-    if not button then return end
-    local bag = button:GetParent():GetID()
-    local slot = button:GetID()
-    local link
-    if bag == KEYRING_CONTAINER then
-        link = GetInventoryItemLink("player", KeyRingButtonIDToInvSlotID(slot))
-    else
-        link = GetContainerItemLink(bag, slot)
-    end
-    Bagzen:TooltipAddCounts(GameTooltip, Bagzen:LinkToItemID(link))
-end
-
--- Main bank slots (BankItemButtonGenericTemplate): the OnEnter is inline XML
--- calling SetInventoryItem, so there is no global to hook. Called on UA for
--- each slot button Bagzen creates.
-function Bagzen:TooltipHookBankButton(button)
-    PostHookScript(button, "OnEnter", function(frame)
-        Bagzen:TooltipAddCounts(GameTooltip, Bagzen:LinkToItemID(GetContainerItemLink(BANK_CONTAINER or -1, frame:GetID())))
-    end)
-end
-
--- Resolves the item with the arguments the native OnEnter passes to `setter`.
-local function AddCountsFor(setter, a1, a2)
-    local ok, itemID = pcall(ITEM_SETTERS[setter].resolve, a1, a2)
-    if ok then
-        Bagzen:TooltipAddCounts(GameTooltip, itemID)
-    end
-end
-
-local function HookButton(name, handler)
-    local button = _G[name]
-    if button then
-        PostHookScript(button, "OnEnter", handler)
-    end
-end
-
--- Button fields read below (`type`, `rewardType`, `hasItem`, `index`,
--- `rollID`) are set on the button by FrameXML; each condition mirrors the
--- native OnEnter, so lines are only added where it filled an item.
-local function HookFrameXMLSurfaces()
-    PostHookGlobal("ContainerFrameItemButton_OnEnter", function(caller, button)
-        Bagzen:TooltipContainerItemEnter(button or caller)
-    end)
-    PostHookGlobal("PaperDollItemSlotButton_OnEnter", function(caller)
-        AddCountsFor("SetInventoryItem", "player", caller:GetID())
-    end)
-
-    -- the same buttons list buyback items while the buyback tab is selected
-    for i = 1, 12 do
-        HookButton("MerchantItem" .. i .. "ItemButton", function(frame)
-            if MerchantFrame.selectedTab == 1 then
-                AddCountsFor("SetMerchantItem", frame:GetID())
-            else
-                AddCountsFor("SetBuybackItem", frame:GetID())
-            end
-        end)
-    end
-    HookButton("MerchantBuyBackItemItemButton", function()
-        AddCountsFor("SetBuybackItem", GetNumBuybackItems())
-    end)
-
-    local lootButtons = LOOTFRAME_NUMBUTTONS or 4
-    for i = 1, lootButtons do
-        HookButton("LootButton" .. i, function(frame)
-            local slot = (lootButtons - 1) * (LootFrame.page - 1) + frame:GetID()
-            if LootSlotIsItem(slot) then
-                AddCountsFor("SetLootItem", slot)
-            end
-        end)
-    end
-    for i = 1, 4 do
-        HookButton("GroupLootFrame" .. i .. "IconFrame", function(frame)
-            AddCountsFor("SetLootRollItem", frame:GetParent().rollID)
-        end)
-    end
-
-    local function QuestItemEnter(frame)
-        if frame.rewardType == "item" then
-            AddCountsFor("SetQuestItem", frame.type, frame:GetID())
-        end
-    end
-    for i = 1, 10 do
-        HookButton("QuestDetailItem" .. i, QuestItemEnter)
-        HookButton("QuestRewardItem" .. i, QuestItemEnter)
-        HookButton("QuestLogItem" .. i, function(frame)
-            if frame.rewardType == "item" then
-                AddCountsFor("SetQuestLogItem", frame.type, frame:GetID())
-            end
-        end)
-    end
-    for i = 1, 6 do
-        HookButton("QuestProgressItem" .. i, QuestItemEnter)
-    end
-
-    -- the trade slot index is the id of the button's parent frame
-    for i = 1, 7 do
-        local id = i
-        HookButton("TradePlayerItem" .. i .. "ItemButton", function()
-            AddCountsFor("SetTradePlayerItem", id)
-        end)
-        HookButton("TradeRecipientItem" .. i .. "ItemButton", function()
-            AddCountsFor("SetTradeTargetItem", id)
-        end)
-    end
-
-    PostHookGlobal("InboxFrameItem_OnEnter", function(caller)
-        if caller.hasItem then
-            AddCountsFor("SetInboxItem", caller.index)
-        end
-    end)
-    PostHookGlobal("OpenMailPackage_OnEnter", function()
-        AddCountsFor("SetInboxItem", InboxFrame.openMailID)
-    end)
-end
-
--- Surfaces of load-on-demand Blizzard addons, hooked once `global` exists.
-local LOAD_ON_DEMAND_SURFACES = {
-    { global = "TradeSkillFrame", hook = function()
-        HookButton("TradeSkillSkillIcon", function()
-            local index = GetTradeSkillSelectionIndex()
-            if index and index ~= 0 then
-                AddCountsFor("SetTradeSkillItem", index)
-            end
-        end)
-        for i = 1, 8 do
-            HookButton("TradeSkillReagent" .. i, function(frame)
-                AddCountsFor("SetTradeSkillItem", GetTradeSkillSelectionIndex(), frame:GetID())
-            end)
-        end
-    end },
-    -- the craft window's own icon shows the craft spell, not an item
-    { global = "CraftFrame", hook = function()
-        for i = 1, 8 do
-            HookButton("CraftReagent" .. i, function(frame)
-                AddCountsFor("SetCraftItem", GetCraftSelectionIndex(), frame:GetID())
-            end)
-        end
-    end },
-    { global = "AuctionFrameItem_OnEnter", hook = function()
-        PostHookGlobal("AuctionFrameItem_OnEnter", function(caller, atype, index)
-            AddCountsFor("SetAuctionItem", atype, index)
-        end)
-        HookButton("AuctionsItemButton", function()
-            if GetAuctionSellItemInfo() then
-                AddCountsFor("SetAuctionSellItem")
-            end
-        end)
-    end },
-}
-
-local function HookLoadOnDemandSurfaces()
-    for _, surface in ipairs(LOAD_ON_DEMAND_SURFACES) do
-        if not surface.done and _G[surface.global] then
-            surface.done = true
-            surface.hook()
-        end
-    end
-end
-
-if Bagzen.IsUA then
-    HookFrameXMLSurfaces()
-    HookLoadOnDemandSurfaces()
-    -- stays registered: UnregisterEvent is a no-op on UA, and the handler
-    -- does nothing once every surface is hooked
-    local loader = CreateFrame("Frame")
-    loader:RegisterEvent("ADDON_LOADED")
-    loader:SetScript("OnEvent", HookLoadOnDemandSurfaces)
-else
-    for name, setter in pairs(ITEM_SETTERS) do
-        WrapSetter(name, setter)
-    end
+for name, setter in pairs(ITEM_SETTERS) do
+    WrapSetter(name, setter)
 end
 
 -- Count lines for `itemID`: a spacer, one row per character holding the item,

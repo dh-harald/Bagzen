@@ -450,8 +450,8 @@ function Bagzen:BagSlotItemOnEnter(frame)
 
     if shown then
         GameTooltip:Show()
-        if Bagzen.IsUA and bag > 0 and frame.ItemLink then
-            -- GameTooltip setters cannot be wrapped on UA
+        if not Bagzen.IsWOTLK and bag > 0 and frame.ItemLink then
+            -- the SetHyperlink wrapper skips a tooltip that is not shown yet
             Bagzen:TooltipAddCounts(GameTooltip, Bagzen:LinkToItemID(frame.ItemLink))
         end
         Bagzen:HighlightSlots(parent, bag)
